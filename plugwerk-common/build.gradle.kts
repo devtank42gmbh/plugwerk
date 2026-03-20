@@ -8,6 +8,7 @@ kotlin {
 
 dependencies {
     api(libs.pf4j)
+    api(libs.semver4j)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
