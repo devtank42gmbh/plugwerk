@@ -1,0 +1,27 @@
+plugwerk:
+  id: "acme-pdf-export"
+  version: "1.2.0"
+  name: "PDF Export Plugin"
+  description: "Exports reports as PDF with configurable templates."
+  author: "ACME GmbH"
+  license: "Apache-2.0"
+  requires:
+    system-version: ">=2.0.0 <4.0.0"
+    api-level: 3
+    plugins:
+      - id: "acme-template-engine"
+        version: ">=1.0.0"
+  namespace: "acme-crm"
+  categories:
+    - "export"
+    - "reporting"
+  tags:
+    - "pdf"
+    - "report"
+    - "template"
+  icon: "icon.png"
+  screenshots:
+    - "screenshot-config.png"
+    - "screenshot-output.png"
+  homepage: "https://plugins.acme.com/pdf-export"
+  repository: "https://github.com/acme/pdf-export-plugin"

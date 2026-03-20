@@ -3,7 +3,18 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(21)
+}
+
+tasks.compileKotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+    }
+}
+
+tasks.compileJava {
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
 }
 
 dependencies {
@@ -17,6 +28,7 @@ dependencies {
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
 }
