@@ -1,9 +1,3 @@
-# Java
-*.class
-*.jar
-*.war
-*.ear
-
 # Gradle
 .gradle/
 build/
@@ -15,11 +9,25 @@ build/
 *.ipr
 *.iws
 .vscode/
-.settings/
-.project
-.classpath
-*.swp
-*~
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Kotlin / Java
+*.class
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
 # OS
 .DS_Store
@@ -27,15 +35,10 @@ Thumbs.db
 
 # Environment
 .env
-.env.*
-!.env.example
+.env.local
+*.local
 
-# Logs
-*.log
-
-# Node (Web UI)
-node_modules/
-dist/
-
-# Docker
+# Docker override (local dev customizations)
 docker-compose.override.yml
+
+.claude
