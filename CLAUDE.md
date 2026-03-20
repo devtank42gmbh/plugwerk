@@ -33,14 +33,14 @@ All endpoints: `/api/v1/namespaces/{ns}/...`
 
 ### Client SDK Core Classes
 
-```java
-PlugWerkConfig           // Builder pattern or properties file
-PlugWerkClient           // Configurable HTTP client
-PlugWerkCatalog          // Catalog queries
-PlugWerkInstaller        // Download + SHA-256 verification + transactional install
-PlugWerkUpdateChecker    // Update polling
-PlugWerkUpdateRepository // Implements pf4j-update UpdateRepository (drop-in replacement)
-PlugWerkPluginManager    // Optional: wraps DefaultPluginManager + PlugWerk features
+```kotlin
+PlugwerkConfig           // Builder pattern or properties file
+PlugwerkClient           // OkHttp-based HTTP client
+PlugwerkCatalog          // Catalog queries (ExtensionPoint)
+PlugwerkInstaller        // Download + SHA-256 verification + transactional install (ExtensionPoint)
+PlugwerkUpdateChecker    // Update polling (ExtensionPoint)
+PlugwerkMarketplace      // Facade combining all three (ExtensionPoint)
+PlugwerkUpdateRepository // Implements pf4j-update UpdateRepository (drop-in replacement)
 ```
 
 ### Plugin Descriptor (`plugwerk.yml`)
@@ -53,6 +53,15 @@ Embedded in plugin artifacts. Extends the PF4J manifest (`MANIFEST.MF` / `plugin
 
 If `plugwerk.yml` is absent, the server falls back to the PF4J manifest.
 
+## Build Commands
+
+```bash
+./gradlew build                    # Build all modules + run tests
+./gradlew build -x test           # Build without tests
+./gradlew :plugwerk-server:plugwerk-server-backend:bootRun --args='--spring.profiles.active=dev'
+docker compose up -d postgres      # Start dev database
+```
+
 ## Implementation Phases
 
 - **Phase 1 (MVP):** REST API + PostgreSQL + filesystem storage + API key auth + minimal Web UI + `plugins.json` endpoint + Client SDK as pf4j-update drop-in
@@ -64,9 +73,8 @@ If `plugwerk.yml` is absent, the server falls back to the PF4J manifest.
 ```
 Docker Compose:
 ├── plugwerk-server  (Spring Boot)
-├── postgres
-├── minio            (optional S3 storage)
-└── nginx            (reverse proxy, TLS)
+├── postgres         (PostgreSQL 18)
+└── nginx            (reverse proxy, TLS – optional)
 ```
 
 Health: `/actuator/health` | Metrics: Prometheus | Logging: structured JSON

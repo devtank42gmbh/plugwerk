@@ -1,19 +1,19 @@
-# PlugWerk
+# Plugwerk
 
 **Plugin Marketplace for the Java/PF4J Ecosystem**
 
-PlugWerk is the missing link between [PF4J](https://github.com/pf4j/pf4j) and a product's plugin ecosystem. It provides centralized infrastructure for distributing, managing, and updating plugins at runtime – comparable to Maven Central for build dependencies, but designed for runtime plugins.
+Plugwerk is the missing link between [PF4J](https://github.com/pf4j/pf4j) and a product's plugin ecosystem. It provides centralized infrastructure for distributing, managing, and updating plugins at runtime – comparable to Maven Central for build dependencies, but designed for runtime plugins.
 
 ## Overview
 
-PlugWerk consists of two artifacts:
+Plugwerk consists of two artifacts:
 
-- **PlugWerk Server** – A Spring Boot web application serving as a central plugin marketplace: catalog, upload, versioning, download, and REST API.
-- **PlugWerk Client SDK** – A pure Java 11+ library that can be embedded into any Java application: plugin discovery, download, installation, update checking, and PF4J lifecycle integration.
+- **Plugwerk Server** – A Spring Boot web application serving as a central plugin marketplace: catalog, upload, versioning, download, and REST API.
+- **Plugwerk Client SDK** – A Kotlin library (Java 11+ compatible) deployed as a PF4J plugin with isolated classloader: plugin discovery, download, installation, update checking, and PF4J lifecycle integration.
 
 ## Status
 
-> This project is currently in the **concept and planning phase**. See [`docs/concepts/`](docs/concepts/) for the full product concept.
+> **Phase 1 (MVP) is in active development.** The Gradle multi-module project is scaffolded and building. See [Issue #7](https://github.com/devtank42gmbh/plugwerk/issues/7) for the full task breakdown.
 
 ## Key Features
 
@@ -25,19 +25,64 @@ PlugWerk consists of two artifacts:
 - Multi-namespace support: one server serves multiple products/organizations
 - Self-hosted (Docker Compose / Kubernetes) or SaaS
 
-## Architecture
+## Module Structure
 
 ```
-PlugWerk Server  ←──REST/HTTPS──  PlugWerk Client SDK
-  ├── REST API                       ├── PlugWerkUpdateRepository  (pf4j-update drop-in)
-  ├── Web UI                         ├── PlugWerkInstaller
-  ├── Service Layer                  └── PlugWerkUpdateChecker
-  ├── PostgreSQL
-  ├── S3/Filesystem (artifacts)
-  └── Redis (cache)
+plugwerk/
+├── plugwerk-api/                  # OpenAPI 3.1 spec (API-First) + generated DTOs/interfaces
+├── plugwerk-common/               # Shared ExtensionPoint interfaces, DTOs, constants
+├── plugwerk-descriptor/           # plugwerk.yml parser/validator + PF4J manifest fallback
+├── plugwerk-server/
+│   ├── plugwerk-server-backend/   # Spring Boot 4.x + Kotlin REST API
+│   └── plugwerk-server-frontend/  # React + TypeScript + Material UI + Zustand
+└── plugwerk-client-sdk/           # PF4J plugin with isolated classloader (OkHttp + Jackson)
 ```
 
-**Tech stack:** Spring Boot 3.x / Java 21+ · PostgreSQL · React/TypeScript · Spring Security + OIDC · Gradle multi-module
+## Technology Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Language | Kotlin |
+| Server Backend | Spring Boot 4.x / JVM 21+ |
+| Server API | Spring Web (REST) + OpenAPI 3.1 (API-First) |
+| Database | PostgreSQL 18 + Liquibase |
+| Storage | Filesystem (MVP) / S3-compatible (Phase 2) |
+| Web UI | React / TypeScript / Material UI / Zustand |
+| Auth | API key (MVP) / Spring Security + OIDC (Phase 2) |
+| Client SDK | PF4J plugin / OkHttp / Jackson / JVM 11+ |
+| Build | Gradle 9.x multi-module (Kotlin DSL) |
+| Tests | JUnit 6 + Mockito + Testcontainers |
+
+## Quick Start (Development)
+
+### Prerequisites
+
+- JDK 21+
+- Node.js 20+
+- Docker (for PostgreSQL)
+
+### Run
+
+```bash
+# Start PostgreSQL
+docker compose up -d postgres
+
+# Build all modules
+./gradlew build
+
+# Run the server (dev profile)
+./gradlew :plugwerk-server:plugwerk-server-backend:bootRun --args='--spring.profiles.active=dev'
+```
+
+The server starts at `http://localhost:8080`.
+
+### Docker Compose (full stack)
+
+```bash
+docker compose up
+```
+
+Starts Plugwerk Server + PostgreSQL 18.
 
 ## Documentation
 
@@ -47,7 +92,13 @@ PlugWerk Server  ←──REST/HTTPS──  PlugWerk Client SDK
 
 ## Contributing
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
 - Language: **English** for all code, docs, issues, and reviews
 - Branches: `feature/<issue-id>_<short-description>` – never commit directly to `main`
 - Commits: [Conventional Commits](https://www.conventionalcommits.org/) format
 - Use the issue and PR templates in `.github/`
+
+## License
+
+[AGPL-3.0](LICENSE)

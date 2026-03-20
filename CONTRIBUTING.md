@@ -1,12 +1,12 @@
-# Contributing to PlugWerk
+# Contributing to Plugwerk
 
-Thank you for your interest in contributing to PlugWerk! This project welcomes contributions from both humans and AI coding agents.
+Thank you for your interest in contributing to Plugwerk! This project welcomes contributions from both humans and AI coding agents.
 
 ## Contributor License Agreement (CLA)
 
 **Before your first Pull Request can be merged, you must sign the CLA.**
 
-PlugWerk uses a dual-licensing model: the core is open source, and commercial licenses are offered for organizations that cannot comply with the open-source license. The CLA grants the project the right to sublicense your contributions under both open-source and commercial terms — this is what makes dual licensing legally possible.
+Plugwerk uses a dual-licensing model: the core is open source, and commercial licenses are offered for organizations that cannot comply with the open-source license. The CLA grants the project the right to sublicense your contributions under both open-source and commercial terms — this is what makes dual licensing legally possible.
 
 **How to sign:** Read [CLA.md](./CLA.md) (it's short), then post this comment on your first PR:
 
@@ -20,11 +20,28 @@ Your signature is recorded automatically. You only need to sign once.
 
 ## Getting Started
 
-1. Fork the repository
-2. Clone your fork
-3. Create a feature branch: `git checkout -b feature/42_my-feature`
-4. Make your changes
-5. Push and open a Pull Request
+### Prerequisites
+
+- JDK 21+
+- Node.js 20+
+- Docker (for PostgreSQL via Docker Compose)
+
+### Setup
+
+```bash
+git clone https://github.com/devtank42gmbh/plugwerk.git
+cd plugwerk
+docker compose up -d postgres
+./gradlew build
+```
+
+### Running the Server
+
+```bash
+./gradlew :plugwerk-server:plugwerk-server-backend:bootRun --args='--spring.profiles.active=dev'
+```
+
+The server starts at `http://localhost:8080`.
 
 ## Branch Naming
 
@@ -59,6 +76,7 @@ docs: update architecture decision records
 
 - **Issues must be written in English**
 - Use the provided issue templates for bug reports and feature requests
+- Every issue must have: **Type**, **Milestone**, **Labels**, and **Relationships** (see [ADR-0002](docs/adrs/0002-issue-management-guidelines.md))
 - For larger features, create a feature spec in `docs/features/` and link it from the issue
 
 ## AI Agent Contributors
