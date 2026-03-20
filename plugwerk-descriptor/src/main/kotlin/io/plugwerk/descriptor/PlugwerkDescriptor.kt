@@ -1,9 +1,5 @@
 package io.plugwerk.descriptor
 
-/**
- * Represents a parsed plugwerk.yml descriptor.
- * Full implementation with parser and validator will be added in Milestone 2 (T-2.4).
- */
 data class PlugwerkDescriptor(
     val id: String,
     val version: String,
@@ -17,6 +13,10 @@ data class PlugwerkDescriptor(
     val requiresSystemVersion: String? = null,
     val requiresApiLevel: Int? = null,
     val pluginDependencies: List<PluginDependency> = emptyList(),
+    val icon: String? = null,
+    val screenshots: List<String> = emptyList(),
+    val homepage: String? = null,
+    val repository: String? = null,
 )
 
 data class PluginDependency(val id: String, val version: String)

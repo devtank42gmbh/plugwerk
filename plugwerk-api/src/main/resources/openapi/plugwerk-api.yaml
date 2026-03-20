@@ -11,6 +11,18 @@ servers:
   - url: /api/v1
     description: Base path for all API endpoints
 
+security: []
+
+tags:
+  - name: Catalog
+    description: Plugin catalog queries (public or API-key-protected)
+  - name: Management
+    description: Plugin and release management (authenticated)
+  - name: Updates
+    description: Update checking for client SDK
+  - name: Reviews
+    description: Admin review workflow
+
 paths:
   /namespaces/{ns}/plugins:
     get:
@@ -20,15 +32,339 @@ paths:
       operationId: listPlugins
       parameters:
         - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/SizeQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/TagFilter'
+        - $ref: '#/components/parameters/StatusFilter'
       responses:
         '200':
-          description: Plugin list
+          description: Paginated plugin list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginPagedResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Management
+      summary: Create a new plugin
+      operationId: createPlugin
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginCreateRequest'
+      responses:
+        '201':
+          description: Plugin created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Plugin with this pluginId already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /namespaces/{ns}/plugins/{pluginId}:
+    get:
+      tags:
+        - Catalog
+      summary: Get plugin details
+      operationId: getPlugin
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+      responses:
+        '200':
+          description: Plugin details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Management
+      summary: Update plugin metadata
+      operationId: updatePlugin
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginUpdateRequest'
+      responses:
+        '200':
+          description: Plugin updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/plugins/{pluginId}/releases:
+    get:
+      tags:
+        - Catalog
+      summary: List releases for a plugin
+      operationId: listReleases
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/SizeQuery'
+      responses:
+        '200':
+          description: Paginated release list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleasePagedResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Management
+      summary: Upload a new release
+      operationId: uploadRelease
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReleaseUploadRequest'
+      responses:
+        '201':
+          description: Release created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginReleaseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/plugins/{pluginId}/releases/{version}:
+    get:
+      tags:
+        - Catalog
+      summary: Get a specific release
+      operationId: getRelease
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+        - $ref: '#/components/parameters/VersionPath'
+      responses:
+        '200':
+          description: Release details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginReleaseDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Management
+      summary: Update release status
+      operationId: updateReleaseStatus
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+        - $ref: '#/components/parameters/VersionPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseStatusUpdateRequest'
+      responses:
+        '200':
+          description: Release status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginReleaseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/plugins/{pluginId}/releases/{version}/download:
+    get:
+      tags:
+        - Catalog
+      summary: Download release artifact
+      operationId: downloadRelease
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/PluginIdPath'
+        - $ref: '#/components/parameters/VersionPath'
+      responses:
+        '200':
+          description: Plugin artifact binary
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/plugins.json:
+    get:
+      tags:
+        - Catalog
+      summary: pf4j-update compatible plugin list
+      operationId: getPluginsJson
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      responses:
+        '200':
+          description: pf4j-update compatible JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pf4jPluginsJson'
+
+  /namespaces/{ns}/updates/check:
+    post:
+      tags:
+        - Updates
+      summary: Check for available updates
+      operationId: checkForUpdates
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCheckRequest'
+      responses:
+        '200':
+          description: Available updates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCheckResponse'
+
+  /namespaces/{ns}/reviews/pending:
+    get:
+      tags:
+        - Reviews
+      summary: List pending reviews
+      operationId: listPendingReviews
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      responses:
+        '200':
+          description: Pending review items
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PluginDto'
+                  $ref: '#/components/schemas/ReviewItemDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /namespaces/{ns}/reviews/{releaseId}/approve:
+    post:
+      tags:
+        - Reviews
+      summary: Approve a release
+      operationId: approveRelease
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/ReleaseIdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDecisionRequest'
+      responses:
+        '200':
+          description: Release approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginReleaseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/reviews/{releaseId}/reject:
+    post:
+      tags:
+        - Reviews
+      summary: Reject a release
+      operationId: rejectRelease
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+        - $ref: '#/components/parameters/ReleaseIdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDecisionRequest'
+      responses:
+        '200':
+          description: Release rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginReleaseDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   parameters:
@@ -38,9 +374,118 @@ components:
       required: true
       schema:
         type: string
+        pattern: '^[a-z0-9][a-z0-9-]{0,62}[a-z0-9]$'
+        maxLength: 64
       description: Namespace slug
 
+    PluginIdPath:
+      name: pluginId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9._-]{1,128}$'
+        maxLength: 128
+      description: PF4J Plugin-Id
+
+    VersionPath:
+      name: version
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$'
+      description: SemVer version string
+
+    ReleaseIdPath:
+      name: releaseId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Release UUID
+
+    PageQuery:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      description: Page number (zero-based)
+
+    SizeQuery:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+      description: Page size
+
+    SortQuery:
+      name: sort
+      in: query
+      schema:
+        type: string
+        default: name,asc
+        pattern: '^[a-zA-Z]{1,32},(asc|desc)$'
+        maxLength: 40
+      description: Sort field and direction (e.g. name,asc)
+
+    SearchQuery:
+      name: q
+      in: query
+      schema:
+        type: string
+      description: Full-text search query
+
+    CategoryFilter:
+      name: category
+      in: query
+      schema:
+        type: string
+      description: Filter by category
+
+    TagFilter:
+      name: tag
+      in: query
+      schema:
+        type: string
+      description: Filter by tag
+
+    StatusFilter:
+      name: status
+      in: query
+      schema:
+        type: string
+        enum:
+          - active
+          - suspended
+          - archived
+      description: Filter by plugin status
+
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - status
+        - error
+        - message
+        - timestamp
+
     PluginDto:
       type: object
       properties:
@@ -55,13 +500,404 @@ components:
           type: string
         author:
           type: string
+        license:
+          type: string
+        namespace:
+          type: string
         status:
           type: string
+          enum:
+            - active
+            - suspended
+            - archived
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        latestVersion:
+          type: string
+        downloadCount:
+          type: integer
+          format: int64
+        icon:
+          type: string
+          format: uri
+        homepage:
+          type: string
+          format: uri
+        repository:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
       required:
         - id
         - pluginId
         - name
         - status
+
+    PluginReleaseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pluginId:
+          type: string
+        version:
+          type: string
+        changelog:
+          type: string
+        artifactSha256:
+          type: string
+        artifactSize:
+          type: integer
+          format: int64
+        requiresSystemVersion:
+          type: string
+        requiresApiLevel:
+          type: integer
+          format: int32
+        pluginDependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginDependencyDto'
+        status:
+          type: string
+          enum:
+            - draft
+            - published
+            - deprecated
+            - yanked
+        publishedAt:
+          type: string
+          format: date-time
+        downloadCount:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - pluginId
+        - version
+        - status
+
+    PluginDependencyDto:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+      required:
+        - id
+        - version
+
+    PluginCreateRequest:
+      type: object
+      properties:
+        pluginId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        license:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        icon:
+          type: string
+          format: uri
+        homepage:
+          type: string
+          format: uri
+        repository:
+          type: string
+          format: uri
+      required:
+        - pluginId
+        - name
+
+    PluginUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        license:
+          type: string
+        icon:
+          type: string
+          format: uri
+        homepage:
+          type: string
+          format: uri
+        repository:
+          type: string
+          format: uri
+
+    ReleaseUploadRequest:
+      type: object
+      properties:
+        artifact:
+          type: string
+          format: binary
+        version:
+          type: string
+        changelog:
+          type: string
+        requiresSystemVersion:
+          type: string
+        requiresApiLevel:
+          type: integer
+          format: int32
+        pluginDependencies:
+          type: string
+          description: JSON array of plugin dependencies
+      required:
+        - artifact
+        - version
+
+    ReleaseStatusUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - published
+            - deprecated
+            - yanked
+      required:
+        - status
+
+    UpdateCheckRequest:
+      type: object
+      properties:
+        plugins:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/InstalledPluginInfo'
+      required:
+        - plugins
+
+    InstalledPluginInfo:
+      type: object
+      properties:
+        pluginId:
+          type: string
+        currentVersion:
+          type: string
+      required:
+        - pluginId
+        - currentVersion
+
+    UpdateCheckResponse:
+      type: object
+      properties:
+        updates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginUpdateInfo'
+      required:
+        - updates
+
+    PluginUpdateInfo:
+      type: object
+      properties:
+        pluginId:
+          type: string
+        currentVersion:
+          type: string
+        latestVersion:
+          type: string
+        release:
+          $ref: '#/components/schemas/PluginReleaseDto'
+      required:
+        - pluginId
+        - currentVersion
+        - latestVersion
+        - release
+
+    Pf4jPluginsJson:
+      type: object
+      properties:
+        plugins:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pf4jPluginInfo'
+      required:
+        - plugins
+
+    Pf4jPluginInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        provider:
+          type: string
+        projectUrl:
+          type: string
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pf4jReleaseInfo'
+      required:
+        - id
+        - releases
+
+    Pf4jReleaseInfo:
+      type: object
+      properties:
+        version:
+          type: string
+        date:
+          type: string
+          format: date
+        url:
+          type: string
+          format: uri
+        requires:
+          type: string
+        sha512sum:
+          type: string
+      required:
+        - version
+        - url
+
+    ReviewItemDto:
+      type: object
+      properties:
+        releaseId:
+          type: string
+          format: uuid
+        pluginId:
+          type: string
+        pluginName:
+          type: string
+        version:
+          type: string
+        submittedBy:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        artifactSha256:
+          type: string
+      required:
+        - releaseId
+        - pluginId
+        - pluginName
+        - version
+        - submittedAt
+
+    ReviewDecisionRequest:
+      type: object
+      properties:
+        comment:
+          type: string
+
+    PluginPagedResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginDto'
+        totalElements:
+          type: integer
+          format: int64
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+        - content
+        - totalElements
+        - page
+        - size
+        - totalPages
+
+    ReleasePagedResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginReleaseDto'
+        totalElements:
+          type: integer
+          format: int64
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+        - content
+        - totalElements
+        - page
+        - size
+        - totalPages
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   securitySchemes:
     ApiKeyAuth:
