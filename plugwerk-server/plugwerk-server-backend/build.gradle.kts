@@ -22,7 +22,6 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.jackson.module.kotlin)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.liquibase.core)
 
     runtimeOnly(libs.postgresql)
