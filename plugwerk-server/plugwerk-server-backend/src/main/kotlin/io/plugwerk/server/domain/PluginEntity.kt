@@ -36,6 +36,46 @@ import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Repräsentiert einen Plugin-Eintrag im Katalog eines Namespace.
+ *
+ * Ein Plugin ist ein registriertes PF4J-Plugin innerhalb eines [NamespaceEntity]. Es enthält
+ * alle Metadaten, die für die Auffindbarkeit im Katalog relevant sind (Name, Beschreibung,
+ * Kategorien, Tags usw.), hat aber selbst keinen ausführbaren Code – dieser liegt in den
+ * zugehörigen [PluginReleaseEntity]-Einträgen als versionierte Artefakte.
+ *
+ * **Datenmodell:** Jeder Plugin-Eintrag entspricht einer Zeile in der Tabelle `plugin`.
+ * Die Kombination aus `namespace_id` und `plugin_id` ist eindeutig (Unique Constraint).
+ * Ein Plugin gehört zu genau einem [NamespaceEntity] und kann beliebig viele
+ * [PluginReleaseEntity]-Einträge besitzen.
+ *
+ * **Verwendung:**
+ * - Wird von [io.plugwerk.server.repository.PluginRepository] gelesen und geschrieben.
+ * - Wird von [io.plugwerk.server.service.PluginService] für CRUD-Operationen und
+ *   Kataloganfragen (mit optionalem Status-Filter) verwaltet.
+ * - Wird von [io.plugwerk.server.service.PluginReleaseService] beim Upload automatisch
+ *   angelegt, wenn noch kein Eintrag für den Plugin-Identifier existiert.
+ * - Die [io.plugwerk.server.service.Pf4jCompatibilityService] bildet aktive Plugins
+ *   auf das pf4j-update-Format (`plugins.json`) ab.
+ *
+ * @property id Primärschlüssel, UUIDv7 (zeitbasiert, von Hibernate generiert).
+ * @property namespace Der übergeordnete [NamespaceEntity] (Lazy-geladen).
+ * @property pluginId Fachlicher Bezeichner des Plugins innerhalb des Namespace
+ *   (entspricht der PF4J Plugin-ID, z. B. `my-awesome-plugin`).
+ * @property name Anzeigename des Plugins.
+ * @property description Ausführliche Beschreibung (optional, als Freitext).
+ * @property author Name des Autors oder der Autorengruppe (optional).
+ * @property license SPDX-Lizenz-Bezeichner des Plugins (optional, z. B. `Apache-2.0`).
+ * @property homepage URL zur Projekt-Homepage (optional).
+ * @property repository URL zum Quellcode-Repository (optional).
+ * @property icon URL zu einem Icon-Bild für die Kataloganzeige (optional).
+ * @property categories Freitextliste von Kategorien zur Filterung im Katalog.
+ * @property tags Freitextliste von Schlagwörtern zur Suche im Katalog.
+ * @property status Lebenszyklusstatus des Plugins ([io.plugwerk.common.model.PluginStatus]):
+ *   `ACTIVE` (veröffentlicht), `SUSPENDED` (gesperrt) oder `ARCHIVED` (archiviert).
+ * @property createdAt Erstellungszeitpunkt (wird automatisch gesetzt, unveränderlich).
+ * @property updatedAt Zeitpunkt der letzten Änderung (wird automatisch aktualisiert).
+ */
 @Entity
 @Table(
     name = "plugin",

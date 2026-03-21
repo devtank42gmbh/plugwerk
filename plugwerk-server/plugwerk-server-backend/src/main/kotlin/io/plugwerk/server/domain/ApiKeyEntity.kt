@@ -29,6 +29,42 @@ import org.hibernate.annotations.UuidGenerator
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Repräsentiert einen API-Schlüssel zur Authentifizierung am Plugwerk-Server.
+ *
+ * API-Schlüssel sind die primäre Authentifizierungsform in Phase 1 (MVP). Sie gewähren
+ * Zugriff auf die API eines bestimmten [NamespaceEntity] und werden für Operationen
+ * wie das Hochladen neuer Plugin-Releases verwendet.
+ *
+ * **Sicherheitshinweis:** Der API-Schlüssel wird **niemals im Klartext gespeichert**.
+ * Nur sein SHA-256-Hash ([keyHash]) wird persistiert. Der ursprüngliche Schlüssel
+ * wird ausschließlich bei der Erstellung einmalig an den Aufrufer zurückgegeben.
+ *
+ * **Datenmodell:** Jeder API-Schlüssel entspricht einer Zeile in der Tabelle `api_key`.
+ * Der [keyHash] ist eindeutig (Unique Constraint). Ein API-Schlüssel gehört zu genau
+ * einem [NamespaceEntity].
+ *
+ * **Verwendung:**
+ * - Wird von [io.plugwerk.server.repository.ApiKeyRepository] gelesen und geschrieben.
+ * - Eingehende Anfragen werden authentifiziert, indem der übermittelte Schlüssel gehasht
+ *   und gegen [keyHash] verglichen wird.
+ * - Schlüssel können über [revoked] deaktiviert werden, ohne sie zu löschen
+ *   (Audit-Trail bleibt erhalten).
+ * - Optionales [expiresAt] ermöglicht zeitlich begrenzte Schlüssel.
+ *
+ * @property id Primärschlüssel, UUIDv7 (zeitbasiert, von Hibernate generiert).
+ * @property namespace Der [NamespaceEntity], auf den dieser Schlüssel Zugriff gewährt
+ *   (Lazy-geladen).
+ * @property keyHash SHA-256-Hash des API-Schlüssels (Hex-kodiert, 64 Zeichen).
+ *   Wird zur Authentifizierung gegen eingehende Anfragen geprüft.
+ * @property description Optionaler Freitext zur Beschreibung des Verwendungszwecks
+ *   (z. B. `CI/CD Pipeline`).
+ * @property revoked `true`, wenn der Schlüssel manuell widerrufen wurde und keine
+ *   Authentifizierung mehr erlaubt.
+ * @property expiresAt Optionaler Ablaufzeitpunkt. Nach diesem Zeitpunkt wird der
+ *   Schlüssel als ungültig behandelt, auch wenn [revoked] `false` ist.
+ * @property createdAt Erstellungszeitpunkt (wird automatisch gesetzt, unveränderlich).
+ */
 @Entity
 @Table(name = "api_key")
 class ApiKeyEntity(

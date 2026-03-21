@@ -29,6 +29,29 @@ import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Repräsentiert einen Namespace im Plugwerk-System.
+ *
+ * Ein Namespace ist der oberste Organisationsbereich im Plugwerk-Datenmodell. Er gruppiert
+ * alle Plugins einer Organisation oder eines Produkts unter einem eindeutigen [slug] und
+ * bildet die Mandantengrenze für den gesamten Plugin-Katalog.
+ *
+ * **Datenmodell:** Jeder Namespace entspricht einer Zeile in der Tabelle `namespace`.
+ * Alle untergeordneten Ressourcen ([PluginEntity], [ApiKeyEntity]) referenzieren genau
+ * einen Namespace per Fremdschlüssel.
+ *
+ * **Verwendung:**
+ * - Wird von [io.plugwerk.server.repository.NamespaceRepository] gelesen und geschrieben.
+ * - Wird von [io.plugwerk.server.service.NamespaceService] für CRUD-Operationen verwaltet.
+ * - Alle API-Endpunkte sind unter `/api/v1/namespaces/{slug}/...` namespace-scoped.
+ *
+ * @property id Primärschlüssel, UUIDv7 (zeitbasiert, von Hibernate generiert).
+ * @property slug URL-freundlicher, eindeutiger Bezeichner des Namespace (z. B. `acme-corp`).
+ * @property ownerOrg Name der besitzenden Organisation.
+ * @property settings Optionale namespace-spezifische Konfiguration als JSON-Objekt.
+ * @property createdAt Erstellungszeitpunkt (wird automatisch gesetzt, unveränderlich).
+ * @property updatedAt Zeitpunkt der letzten Änderung (wird automatisch aktualisiert).
+ */
 @Entity
 @Table(name = "namespace")
 class NamespaceEntity(

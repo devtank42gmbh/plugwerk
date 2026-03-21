@@ -36,6 +36,54 @@ import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Repräsentiert eine versionierte Release eines Plugins.
+ *
+ * Eine Plugin-Release ist eine konkrete, veröffentlichbare Version eines [PluginEntity].
+ * Sie bindet eine SemVer-Versionsnummer an ein gespeichertes Artefakt (JAR oder ZIP)
+ * und enthält alle Metadaten, die für Installation, Kompatibilitätsprüfung und
+ * Abhängigkeitsauflösung benötigt werden.
+ *
+ * **Datenmodell:** Jede Release entspricht einer Zeile in der Tabelle `plugin_release`.
+ * Die Kombination aus `plugin_id` und `version` ist eindeutig (Unique Constraint).
+ * Eine Release gehört zu genau einem [PluginEntity].
+ *
+ * **Lebenszyklus:**
+ * Neue Releases starten im Status `DRAFT` und durchlaufen folgende Zustände
+ * ([io.plugwerk.common.model.ReleaseStatus]):
+ * ```
+ * DRAFT → PUBLISHED → DEPRECATED
+ *                   → YANKED
+ * ```
+ * Nur `PUBLISHED`-Releases werden im Katalog angezeigt und für Update-Checks berücksichtigt.
+ *
+ * **Verwendung:**
+ * - Wird von [io.plugwerk.server.repository.PluginReleaseRepository] gelesen und geschrieben.
+ * - Wird von [io.plugwerk.server.service.PluginReleaseService] beim Artefakt-Upload angelegt:
+ *   SHA-256-Prüfsumme und Artifact-Key werden beim Upload berechnet und gesetzt.
+ * - [io.plugwerk.server.service.UpdateCheckService] vergleicht installierte Versionen
+ *   gegen die neueste `PUBLISHED`-Release per SemVer-Vergleich.
+ * - [io.plugwerk.server.service.Pf4jCompatibilityService] bildet `PUBLISHED`-Releases
+ *   auf das pf4j-update-Format (`plugins.json`) ab, inklusive Download-URL.
+ *
+ * @property id Primärschlüssel, UUIDv7 (zeitbasiert, von Hibernate generiert).
+ * @property plugin Das zugehörige [PluginEntity] (Lazy-geladen).
+ * @property version SemVer-Versionsnummer dieser Release (z. B. `1.2.3`).
+ * @property artifactSha256 SHA-256-Prüfsumme des gespeicherten Artefakts (Hex-kodiert,
+ *   64 Zeichen). Wird beim Upload berechnet und dient zur Integritätsprüfung beim Download.
+ * @property artifactKey Storage-agnostischer Schlüssel für das Artefakt im konfigurierten
+ *   Storage-Backend (z. B. `acme/my-plugin/1.2.3` für Filesystem oder S3).
+ *   Der Schlüssel wird von [io.plugwerk.server.service.storage.ArtifactStorageService]
+ *   interpretiert und ist unabhängig vom konkreten Storage-Typ.
+ * @property requiresSystemVersion Optionale SemVer-Bereichsangabe für die Mindest-/
+ *   Maximalversion des Host-Systems (z. B. `>=2.0.0 & <4.0.0`).
+ * @property pluginDependencies Optionale Liste von Plugin-zu-Plugin-Abhängigkeiten
+ *   als JSON-Array (z. B. `[{"id":"other-plugin","version":">=1.0.0"}]`).
+ * @property status Aktueller Lebenszyklusstatus der Release
+ *   (Standard: [io.plugwerk.common.model.ReleaseStatus.DRAFT]).
+ * @property createdAt Erstellungszeitpunkt (wird automatisch gesetzt, unveränderlich).
+ * @property updatedAt Zeitpunkt der letzten Änderung (wird automatisch aktualisiert).
+ */
 @Entity
 @Table(
     name = "plugin_release",
