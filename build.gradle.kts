@@ -27,7 +27,7 @@ subprojects {
                 """
                 /*
                  * Plugwerk — Plugin Marketplace for the PF4J Ecosystem
-                 * Copyright (C) 2025 devtank42 GmbH
+                 * Copyright (C) 2026 devtank42 GmbH
                  *
                  * This program is free software: you can redistribute it and/or modify
                  * it under the terms of the GNU Affero General Public License as
