@@ -2,13 +2,12 @@ package io.plugwerk.server.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.UpdateTimestamp
+import org.hibernate.annotations.UuidGenerator
 import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -17,7 +16,7 @@ import java.util.UUID
 @Table(name = "namespace")
 class NamespaceEntity(
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", updatable = false)
     var id: UUID? = null,
 
