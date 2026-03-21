@@ -16,6 +16,14 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
+plugwerk:
+  storage:
+    type: ${PLUGWERK_STORAGE_TYPE:fs}
+    fs:
+      root: ${PLUGWERK_STORAGE_ROOT:/var/plugwerk/artifacts}
+  server:
+    base-url: ${PLUGWERK_BASE_URL:http://localhost:8080}
+
 server:
   port: 8080
 

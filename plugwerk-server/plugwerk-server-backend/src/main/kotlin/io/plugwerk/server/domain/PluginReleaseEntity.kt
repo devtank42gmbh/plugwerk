@@ -40,6 +40,9 @@ class PluginReleaseEntity(
     @Column(name = "artifact_sha256", nullable = false, length = 64)
     var artifactSha256: String,
 
+    @Column(name = "artifact_key", nullable = false, length = 1024)
+    var artifactKey: String,
+
     @Column(name = "requires_system_version", length = 255)
     var requiresSystemVersion: String? = null,
 
