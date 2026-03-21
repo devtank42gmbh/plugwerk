@@ -27,12 +27,15 @@ import io.plugwerk.server.repository.NamespaceRepository
 import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.repository.PluginRepository
 import io.plugwerk.server.service.storage.ArtifactStorageService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.security.MessageDigest
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -54,6 +57,25 @@ class PluginReleaseService(
         val plugin = resolvePlugin(namespaceSlug, pluginId)
         return releaseRepository.findByPluginAndVersion(plugin, version)
             .orElseThrow { ReleaseNotFoundException(pluginId, version) }
+    }
+
+    fun findPagedByPlugin(plugin: PluginEntity, pageable: Pageable): Page<PluginReleaseEntity> =
+        releaseRepository.findAllByPlugin(plugin, pageable)
+
+    fun findById(id: UUID): PluginReleaseEntity = releaseRepository.findById(id)
+        .orElseThrow { ReleaseNotFoundException("id=$id", "") }
+
+    fun findPendingByNamespace(namespaceSlug: String): List<PluginReleaseEntity> {
+        val namespace = namespaceRepository.findBySlug(namespaceSlug)
+            .orElseThrow { NamespaceNotFoundException(namespaceSlug) }
+        return releaseRepository.findPendingByNamespace(namespace, ReleaseStatus.DRAFT)
+    }
+
+    @Transactional
+    fun updateStatusById(id: UUID, status: ReleaseStatus): PluginReleaseEntity {
+        val release = findById(id)
+        release.status = status
+        return releaseRepository.save(release)
     }
 
     fun downloadArtifact(namespaceSlug: String, pluginId: String, version: String): InputStream {

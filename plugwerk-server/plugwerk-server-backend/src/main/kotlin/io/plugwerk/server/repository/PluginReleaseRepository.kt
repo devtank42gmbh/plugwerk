@@ -18,9 +18,14 @@
 package io.plugwerk.server.repository
 
 import io.plugwerk.common.model.ReleaseStatus
+import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.Optional
 import java.util.UUID
 
@@ -30,7 +35,21 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
 
     fun findAllByPluginOrderByCreatedAtDesc(plugin: PluginEntity): List<PluginReleaseEntity>
 
+    fun findAllByPlugin(plugin: PluginEntity, pageable: Pageable): Page<PluginReleaseEntity>
+
     fun findAllByPluginAndStatus(plugin: PluginEntity, status: ReleaseStatus): List<PluginReleaseEntity>
 
     fun existsByPluginAndVersion(plugin: PluginEntity, version: String): Boolean
+
+    @Query(
+        """
+        SELECT r FROM PluginReleaseEntity r JOIN FETCH r.plugin p
+        WHERE p.namespace = :namespace AND r.status = :status
+        ORDER BY r.createdAt DESC
+        """,
+    )
+    fun findPendingByNamespace(
+        @Param("namespace") namespace: NamespaceEntity,
+        @Param("status") status: ReleaseStatus,
+    ): List<PluginReleaseEntity>
 }

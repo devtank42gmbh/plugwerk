@@ -20,6 +20,9 @@ package io.plugwerk.server.service
 import io.plugwerk.common.model.PluginStatus
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.repository.PluginRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -40,6 +43,40 @@ class PluginService(private val pluginRepository: PluginRepository, private val 
         } else {
             pluginRepository.findAllByNamespace(namespace)
         }
+    }
+
+    /**
+     * Returns a paginated, filtered list of plugins for the given namespace.
+     *
+     * Category, tag, and full-text (q) filters are applied in-memory after the DB query,
+     * which is acceptable for MVP catalog sizes. A DB-level filter can replace this when
+     * catalog size demands it.
+     */
+    fun findPagedByNamespace(
+        namespaceSlug: String,
+        status: PluginStatus?,
+        category: String?,
+        tag: String?,
+        q: String?,
+        pageable: Pageable,
+    ): Page<PluginEntity> {
+        val namespace = namespaceService.findBySlug(namespaceSlug)
+        val all = if (status != null) {
+            pluginRepository.findAllByNamespaceAndStatus(namespace, status)
+        } else {
+            pluginRepository.findAllByNamespace(namespace)
+        }
+        val filtered = all.filter { plugin ->
+            (category == null || plugin.categories.contains(category)) &&
+                (tag == null || plugin.tags.contains(tag)) &&
+                (
+                    q == null || plugin.name.contains(q, ignoreCase = true) ||
+                        plugin.description?.contains(q, ignoreCase = true) == true
+                    )
+        }
+        val offset = pageable.offset.toInt().coerceAtMost(filtered.size)
+        val page = filtered.subList(offset, (offset + pageable.pageSize).coerceAtMost(filtered.size))
+        return PageImpl(page, pageable, filtered.size.toLong())
     }
 
     @Transactional
