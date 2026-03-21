@@ -1,0 +1,229 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-create-namespace
+      author: plugwerk
+      changes:
+        - createTable:
+            tableName: namespace
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: slug
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_namespace_slug
+              - column:
+                  name: owner_org
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: settings
+                  type: jsonb
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0001-create-plugin
+      author: plugwerk
+      changes:
+        - createTable:
+            tableName: plugin
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: namespace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_plugin_namespace
+                    references: namespace(id)
+              - column:
+                  name: plugin_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: author
+                  type: varchar(255)
+              - column:
+                  name: license
+                  type: varchar(100)
+              - column:
+                  name: homepage
+                  type: varchar(2048)
+              - column:
+                  name: repository
+                  type: varchar(2048)
+              - column:
+                  name: icon
+                  type: varchar(2048)
+              - column:
+                  name: categories
+                  type: text[]
+                  defaultValue: '{}'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tags
+                  type: text[]
+                  defaultValue: '{}'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  defaultValue: ACTIVE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: plugin
+            columnNames: namespace_id, plugin_id
+            constraintName: uq_plugin_namespace_plugin_id
+
+  - changeSet:
+      id: 0001-create-plugin-release
+      author: plugwerk
+      changes:
+        - createTable:
+            tableName: plugin_release
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: plugin_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_plugin_release_plugin
+                    references: plugin(id)
+              - column:
+                  name: version
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: artifact_sha256
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requires_system_version
+                  type: varchar(255)
+              - column:
+                  name: plugin_dependencies
+                  type: jsonb
+              - column:
+                  name: status
+                  type: varchar(50)
+                  defaultValue: DRAFT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: plugin_release
+            columnNames: plugin_id, version
+            constraintName: uq_plugin_release_plugin_version
+
+  - changeSet:
+      id: 0001-create-api-key
+      author: plugwerk
+      changes:
+        - createTable:
+            tableName: api_key
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: namespace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_api_key_namespace
+                    references: namespace(id)
+              - column:
+                  name: key_hash
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_api_key_hash
+              - column:
+                  name: description
+                  type: varchar(255)
+              - column:
+                  name: revoked
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: timestamptz
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false

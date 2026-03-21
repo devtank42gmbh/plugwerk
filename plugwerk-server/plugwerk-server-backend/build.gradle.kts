@@ -28,9 +28,30 @@ dependencies {
     runtimeOnly(project(path = ":plugwerk-server:plugwerk-server-frontend", configuration = "staticResources"))
 
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.spring.boot.starter.data.jpa.test)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(kotlin("test"))
     testImplementation(platform(libs.testcontainers.bom))
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
+
+    testRuntimeOnly(libs.h2)
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests against PostgreSQL via Testcontainers (requires Docker)"
+    group = "verification"
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    classpath = sourceSets["test"].runtimeClasspath
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    shouldRunAfter(tasks.named("test"))
 }
