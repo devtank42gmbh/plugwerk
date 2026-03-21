@@ -22,31 +22,38 @@ import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
+import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.ReleaseNotFoundException
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.util.UUID
 
-@ExtendWith(MockitoExtension::class)
+@WebMvcTest(
+    ReviewsController::class,
+    excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
+    excludeFilters = [ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class])],
+)
 class ReviewsControllerTest {
 
-    @Mock lateinit var releaseService: PluginReleaseService
+    @MockitoBean lateinit var releaseService: PluginReleaseService
 
-    @Mock lateinit var releaseMapper: PluginReleaseMapper
+    @MockitoBean lateinit var releaseMapper: PluginReleaseMapper
 
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
     private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
     private val plugin = PluginEntity(
@@ -64,15 +71,6 @@ class ReviewsControllerTest {
         artifactKey = "acme/my-plugin/1.0.0",
         status = ReleaseStatus.DRAFT,
     )
-
-    @BeforeEach
-    fun setup() {
-        val controller = ReviewsController(releaseService, releaseMapper)
-        mockMvc = MockMvcBuilders
-            .standaloneSetup(controller)
-            .setControllerAdvice(GlobalExceptionHandler())
-            .build()
-    }
 
     @Test
     fun `GET pending reviews returns 200 with list`() {

@@ -22,43 +22,50 @@ import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
+import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.service.NamespaceNotFoundException
 import io.plugwerk.server.service.Pf4jCompatibilityService
 import io.plugwerk.server.service.PluginNotFoundException
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.PluginService
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.io.ByteArrayInputStream
 import java.util.UUID
 
-@ExtendWith(MockitoExtension::class)
+@WebMvcTest(
+    CatalogController::class,
+    excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
+    excludeFilters = [ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class])],
+)
 class CatalogControllerTest {
 
-    @Mock lateinit var pluginService: PluginService
+    @MockitoBean lateinit var pluginService: PluginService
 
-    @Mock lateinit var releaseService: PluginReleaseService
+    @MockitoBean lateinit var releaseService: PluginReleaseService
 
-    @Mock lateinit var pf4jService: Pf4jCompatibilityService
+    @MockitoBean lateinit var pf4jService: Pf4jCompatibilityService
 
-    @Mock lateinit var pluginMapper: PluginMapper
+    @MockitoBean lateinit var pluginMapper: PluginMapper
 
-    @Mock lateinit var releaseMapper: PluginReleaseMapper
+    @MockitoBean lateinit var releaseMapper: PluginReleaseMapper
 
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
     private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
     private val plugin = PluginEntity(
@@ -67,15 +74,6 @@ class CatalogControllerTest {
         pluginId = "my-plugin",
         name = "My Plugin",
     )
-
-    @BeforeEach
-    fun setup() {
-        val controller = CatalogController(pluginService, releaseService, pf4jService, pluginMapper, releaseMapper)
-        mockMvc = MockMvcBuilders
-            .standaloneSetup(controller)
-            .setControllerAdvice(GlobalExceptionHandler())
-            .build()
-    }
 
     @Test
     fun `GET plugins returns 200 with paged response`() {

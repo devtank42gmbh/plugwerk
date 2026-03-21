@@ -18,36 +18,34 @@
 package io.plugwerk.server.controller
 
 import io.plugwerk.api.model.UpdateCheckResponse
+import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.service.NamespaceNotFoundException
 import io.plugwerk.server.service.UpdateCheckService
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-@ExtendWith(MockitoExtension::class)
+@WebMvcTest(
+    UpdateCheckController::class,
+    excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
+    excludeFilters = [ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class])],
+)
 class UpdateCheckControllerTest {
 
-    @Mock lateinit var updateCheckService: UpdateCheckService
+    @MockitoBean lateinit var updateCheckService: UpdateCheckService
 
-    private lateinit var mockMvc: MockMvc
-
-    @BeforeEach
-    fun setup() {
-        val controller = UpdateCheckController(updateCheckService)
-        mockMvc = MockMvcBuilders
-            .standaloneSetup(controller)
-            .setControllerAdvice(GlobalExceptionHandler())
-            .build()
-    }
+    @Autowired private lateinit var mockMvc: MockMvc
 
     @Test
     fun `POST updates check returns 200 with empty updates when all up to date`() {
