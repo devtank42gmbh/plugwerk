@@ -68,14 +68,11 @@ export function CatalogPage() {
                 : <MenuItem value={namespace}>{namespace}</MenuItem>
               }
             </FilterSelect>
-            <Typography variant="caption" color="text.disabled" aria-live="polite">
-              {!loading && `${totalElements} plugins`}
-            </Typography>
           </Box>
         </Box>
 
         {/* Filters */}
-        <FilterBar view={view} onViewChange={setView} namespace={namespace} />
+        <FilterBar view={view} onViewChange={setView} namespace={namespace} totalElements={totalElements} loading={loading} />
 
         {/* Error */}
         {error && (

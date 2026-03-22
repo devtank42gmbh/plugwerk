@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 // Copyright (C) 2026 devtank42 GmbH
 import { useState } from 'react'
-import { Box, Button, MenuItem, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, MenuItem, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { LayoutGrid, List } from 'lucide-react'
 import { usePluginStore } from '../../stores/pluginStore'
 import { FilterSelect } from '../common/FilterSelect'
@@ -10,6 +10,8 @@ interface FilterBarProps {
   view: 'card' | 'list'
   onViewChange: (view: 'card' | 'list') => void
   namespace: string
+  totalElements: number
+  loading: boolean
 }
 
 const CATEGORIES = ['Reporting', 'Export', 'Integration', 'Security', 'UI Extensions', 'Data Processing']
@@ -27,7 +29,7 @@ const COMPATIBILITY_OPTIONS = [
   { value: '>=2.0.0', label: '≥ 2.0.0' },
 ]
 
-export function FilterBar({ view, onViewChange, namespace }: FilterBarProps) {
+export function FilterBar({ view, onViewChange, namespace, totalElements, loading }: FilterBarProps) {
   const { filters, setFilters, fetchPlugins } = usePluginStore()
   const [compatibility, setCompatibility] = useState('')
   const hasActiveFilters = !!(filters.category || filters.tag || filters.status || compatibility)
@@ -111,6 +113,12 @@ export function FilterBar({ view, onViewChange, namespace }: FilterBarProps) {
       )}
 
       <Box sx={{ flex: 1 }} />
+
+      {!loading && (
+        <Typography variant="caption" color="text.disabled" aria-live="polite">
+          {totalElements} plugins
+        </Typography>
+      )}
 
       <ToggleButtonGroup
         value={view}
