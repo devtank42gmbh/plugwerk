@@ -42,42 +42,36 @@ export function CatalogPage() {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: 2,
             mb: 1,
           }}
         >
-          <Box>
-            <Typography variant="h1" gutterBottom>Plugin Catalog</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Typography variant="caption" color="text.disabled" component="label" htmlFor="ns-select">
-                Namespace:
-              </Typography>
-              <FilterSelect
-                id="ns-select"
-                value={namespace}
-                onChange={(v) => { setNamespace(v); fetchPlugins(v) }}
-                aria-label="Select namespace"
-                minWidth={160}
-              >
-                {namespaces.length > 0
-                  ? namespaces.map((ns) => (
-                      <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
-                    ))
-                  : <MenuItem value={namespace}>{namespace}</MenuItem>
-                }
-              </FilterSelect>
-            </Box>
+          <Typography variant="h1">Plugin Catalog</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="caption" color="text.disabled" component="label" htmlFor="ns-select">
+              Namespace:
+            </Typography>
+            <FilterSelect
+              id="ns-select"
+              value={namespace}
+              onChange={(v) => { setNamespace(v); fetchPlugins(v) }}
+              aria-label="Select namespace"
+              minWidth={160}
+            >
+              {namespaces.length > 0
+                ? namespaces.map((ns) => (
+                    <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
+                  ))
+                : <MenuItem value={namespace}>{namespace}</MenuItem>
+              }
+            </FilterSelect>
+            <Typography variant="caption" color="text.disabled" aria-live="polite">
+              {!loading && `${totalElements} plugins`}
+            </Typography>
           </Box>
-          <Typography
-            variant="caption"
-            color="text.disabled"
-            aria-live="polite"
-          >
-            {!loading && `${totalElements} plugins`}
-          </Typography>
         </Box>
 
         {/* Filters */}
