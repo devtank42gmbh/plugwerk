@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Access Denied – PlugWerk</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="page-wrapper">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <!-- ═══════════════ TOP BAR ═══════════════ -->
+  <header class="topbar" role="banner">
+    <div class="topbar__inner">
+      <a href="index.html" class="topbar__logo" aria-label="PlugWerk – back to catalog">
+        <div class="topbar__logo-mark" aria-hidden="true">PW</div>
+        <span class="topbar__logo-word">PlugWerk</span>
+      </a>
+      <div class="topbar__search" role="search">
+        <span class="topbar__search-icon" aria-hidden="true">
+          <i data-lucide="search" width="16" height="16"></i>
+        </span>
+        <input class="topbar__search-input" type="search" placeholder="Search plugins…" aria-label="Search plugins" />
+      </div>
+      <nav class="topbar__nav" aria-label="Main navigation">
+        <a href="index.html" class="topbar__nav-link">Catalog</a>
+      </nav>
+      <div class="topbar__actions">
+        <button class="topbar__icon-btn" id="theme-toggle" aria-label="Toggle dark mode">
+          <i data-lucide="sun" width="18" height="18" id="icon-light"></i>
+          <i data-lucide="moon" width="18" height="18" id="icon-dark" style="display:none"></i>
+        </button>
+        <a href="login.html" class="btn btn--secondary btn--sm">Log In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ ERROR CONTENT ═══════════════ -->
+  <main id="main-content" class="error-page">
+    <div class="error-page__inner">
+
+      <!-- Illustration: lock -->
+      <svg
+        class="error-page__illustration"
+        viewBox="0 0 160 160"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <!-- Lock body -->
+        <rect x="40" y="75" width="80" height="60" rx="8"/>
+        <!-- Lock shackle -->
+        <path d="M56 75 V52 a24 24 0 0 1 48 0 V75"/>
+        <!-- Keyhole -->
+        <circle cx="80" cy="105" r="8"/>
+        <line x1="80" y1="113" x2="80" y2="122"/>
+        <!-- Stars / sparkles for effect -->
+        <line x1="28" y1="40" x2="28" y2="48" opacity="0.4"/>
+        <line x1="24" y1="44" x2="32" y2="44" opacity="0.4"/>
+        <line x1="132" y1="60" x2="132" y2="68" opacity="0.4"/>
+        <line x1="128" y1="64" x2="136" y2="64" opacity="0.4"/>
+      </svg>
+
+      <div>
+        <p class="error-page__code">Error 403</p>
+        <h1 class="error-page__title">Access Denied</h1>
+      </div>
+
+      <p class="error-page__desc">
+        You don't have permission to view this page.
+        Try logging in with an account that has the required access rights.
+      </p>
+
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center">
+        <a href="login.html" class="btn btn--primary btn--lg">
+          <i data-lucide="log-in" width="18" height="18" aria-hidden="true"></i>
+          Log In
+        </a>
+        <a href="index.html" class="btn btn--secondary btn--lg">
+          <i data-lucide="arrow-left" width="18" height="18" aria-hidden="true"></i>
+          Back to Catalog
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <div class="footer__brand"><strong>PlugWerk</strong> <span>v1.2.0</span></div>
+      <a href="#" class="footer__link">API Docs</a>
+      <span class="footer__instance">ACME Corp Plugin Hub</span>
+      <div class="footer__lang" style="margin-left:auto">
+        <button class="footer__lang-btn footer__lang-btn--active" lang="en">EN</button>
+        <span aria-hidden="true">|</span>
+        <button class="footer__lang-btn" lang="de">DE</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    const html = document.documentElement;
+    const saved = localStorage.getItem('pw-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = saved === 'dark' || (!saved && prefersDark);
+    html.dataset.theme = dark ? 'dark' : 'light';
+    document.getElementById('icon-light').style.display = dark ? 'none' : '';
+    document.getElementById('icon-dark').style.display  = dark ? '' : 'none';
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      document.getElementById('icon-light').style.display = isDark ? '' : 'none';
+      document.getElementById('icon-dark').style.display  = isDark ? 'none' : '';
+      localStorage.setItem('pw-theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

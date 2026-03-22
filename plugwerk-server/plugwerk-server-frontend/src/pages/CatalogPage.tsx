@@ -139,7 +139,14 @@ export function CatalogPage() {
           <Box
             role="list"
             aria-label="Plugin list"
-            sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '8px',
+              overflow: 'hidden',
+            }}
           >
             {plugins.map((plugin) => (
               <PluginListRow key={plugin.id} plugin={plugin} namespace={namespace} />

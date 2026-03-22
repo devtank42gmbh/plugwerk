@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plugin Catalog – PlugWerk</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    .catalog-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-bottom: var(--space-2);
+    }
+    .catalog-header__left h1 { margin-bottom: var(--space-2); }
+    .catalog-header__ns {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .result-count {
+      font: var(--text-small);
+      color: var(--color-text-tertiary);
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding-block: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-5);
+    }
+    .filter-row__spacer { flex: 1; }
+
+    /* Skeleton state */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-5);
+    }
+    .skeleton-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-card);
+      padding: var(--layout-card-padding);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .skeleton-row { display: flex; gap: var(--space-3); }
+    .skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); }
+
+    .pagination-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-top: var(--space-7);
+    }
+    .pagination-per-page {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font: var(--text-small);
+      color: var(--color-text-tertiary);
+    }
+    .pagination-per-page select {
+      height: 32px;
+      padding: 0 28px 0 var(--space-2);
+      border: var(--border-input);
+      border-radius: var(--radius-btn);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font: var(--text-small);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236F6F6F' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+  </style>
+</head>
+<body class="page-wrapper">
+  <!-- Skip link -->
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <!-- ═══════════════ TOP BAR ═══════════════ -->
+  <header class="topbar" role="banner">
+    <div class="topbar__inner">
+      <a href="/" class="topbar__logo" aria-label="PlugWerk – back to catalog">
+        <div class="topbar__logo-mark" aria-hidden="true">PW</div>
+        <span class="topbar__logo-word">PlugWerk</span>
+      </a>
+
+      <div class="topbar__search" role="search">
+        <span class="topbar__search-icon" aria-hidden="true">
+          <i data-lucide="search" width="16" height="16"></i>
+        </span>
+        <input
+          class="topbar__search-input"
+          type="search"
+          placeholder="Search plugins… (press / to focus)"
+          aria-label="Search plugins"
+          id="search-input"
+          autocomplete="off"
+        />
+      </div>
+
+      <nav class="topbar__nav" aria-label="Main navigation">
+        <a href="/" class="topbar__nav-link topbar__nav-link--active" aria-current="page">Catalog</a>
+      </nav>
+
+      <div class="topbar__actions">
+        <!-- Theme toggle -->
+        <button
+          class="topbar__icon-btn"
+          id="theme-toggle"
+          aria-label="Toggle dark mode"
+          title="Toggle dark mode"
+        >
+          <i data-lucide="sun" width="18" height="18" id="icon-light"></i>
+          <i data-lucide="moon" width="18" height="18" id="icon-dark" style="display:none"></i>
+        </button>
+
+        <!-- Log In (logged-out state) -->
+        <a href="login.html" class="btn btn--secondary btn--sm">Log In</a>
+
+        <!-- Avatar (logged-in state — hidden by default in template) -->
+        <!--
+        <div class="avatar-menu">
+          <button class="avatar-btn" id="avatar-btn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">JD</button>
+          <div class="avatar-dropdown" id="avatar-dropdown" role="menu">
+            <div class="avatar-dropdown__header">
+              <div class="avatar-dropdown__name">Jane Doe</div>
+              <div class="avatar-dropdown__email">jane@example.com</div>
+            </div>
+            <button class="avatar-dropdown__item avatar-dropdown__item--danger" role="menuitem">
+              <i data-lucide="log-out" width="16" height="16" aria-hidden="true"></i>
+              Log Out
+            </button>
+          </div>
+        </div>
+        -->
+
+        <!-- Mobile menu -->
+        <button class="topbar__icon-btn topbar__menu-btn" aria-label="Open menu">
+          <i data-lucide="menu" width="20" height="20"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <main id="main-content">
+    <div class="container">
+
+      <!-- Page Header -->
+      <div class="catalog-header">
+        <div class="catalog-header__left">
+          <h1>Plugin Catalog</h1>
+          <div class="catalog-header__ns">
+            <!-- Namespace selector — only shown for multi-namespace instances -->
+            <label for="ns-select" class="result-count">Namespace:</label>
+            <select class="filter-select" id="ns-select" style="min-width:160px">
+              <option>acme-corp (default)</option>
+              <option>community</option>
+            </select>
+          </div>
+        </div>
+        <span class="result-count" aria-live="polite">142 plugins</span>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-row" role="group" aria-label="Filter and sort options">
+        <select class="filter-select" aria-label="Filter by category">
+          <option value="">All Categories</option>
+          <option>Reporting</option>
+          <option>Export</option>
+          <option>Integration</option>
+          <option>Security</option>
+          <option>UI Extensions</option>
+          <option>Data Processing</option>
+        </select>
+
+        <select class="filter-select" aria-label="Filter by tag">
+          <option value="">All Tags</option>
+          <option>pdf</option>
+          <option>excel</option>
+          <option>oauth</option>
+          <option>charts</option>
+          <option>api</option>
+        </select>
+
+        <select class="filter-select" aria-label="Filter by compatibility">
+          <option value="">Any Version</option>
+          <option>≥ 3.0.0</option>
+          <option>≥ 2.5.0</option>
+          <option>≥ 2.0.0</option>
+        </select>
+
+        <select class="filter-select" aria-label="Sort order">
+          <option>Relevance</option>
+          <option>Most Downloads</option>
+          <option>Newest</option>
+          <option>Highest Rated</option>
+        </select>
+
+        <!-- Reset — visible only when filters active -->
+        <button class="filter-bar__reset" style="display:none">Reset filters</button>
+
+        <div class="filter-row__spacer"></div>
+
+        <!-- View toggle -->
+        <div class="view-toggle" role="group" aria-label="Switch view">
+          <button class="view-toggle__btn view-toggle__btn--active" id="view-card" aria-label="Card view" aria-pressed="true">
+            <i data-lucide="layout-grid" width="16" height="16"></i>
+          </button>
+          <button class="view-toggle__btn" id="view-list" aria-label="List view" aria-pressed="false">
+            <i data-lucide="list" width="16" height="16"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ─────────── CARD VIEW (default) ─────────── -->
+      <div id="card-view">
+        <div class="card-grid" role="list" aria-label="Plugin cards">
+
+          <!-- Plugin Card 1 -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="ACME PDF Export plugin">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="file-text" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">ACME PDF Export</span>
+                  <span class="badge badge--version">v2.4.1</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>acme-corp</span>
+                  <span class="badge badge--verified" title="Verified plugin">
+                    <i data-lucide="check" width="10" height="10" aria-hidden="true"></i> Verified
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              High-fidelity PDF export for any PF4J-based application. Supports templates, custom fonts, watermarks, and batch processing.
+            </p>
+            <div class="plugin-card__tags" aria-label="Tags">
+              <span class="badge badge--tag">pdf</span>
+              <span class="badge badge--tag">export</span>
+              <span class="badge badge--tag">reporting</span>
+            </div>
+            <div class="plugin-card__stats" aria-label="Plugin statistics">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>12.4k</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>4.7</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>2d ago</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Plugin Card 2 -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="OAuth2 Connector plugin">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="shield-check" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">OAuth2 Connector</span>
+                  <span class="badge badge--version">v1.8.0</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>community</span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              Plug-and-play OAuth2/OIDC authentication integration. Supports Google, GitHub, GitLab, Keycloak, and any custom provider.
+            </p>
+            <div class="plugin-card__tags">
+              <span class="badge badge--tag">oauth</span>
+              <span class="badge badge--tag">security</span>
+              <span class="badge badge--tag">auth</span>
+            </div>
+            <div class="plugin-card__stats">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>8.1k</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>4.5</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>1w ago</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Plugin Card 3 — Deprecated -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="Chart Suite plugin (deprecated)">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="bar-chart-2" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">Chart Suite</span>
+                  <span class="badge badge--version">v3.1.2</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>devtank42</span>
+                  <span class="badge badge--deprecated">Deprecated</span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              Interactive charts and data visualizations powered by Apache ECharts. Bar, line, pie, scatter, heatmap, and more.
+            </p>
+            <div class="plugin-card__tags">
+              <span class="badge badge--tag">charts</span>
+              <span class="badge badge--tag">data</span>
+            </div>
+            <div class="plugin-card__stats">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>5.2k</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>4.1</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>3mo ago</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Plugin Card 4 -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="Excel Import plugin">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="table" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">Excel Import</span>
+                  <span class="badge badge--version">v1.2.0</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>acme-corp</span>
+                  <span class="badge badge--verified">
+                    <i data-lucide="check" width="10" height="10" aria-hidden="true"></i> Verified
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              Import and process .xlsx / .xls files with full formula evaluation, cell formatting, and multi-sheet support.
+            </p>
+            <div class="plugin-card__tags">
+              <span class="badge badge--tag">excel</span>
+              <span class="badge badge--tag">import</span>
+            </div>
+            <div class="plugin-card__stats">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>3.7k</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>4.3</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>5d ago</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Plugin Card 5 -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="Audit Log plugin">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="clipboard-list" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">Audit Log</span>
+                  <span class="badge badge--version">v2.0.0</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>security-guild</span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              Tamper-evident audit trail for user actions and system events. Supports structured JSON export and SIEM integration.
+            </p>
+            <div class="plugin-card__tags">
+              <span class="badge badge--tag">security</span>
+              <span class="badge badge--tag">audit</span>
+              <span class="badge badge--tag">compliance</span>
+            </div>
+            <div class="plugin-card__stats">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>2.9k</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>4.8</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>12d ago</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Plugin Card 6 — Draft / Published badge example -->
+          <a href="plugin-detail.html" class="plugin-card" role="listitem" aria-label="REST Client plugin">
+            <div class="plugin-card__header">
+              <div class="plugin-card__icon" aria-hidden="true">
+                <i data-lucide="globe" width="32" height="32"></i>
+              </div>
+              <div class="plugin-card__meta">
+                <div class="plugin-card__name">
+                  <span class="plugin-card__name-text">REST Client</span>
+                  <span class="badge badge--version">v0.9.0</span>
+                </div>
+                <div class="plugin-card__author">
+                  <span>community</span>
+                  <span class="badge badge--draft">Draft</span>
+                </div>
+              </div>
+            </div>
+            <p class="plugin-card__desc">
+              Fluent HTTP client extension for PF4J applications. Supports interceptors, retry logic, and OpenAPI schema generation.
+            </p>
+            <div class="plugin-card__tags">
+              <span class="badge badge--tag">api</span>
+              <span class="badge badge--tag">http</span>
+            </div>
+            <div class="plugin-card__stats">
+              <span class="plugin-card__stat">
+                <i data-lucide="download" width="12" height="12" aria-hidden="true"></i>
+                <span>412</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="star" width="12" height="12" aria-hidden="true"></i>
+                <span>3.9</span>
+              </span>
+              <span class="plugin-card__stat">
+                <i data-lucide="clock" width="12" height="12" aria-hidden="true"></i>
+                <span>1d ago</span>
+              </span>
+            </div>
+          </a>
+
+        </div><!-- /.card-grid -->
+      </div><!-- /#card-view -->
+
+      <!-- ─────────── LIST VIEW (hidden by default) ─────────── -->
+      <div id="list-view" style="display:none">
+        <div class="plugin-list" role="list" aria-label="Plugin list">
+          <a href="plugin-detail.html" class="plugin-list-row" role="listitem">
+            <div class="plugin-list-row__icon" aria-hidden="true">
+              <i data-lucide="file-text" width="20" height="20"></i>
+            </div>
+            <div class="plugin-list-row__info">
+              <div class="plugin-list-row__name">ACME PDF Export</div>
+              <div class="plugin-list-row__author">acme-corp</div>
+            </div>
+            <span class="badge badge--version">v2.4.1</span>
+            <span class="badge badge--verified" style="display:none">
+              <i data-lucide="check" width="10" height="10"></i> Verified
+            </span>
+            <div class="plugin-list-row__stats">
+              <span><i data-lucide="download" width="12" height="12" aria-hidden="true"></i> 12.4k</span>
+              <span><i data-lucide="star" width="12" height="12" aria-hidden="true"></i> 4.7</span>
+              <span><i data-lucide="clock" width="12" height="12" aria-hidden="true"></i> 2d ago</span>
+            </div>
+          </a>
+          <a href="plugin-detail.html" class="plugin-list-row" role="listitem">
+            <div class="plugin-list-row__icon" aria-hidden="true">
+              <i data-lucide="shield-check" width="20" height="20"></i>
+            </div>
+            <div class="plugin-list-row__info">
+              <div class="plugin-list-row__name">OAuth2 Connector</div>
+              <div class="plugin-list-row__author">community</div>
+            </div>
+            <span class="badge badge--version">v1.8.0</span>
+            <div class="plugin-list-row__stats">
+              <span>8.1k</span>
+              <span>4.5</span>
+              <span>1w ago</span>
+            </div>
+          </a>
+          <a href="plugin-detail.html" class="plugin-list-row" role="listitem">
+            <div class="plugin-list-row__icon" aria-hidden="true">
+              <i data-lucide="bar-chart-2" width="20" height="20"></i>
+            </div>
+            <div class="plugin-list-row__info">
+              <div class="plugin-list-row__name">Chart Suite</div>
+              <div class="plugin-list-row__author">devtank42</div>
+            </div>
+            <span class="badge badge--version">v3.1.2</span>
+            <span class="badge badge--deprecated">Deprecated</span>
+            <div class="plugin-list-row__stats">
+              <span>5.2k</span>
+              <span>4.1</span>
+              <span>3mo ago</span>
+            </div>
+          </a>
+        </div>
+      </div><!-- /#list-view -->
+
+      <!-- ─────────── EMPTY STATE (shown when no results) ─────────── -->
+      <div id="empty-state" style="display:none">
+        <div class="empty-state">
+          <svg class="empty-state__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="26" cy="26" r="18"/>
+            <line x1="38" y1="38" x2="56" y2="56"/>
+            <path d="M20 26h12M26 20v12"/>
+            <path d="M44 10 l4-4 M10 44 l-4 4" opacity="0.4"/>
+          </svg>
+          <h2 class="empty-state__title">No plugins found</h2>
+          <p class="empty-state__msg">Try different search terms or reset your filters to see all available plugins.</p>
+          <button class="btn btn--secondary btn--md">Show all plugins</button>
+        </div>
+      </div>
+
+      <!-- ─────────── SKELETON STATE ─────────── -->
+      <div id="loading-state" style="display:none" aria-label="Loading plugins" aria-busy="true">
+        <div class="skeleton-grid">
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-row">
+              <div class="skeleton skeleton--icon"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton skeleton--text" style="width:60%"></div>
+                <div class="skeleton skeleton--text" style="width:40%"></div>
+              </div>
+            </div>
+            <div class="skeleton skeleton--text" style="width:100%"></div>
+            <div class="skeleton skeleton--text" style="width:80%"></div>
+            <div class="skeleton skeleton--text" style="width:50%"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-row">
+              <div class="skeleton skeleton--icon"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton skeleton--text" style="width:70%"></div>
+                <div class="skeleton skeleton--text" style="width:45%"></div>
+              </div>
+            </div>
+            <div class="skeleton skeleton--text" style="width:100%"></div>
+            <div class="skeleton skeleton--text" style="width:90%"></div>
+            <div class="skeleton skeleton--text" style="width:55%"></div>
+          </div>
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-row">
+              <div class="skeleton skeleton--icon"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton skeleton--text" style="width:55%"></div>
+                <div class="skeleton skeleton--text" style="width:35%"></div>
+              </div>
+            </div>
+            <div class="skeleton skeleton--text" style="width:100%"></div>
+            <div class="skeleton skeleton--text" style="width:75%"></div>
+            <div class="skeleton skeleton--text" style="width:60%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-row">
+        <div class="pagination-per-page">
+          <label for="per-page">Show:</label>
+          <select id="per-page" aria-label="Items per page">
+            <option>12</option>
+            <option selected>24</option>
+            <option>48</option>
+          </select>
+        </div>
+
+        <nav class="pagination" aria-label="Pagination">
+          <button class="pagination__btn" aria-label="Previous page" disabled>
+            <i data-lucide="chevron-left" width="14" height="14"></i>
+          </button>
+          <button class="pagination__btn pagination__btn--active" aria-label="Page 1" aria-current="page">1</button>
+          <button class="pagination__btn" aria-label="Page 2">2</button>
+          <button class="pagination__btn" aria-label="Page 3">3</button>
+          <span class="pagination__ellipsis" aria-hidden="true">…</span>
+          <button class="pagination__btn" aria-label="Page 6">6</button>
+          <button class="pagination__btn" aria-label="Next page">
+            <i data-lucide="chevron-right" width="14" height="14"></i>
+          </button>
+        </nav>
+
+        <span class="result-count">Showing 1–24 of 142</span>
+      </div>
+
+    </div><!-- /.container -->
+  </main>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <strong>PlugWerk</strong>
+        <span>v1.2.0</span>
+      </div>
+      <a href="#" class="footer__link">API Docs</a>
+      <span class="footer__instance">ACME Corp Plugin Hub</span>
+      <div class="footer__lang">
+        <button class="footer__lang-btn footer__lang-btn--active" aria-pressed="true" lang="en">EN</button>
+        <span aria-hidden="true">|</span>
+        <button class="footer__lang-btn" aria-pressed="false" lang="de">DE</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════ TOAST REGION ═══════════════ -->
+  <div class="toast-region" role="region" aria-label="Notifications" aria-live="polite">
+    <!-- Example: Logged-out toast -->
+    <div class="toast toast--info" role="status">
+      <div class="toast__icon" aria-hidden="true">
+        <i data-lucide="info" width="18" height="18"></i>
+      </div>
+      <div class="toast__body">
+        <div class="toast__title">You have been logged out.</div>
+      </div>
+      <button class="toast__close" aria-label="Dismiss notification">
+        <i data-lucide="x" width="14" height="14"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // ─── Theme toggle ───
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const iconLight = document.getElementById('icon-light');
+    const iconDark  = document.getElementById('icon-dark');
+
+    function setTheme(dark) {
+      html.dataset.theme = dark ? 'dark' : 'light';
+      iconLight.style.display = dark ? 'none' : '';
+      iconDark.style.display  = dark ? '' : 'none';
+      localStorage.setItem('pw-theme', dark ? 'dark' : 'light');
+    }
+
+    const saved = localStorage.getItem('pw-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(saved === 'dark' || (!saved && prefersDark));
+
+    themeToggle.addEventListener('click', () => {
+      setTheme(html.dataset.theme !== 'dark');
+    });
+
+    // ─── Search / keyboard shortcut ───
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+      }
+    });
+
+    // ─── View toggle ───
+    document.getElementById('view-card').addEventListener('click', () => {
+      document.getElementById('card-view').style.display = '';
+      document.getElementById('list-view').style.display = 'none';
+      document.getElementById('view-card').classList.add('view-toggle__btn--active');
+      document.getElementById('view-list').classList.remove('view-toggle__btn--active');
+      document.getElementById('view-card').setAttribute('aria-pressed', 'true');
+      document.getElementById('view-list').setAttribute('aria-pressed', 'false');
+    });
+    document.getElementById('view-list').addEventListener('click', () => {
+      document.getElementById('card-view').style.display = 'none';
+      document.getElementById('list-view').style.display = '';
+      document.getElementById('view-card').classList.remove('view-toggle__btn--active');
+      document.getElementById('view-list').classList.add('view-toggle__btn--active');
+      document.getElementById('view-card').setAttribute('aria-pressed', 'false');
+      document.getElementById('view-list').setAttribute('aria-pressed', 'true');
+    });
+  </script>
+</body>
+</html>

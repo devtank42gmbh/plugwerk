@@ -55,14 +55,14 @@ export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
         gap: 2,
         px: 2,
         py: 1.5,
-        border: '1px solid',
+        borderBottom: '1px solid',
         borderColor: 'divider',
-        borderRadius: tokens.radius.card,
         textDecoration: 'none',
         color: 'inherit',
-        background: 'background.paper',
-        transition: 'border-color 0.15s',
-        '&:hover': { borderColor: tokens.color.primary },
+        bgcolor: 'background.paper',
+        transition: 'background-color 0.15s',
+        '&:last-child': { borderBottom: 'none' },
+        '&:hover': { bgcolor: 'background.default' },
       }}
     >
       <Box

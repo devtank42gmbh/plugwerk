@@ -43,9 +43,9 @@ data class PlugwerkYamlDescriptor(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PlugwerkYamlRequires(
-    @JsonProperty("system-version")
+    @param:JsonProperty("system-version")
     val systemVersion: String? = null,
-    @JsonProperty("api-level")
+    @param:JsonProperty("api-level")
     val apiLevel: Int? = null,
     val plugins: List<PlugwerkYamlPluginDependency> = emptyList(),
 )
