@@ -135,6 +135,18 @@ describe('useUiStore', () => {
       expect(toasts[0].message).toBe('B')
     })
 
+    it('addToast auto-removes after 4 seconds', async () => {
+      vi.useFakeTimers()
+      act(() => {
+        useUiStore.getState().addToast({ type: 'success', message: 'Done' })
+      })
+      expect(useUiStore.getState().toasts).toHaveLength(1)
+      await act(async () => { vi.advanceTimersByTime(4000) })
+      expect(useUiStore.getState().toasts).toHaveLength(0)
+      vi.useRealTimers()
+    })
+  })
+
   describe('uploadModal', () => {
     it('defaults to closed', () => {
       expect(useUiStore.getState().uploadModalOpen).toBe(false)
@@ -149,18 +161,6 @@ describe('useUiStore', () => {
       useUiStore.setState({ uploadModalOpen: true })
       act(() => { useUiStore.getState().closeUploadModal() })
       expect(useUiStore.getState().uploadModalOpen).toBe(false)
-    })
-  })
-
-    it('addToast auto-removes after 4 seconds', async () => {
-      vi.useFakeTimers()
-      act(() => {
-        useUiStore.getState().addToast({ type: 'success', message: 'Done' })
-      })
-      expect(useUiStore.getState().toasts).toHaveLength(1)
-      await act(async () => { vi.advanceTimersByTime(4000) })
-      expect(useUiStore.getState().toasts).toHaveLength(0)
-      vi.useRealTimers()
     })
   })
 })

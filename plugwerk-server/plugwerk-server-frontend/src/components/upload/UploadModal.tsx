@@ -90,8 +90,8 @@ export function UploadModal() {
 
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Drop a plugin <strong>.jar</strong> file. All metadata (plugin ID, version, dependencies) is read
-          from the descriptor inside the JAR.
+          Drop a plugin <strong>.jar</strong> or <strong>.zip</strong> file. All metadata (plugin ID, version,
+          dependencies) is read from the descriptor inside the archive.
         </Typography>
 
         {error && (
@@ -113,7 +113,7 @@ export function UploadModal() {
             '&:hover': { borderColor: progress === null ? tokens.color.primary : undefined },
           }}
         >
-          <input {...getInputProps()} aria-label="Select plugin JAR file" disabled={progress !== null} />
+          <input {...getInputProps()} aria-label="Select plugin JAR or ZIP file" disabled={progress !== null} />
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
             {file ? (
               <>
@@ -127,7 +127,7 @@ export function UploadModal() {
               <>
                 <UploadCloud size={36} color={tokens.color.gray40} />
                 <Typography variant="body2" fontWeight={600}>
-                  {isDragActive ? 'Drop the .jar here…' : 'Drag & drop a .jar file here'}
+                  {isDragActive ? 'Drop the file here…' : 'Drag & drop a .jar or .zip file here'}
                 </Typography>
                 <Typography variant="caption" color="text.disabled">or click to browse</Typography>
               </>

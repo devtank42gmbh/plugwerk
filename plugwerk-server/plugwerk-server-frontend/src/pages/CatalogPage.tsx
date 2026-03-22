@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 // Copyright (C) 2026 devtank42 GmbH
 import { useEffect, useState } from 'react'
-import { Box, Container, Typography, Alert, MenuItem } from '@mui/material'
+import { Box, Container, Typography, Alert } from '@mui/material'
 import { FilterBar } from '../components/catalog/FilterBar'
 import { PluginCard } from '../components/catalog/PluginCard'
 import { PluginListRow } from '../components/catalog/PluginListRow'
@@ -12,13 +12,12 @@ import { usePluginStore } from '../stores/pluginStore'
 import { useAuthStore } from '../stores/authStore'
 import { useUiStore } from '../stores/uiStore'
 import { useNamespaceStore } from '../stores/namespaceStore'
-import { FilterSelect } from '../components/common/FilterSelect'
 
 export function CatalogPage() {
-  const { namespace, setNamespace } = useAuthStore()
+  const { namespace } = useAuthStore()
   const { plugins, loading, error, totalElements, resetFilters, fetchPlugins } = usePluginStore()
   const { searchQuery } = useUiStore()
-  const { namespaces, fetchNamespaces } = useNamespaceStore()
+  const { fetchNamespaces } = useNamespaceStore()
   const [view, setView] = useState<'card' | 'list'>('card')
 
   useEffect(() => {
@@ -50,29 +49,15 @@ export function CatalogPage() {
           }}
         >
           <Typography variant="h1">Plugin Catalog</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="caption" color="text.primary" component="label" htmlFor="ns-select">
-              Namespace:
+          {!loading && (
+            <Typography variant="caption" color="text.primary" aria-live="polite">
+              {totalElements} plugins
             </Typography>
-            <FilterSelect
-              id="ns-select"
-              value={namespace}
-              onChange={(v) => { setNamespace(v); fetchPlugins(v) }}
-              aria-label="Select namespace"
-              minWidth={160}
-            >
-              {namespaces.length > 0
-                ? namespaces.map((ns) => (
-                    <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
-                  ))
-                : <MenuItem value={namespace}>{namespace}</MenuItem>
-              }
-            </FilterSelect>
-          </Box>
+          )}
         </Box>
 
         {/* Filters */}
-        <FilterBar view={view} onViewChange={setView} namespace={namespace} totalElements={totalElements} loading={loading} />
+        <FilterBar view={view} onViewChange={setView} namespace={namespace} />
 
         {/* Error */}
         {error && (

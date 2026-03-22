@@ -45,7 +45,7 @@ describe('CatalogPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    useAuthStore.setState({ apiKey: null, namespace: 'acme' })
+    useAuthStore.setState({ accessToken: null, namespace: 'acme' })
     useUiStore.setState({ searchQuery: '', toasts: [] })
     usePluginStore.setState({
       plugins: [],

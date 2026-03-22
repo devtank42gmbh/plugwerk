@@ -70,7 +70,7 @@ describe('UploadModal', () => {
     renderWithRouter(<UploadModal />)
 
     const file = new File(['fake-jar'], 'plugin.jar', { type: 'application/java-archive' })
-    await user.upload(screen.getByLabelText(/select plugin jar file/i), file)
+    await user.upload(screen.getByLabelText(/select plugin jar or zip file/i), file)
     await user.click(screen.getByRole('button', { name: /upload release/i }))
 
     await waitFor(() => {
@@ -87,7 +87,7 @@ describe('UploadModal', () => {
     renderWithRouter(<UploadModal />)
 
     const file = new File(['fake-jar'], 'plugin.jar', { type: 'application/java-archive' })
-    await user.upload(screen.getByLabelText(/select plugin jar file/i), file)
+    await user.upload(screen.getByLabelText(/select plugin jar or zip file/i), file)
     await user.click(screen.getByRole('button', { name: /upload release/i }))
 
     await waitFor(() => {

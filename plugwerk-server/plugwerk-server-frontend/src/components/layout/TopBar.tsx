@@ -6,41 +6,35 @@ import {
   Box,
   IconButton,
   Button,
-  InputBase,
+  MenuItem,
+  Typography,
   useTheme,
-  alpha,
 } from '@mui/material'
-import { Search, Sun, Moon, Menu, User, LogOut, Upload } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Sun, Moon, Menu, User, LogOut, Upload, LayoutGrid, Settings } from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useUiStore } from '../../stores/uiStore'
 import { UploadModal } from '../upload/UploadModal'
 import { useAuthStore } from '../../stores/authStore'
+import { useNamespaceStore } from '../../stores/namespaceStore'
+import { FilterSelect } from '../common/FilterSelect'
 import { tokens } from '../../theme/tokens'
 
-interface TopBarProps {
-  showSearch?: boolean
-}
-
-export function TopBar({ showSearch = true }: TopBarProps) {
+export function TopBar() {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
-  const { toggleTheme, setSearchQuery, openUploadModal } = useUiStore()
-  const { isAuthenticated, logout } = useAuthStore()
+  const { toggleTheme, openUploadModal } = useUiStore()
+  const { isAuthenticated, logout, namespace, setNamespace } = useAuthStore()
+  const { namespaces } = useNamespaceStore()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  function isActive(path: string) {
+    return path === '/' ? pathname === '/' : pathname.startsWith(path)
+  }
 
   function handleLogout() {
     logout()
     navigate('/login', { replace: true })
-  }
-
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchQuery(e.target.value)
-  }
-
-  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      navigate('/')
-    }
   }
 
   return (
@@ -87,54 +81,6 @@ export function TopBar({ showSearch = true }: TopBarProps) {
           />
         </Box>
 
-        {/* Search */}
-        {showSearch && (
-          <Box
-            role="search"
-            sx={{
-              flex: 1,
-              maxWidth: 480,
-              position: 'relative',
-            }}
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                left: 10,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'text.disabled',
-                display: 'flex',
-              }}
-              aria-hidden="true"
-            >
-              <Search size={16} />
-            </Box>
-            <InputBase
-              placeholder='Search plugins… (press / to focus)'
-              aria-label="Search plugins"
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
-              sx={{
-                width: '100%',
-                pl: '34px',
-                pr: 1.5,
-                py: 0.75,
-                borderRadius: tokens.radius.btn,
-                border: `1px solid ${isDark ? '#393939' : tokens.color.gray20}`,
-                background: isDark ? '#1c1c1c' : tokens.color.gray10,
-                fontSize: '0.875rem',
-                '&:focus-within': {
-                  borderColor: tokens.color.primary,
-                  background: isDark ? '#262626' : tokens.color.white,
-                  outline: `2px solid ${alpha(tokens.color.primary, 0.25)}`,
-                  outlineOffset: 0,
-                },
-              }}
-            />
-          </Box>
-        )}
-
         {/* Spacer */}
         <Box sx={{ flex: 1 }} />
 
@@ -143,11 +89,30 @@ export function TopBar({ showSearch = true }: TopBarProps) {
           <Box
             component="nav"
             aria-label="Main navigation"
-            sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5 }}
+            sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5 }}
           >
+            {/* Namespace dropdown — left of Catalog */}
+            <Typography sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+              Namespace:
+            </Typography>
+            <FilterSelect
+              value={namespace}
+              onChange={setNamespace}
+              aria-label="Select namespace"
+              minWidth={130}
+            >
+              {namespaces.length > 0
+                ? namespaces.map((ns) => (
+                    <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
+                  ))
+                : <MenuItem value={namespace}>{namespace}</MenuItem>
+              }
+            </FilterSelect>
+
             <Button
               component={Link}
               to="/"
+              startIcon={<LayoutGrid size={15} color={isActive('/') ? tokens.color.primary : undefined} />}
               sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
             >
               Catalog
@@ -162,6 +127,7 @@ export function TopBar({ showSearch = true }: TopBarProps) {
             <Button
               component={Link}
               to="/admin"
+              startIcon={<Settings size={15} color={isActive('/admin') ? tokens.color.primary : undefined} />}
               sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
             >
               Admin

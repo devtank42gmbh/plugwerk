@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0
 // Copyright (C) 2026 devtank42 GmbH
 import { useState } from 'react'
-import { Box, Button, MenuItem, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { LayoutGrid, List } from 'lucide-react'
+import { Box, Button, InputBase, MenuItem, ToggleButton, ToggleButtonGroup, useTheme, alpha } from '@mui/material'
+import { LayoutGrid, List, Search } from 'lucide-react'
 import { usePluginStore } from '../../stores/pluginStore'
+import { useUiStore } from '../../stores/uiStore'
 import { FilterSelect } from '../common/FilterSelect'
+import { tokens } from '../../theme/tokens'
 
 interface FilterBarProps {
   view: 'card' | 'list'
   onViewChange: (view: 'card' | 'list') => void
   namespace: string
-  totalElements: number
-  loading: boolean
 }
 
 const CATEGORIES = ['Reporting', 'Export', 'Integration', 'Security', 'UI Extensions', 'Data Processing']
@@ -29,8 +29,11 @@ const COMPATIBILITY_OPTIONS = [
   { value: '>=2.0.0', label: '≥ 2.0.0' },
 ]
 
-export function FilterBar({ view, onViewChange, namespace, totalElements, loading }: FilterBarProps) {
+export function FilterBar({ view, onViewChange, namespace }: FilterBarProps) {
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
   const { filters, setFilters, fetchPlugins } = usePluginStore()
+  const { searchQuery, setSearchQuery } = useUiStore()
   const [compatibility, setCompatibility] = useState('')
   const hasActiveFilters = !!(filters.category || filters.tag || filters.status || compatibility)
 
@@ -112,13 +115,45 @@ export function FilterBar({ view, onViewChange, namespace, totalElements, loadin
         </Button>
       )}
 
-      <Box sx={{ flex: 1 }} />
-
-      {!loading && (
-        <Typography variant="caption" color="text.primary" aria-live="polite">
-          {totalElements} plugins
-        </Typography>
-      )}
+      {/* Search — fills available space */}
+      <Box role="search" sx={{ flex: 1, minWidth: 0, position: 'relative' }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            left: 10,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'text.disabled',
+            display: 'flex',
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        >
+          <Search size={14} />
+        </Box>
+        <InputBase
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search plugins…"
+          aria-label="Search plugins"
+          sx={{
+            width: '100%',
+            pl: '30px',
+            pr: 1,
+            py: 0.5,
+            borderRadius: tokens.radius.btn,
+            border: `1px solid ${isDark ? '#393939' : tokens.color.gray20}`,
+            background: isDark ? '#1c1c1c' : tokens.color.gray10,
+            fontSize: '0.8125rem',
+            '&:focus-within': {
+              borderColor: tokens.color.primary,
+              background: isDark ? '#262626' : tokens.color.white,
+              outline: `2px solid ${alpha(tokens.color.primary, 0.25)}`,
+              outlineOffset: 0,
+            },
+          }}
+        />
+      </Box>
 
       <ToggleButtonGroup
         value={view}
