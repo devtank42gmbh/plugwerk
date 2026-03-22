@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import { useDropzone } from 'react-dropzone'
 import { UploadCloud, FileBox, CheckCircle } from 'lucide-react'
+import axios from 'axios'
 import { axiosInstance } from '../api/config'
 import { useAuthStore } from '../stores/authStore'
 import { useUiStore } from '../stores/uiStore'
@@ -101,7 +102,9 @@ export function UploadPage() {
       setProgress(null)
       addToast({ type: 'success', title: 'Release uploaded', message: `v${form.version} is now available for review.` })
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Upload failed.'
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? err.message)
+        : err instanceof Error ? err.message : 'Upload failed.'
       setError(message)
       setProgress(null)
       addToast({ type: 'error', title: 'Upload failed', message })

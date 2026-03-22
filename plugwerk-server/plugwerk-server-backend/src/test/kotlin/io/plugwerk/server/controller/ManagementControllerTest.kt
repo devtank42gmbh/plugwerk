@@ -24,6 +24,8 @@ import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
+import io.plugwerk.descriptor.DescriptorNotFoundException
+import io.plugwerk.descriptor.DescriptorParseException
 import io.plugwerk.server.service.PluginAlreadyExistsException
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import io.plugwerk.server.service.PluginNotFoundException
@@ -198,6 +200,40 @@ class ManagementControllerTest {
             content = """{"status":"published"}"""
         }.andExpect {
             status { isOk() }
+        }
+    }
+
+    @Test
+    fun `POST release upload returns 422 when descriptor not found in JAR`() {
+        val artifact =
+            MockMultipartFile("artifact", "invalid.jar", "application/octet-stream", "not-a-jar".toByteArray())
+        whenever(releaseService.upload(any(), any(), any()))
+            .thenThrow(DescriptorNotFoundException("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)"))
+
+        mockMvc.multipart("/api/v1/namespaces/acme/plugins/my-plugin/releases") {
+            file(artifact)
+            param("version", "1.0.0")
+        }.andExpect {
+            status { isUnprocessableEntity() }
+            jsonPath("$.status") { value(422) }
+            jsonPath("$.message") { value("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)") }
+        }
+    }
+
+    @Test
+    fun `POST release upload returns 422 when descriptor cannot be parsed`() {
+        val artifact =
+            MockMultipartFile("artifact", "broken.jar", "application/octet-stream", "not-a-jar".toByteArray())
+        whenever(releaseService.upload(any(), any(), any()))
+            .thenThrow(DescriptorParseException("Invalid plugin.id in MANIFEST.MF"))
+
+        mockMvc.multipart("/api/v1/namespaces/acme/plugins/my-plugin/releases") {
+            file(artifact)
+            param("version", "1.0.0")
+        }.andExpect {
+            status { isUnprocessableEntity() }
+            jsonPath("$.status") { value(422) }
+            jsonPath("$.message") { value("Invalid plugin.id in MANIFEST.MF") }
         }
     }
 
