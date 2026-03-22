@@ -51,7 +51,7 @@ export function CatalogPage() {
         >
           <Typography variant="h1">Plugin Catalog</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="caption" color="text.disabled" component="label" htmlFor="ns-select">
+            <Typography variant="caption" color="text.primary" component="label" htmlFor="ns-select">
               Namespace:
             </Typography>
             <FilterSelect

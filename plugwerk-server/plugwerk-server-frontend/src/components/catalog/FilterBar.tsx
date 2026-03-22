@@ -115,7 +115,7 @@ export function FilterBar({ view, onViewChange, namespace, totalElements, loadin
       <Box sx={{ flex: 1 }} />
 
       {!loading && (
-        <Typography variant="caption" color="text.disabled" aria-live="polite">
+        <Typography variant="caption" color="text.primary" aria-live="polite">
           {totalElements} plugins
         </Typography>
       )}
