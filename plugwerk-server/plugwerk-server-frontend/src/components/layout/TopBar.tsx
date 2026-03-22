@@ -10,7 +10,7 @@ import {
   useTheme,
   alpha,
 } from '@mui/material'
-import { Search, Sun, Moon, Menu, User, LogOut } from 'lucide-react'
+import { Search, Sun, Moon, Menu, User, LogOut, Upload } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUiStore } from '../../stores/uiStore'
 import { useAuthStore } from '../../stores/authStore'
@@ -149,6 +149,14 @@ export function TopBar({ showSearch = true }: TopBarProps) {
               sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
             >
               Catalog
+            </Button>
+            <Button
+              component={Link}
+              to="/upload"
+              startIcon={<Upload size={15} />}
+              sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
+            >
+              Upload
             </Button>
             <Button
               component={Link}
