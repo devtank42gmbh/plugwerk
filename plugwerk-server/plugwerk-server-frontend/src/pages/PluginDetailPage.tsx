@@ -1,0 +1,152 @@
+// SPDX-License-Identifier: AGPL-3.0
+// Copyright (C) 2026 devtank42 GmbH
+import { useEffect, useState } from 'react'
+import {
+  Box,
+  Container,
+  Tabs,
+  Tab,
+  Typography,
+  Alert,
+  CircularProgress,
+  Link as MuiLink,
+} from '@mui/material'
+import { ChevronRight } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { PluginHeader } from '../components/plugin-detail/PluginHeader'
+import { DetailSidebar } from '../components/plugin-detail/DetailSidebar'
+import { OverviewTab } from '../components/plugin-detail/OverviewTab'
+import { VersionsTab } from '../components/plugin-detail/VersionsTab'
+import { ChangelogTab } from '../components/plugin-detail/ChangelogTab'
+import { DependenciesTab } from '../components/plugin-detail/DependenciesTab'
+import { catalogApi } from '../api/config'
+import type { PluginDto, PluginReleaseDto } from '../api/generated/model'
+
+const TAB_IDS = ['overview', 'versions', 'changelog', 'dependencies']
+
+export function PluginDetailPage() {
+  const { namespace = 'default', pluginId = '' } = useParams<{ namespace: string; pluginId: string }>()
+  const [plugin, setPlugin] = useState<PluginDto | null>(null)
+  const [releases, setReleases] = useState<PluginReleaseDto[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [tab, setTab] = useState(0)
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      setError(null)
+      try {
+        const [pluginRes, releasesRes] = await Promise.all([
+          catalogApi.getPlugin({ ns: namespace, pluginId }),
+          catalogApi.listReleases({ ns: namespace, pluginId }),
+        ])
+        setPlugin(pluginRes.data)
+        setReleases(releasesRes.data.content)
+      } catch {
+        setError('Failed to load plugin details.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (pluginId) load()
+  }, [namespace, pluginId])
+
+  const latestRelease = releases.find((r) => r.status === 'published') ?? releases[0] ?? null
+
+  if (loading) {
+    return (
+      <Box component="main" id="main-content" sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (error || !plugin) {
+    return (
+      <Box component="main" id="main-content" sx={{ flex: 1, py: 4 }}>
+        <Container maxWidth="lg">
+          <Alert severity="error">{error ?? 'Plugin not found.'}</Alert>
+        </Container>
+      </Box>
+    )
+  }
+
+  return (
+    <Box component="main" id="main-content" sx={{ flex: 1, py: 4 }}>
+      <Container maxWidth="lg">
+        {/* Breadcrumb */}
+        <Box
+          component="nav"
+          aria-label="Breadcrumb"
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}
+        >
+          <MuiLink component={Link} to="/" sx={{ fontSize: '0.875rem', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
+            Catalog
+          </MuiLink>
+          <ChevronRight size={14} style={{ color: 'var(--mui-palette-text-disabled)' }} aria-hidden="true" />
+          <Typography variant="body2" color="text.primary" aria-current="page">
+            {plugin.name}
+          </Typography>
+        </Box>
+
+        {/* Plugin Header */}
+        <PluginHeader plugin={plugin} latestRelease={latestRelease} namespace={namespace} />
+
+        {/* Tabs + Content */}
+        <Box sx={{ mt: 2 }}>
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
+            aria-label="Plugin information tabs"
+            sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
+          >
+            <Tab label="Overview"      id="tab-overview"     aria-controls="panel-overview" />
+            <Tab label="Versions"      id="tab-versions"     aria-controls="panel-versions" />
+            <Tab label="Changelog"     id="tab-changelog"    aria-controls="panel-changelog" />
+            <Tab label="Dependencies"  id="tab-dependencies" aria-controls="panel-dependencies" />
+          </Tabs>
+
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 280px' },
+              gap: 4,
+              alignItems: 'start',
+            }}
+          >
+            {/* Main content */}
+            <Box>
+              {TAB_IDS.map((id, i) => (
+                <Box
+                  key={id}
+                  role="tabpanel"
+                  id={`panel-${id}`}
+                  aria-labelledby={`tab-${id}`}
+                  hidden={tab !== i}
+                >
+                  {tab === 0 && i === 0 && <OverviewTab plugin={plugin} />}
+                  {tab === 1 && i === 1 && (
+                    <VersionsTab
+                      releases={releases}
+                      namespace={namespace}
+                      pluginId={pluginId}
+                      currentVersion={latestRelease?.version}
+                    />
+                  )}
+                  {tab === 2 && i === 2 && <ChangelogTab releases={releases} />}
+                  {tab === 3 && i === 3 && <DependenciesTab release={latestRelease} namespace={namespace} />}
+                </Box>
+              ))}
+            </Box>
+
+            {/* Sidebar — hidden on mobile */}
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <DetailSidebar plugin={plugin} release={latestRelease} />
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
+  )
+}
