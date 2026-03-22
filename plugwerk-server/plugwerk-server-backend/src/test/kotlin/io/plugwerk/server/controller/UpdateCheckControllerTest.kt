@@ -19,6 +19,7 @@ package io.plugwerk.server.controller
 
 import io.plugwerk.api.model.UpdateCheckResponse
 import io.plugwerk.server.security.ApiKeyAuthFilter
+import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.NamespaceNotFoundException
 import io.plugwerk.server.service.UpdateCheckService
 import org.junit.jupiter.api.Test
@@ -32,6 +33,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -39,9 +41,14 @@ import org.springframework.test.web.servlet.post
 @WebMvcTest(
     UpdateCheckController::class,
     excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
-    excludeFilters = [ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class])],
+    excludeFilters = [
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class]),
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PublicNamespaceFilter::class]),
+    ],
 )
 class UpdateCheckControllerTest {
+
+    @MockitoBean lateinit var jwtDecoder: JwtDecoder
 
     @MockitoBean lateinit var updateCheckService: UpdateCheckService
 

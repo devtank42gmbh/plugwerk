@@ -81,16 +81,7 @@ class ManagementController(
         return ResponseEntity.ok(pluginMapper.toDto(plugin, ns))
     }
 
-    override fun uploadRelease(
-        ns: String,
-        pluginId: String,
-        artifact: MultipartFile,
-        version: String,
-        changelog: String?,
-        requiresSystemVersion: String?,
-        requiresApiLevel: Int?,
-        pluginDependencies: String?,
-    ): ResponseEntity<PluginReleaseDto> {
+    override fun uploadRelease(ns: String, artifact: MultipartFile): ResponseEntity<PluginReleaseDto> {
         val release = releaseService.upload(
             namespaceSlug = ns,
             content = artifact.inputStream,

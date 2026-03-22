@@ -17,12 +17,15 @@
  */
 package io.plugwerk.server.controller
 
+import io.plugwerk.descriptor.DescriptorNotFoundException
+import io.plugwerk.descriptor.DescriptorParseException
 import io.plugwerk.server.controller.mapper.PluginMapper
 import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.security.ApiKeyAuthFilter
+import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.PluginAlreadyExistsException
 import io.plugwerk.server.service.PluginNotFoundException
 import io.plugwerk.server.service.PluginReleaseService
@@ -39,6 +42,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
@@ -49,9 +53,14 @@ import java.util.UUID
 @WebMvcTest(
     ManagementController::class,
     excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
-    excludeFilters = [ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class])],
+    excludeFilters = [
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [ApiKeyAuthFilter::class]),
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PublicNamespaceFilter::class]),
+    ],
 )
 class ManagementControllerTest {
+
+    @MockitoBean lateinit var jwtDecoder: JwtDecoder
 
     @MockitoBean lateinit var pluginService: PluginService
 
@@ -166,9 +175,8 @@ class ManagementControllerTest {
         val artifact =
             MockMultipartFile("artifact", "my-plugin-1.0.0.jar", "application/octet-stream", "fake".toByteArray())
 
-        mockMvc.multipart("/api/v1/namespaces/acme/plugins/my-plugin/releases") {
+        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
             file(artifact)
-            param("version", "1.0.0")
         }.andExpect {
             status { isCreated() }
         }
@@ -191,6 +199,44 @@ class ManagementControllerTest {
             content = """{"status":"published"}"""
         }.andExpect {
             status { isOk() }
+        }
+    }
+
+    @Test
+    fun `POST release upload returns 422 when descriptor not found in JAR`() {
+        val artifact =
+            MockMultipartFile("artifact", "invalid.jar", "application/octet-stream", "not-a-jar".toByteArray())
+        whenever(releaseService.upload(any(), any(), any()))
+            .thenThrow(
+                DescriptorNotFoundException(
+                    "No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)",
+                ),
+            )
+
+        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
+            file(artifact)
+        }.andExpect {
+            status { isUnprocessableEntity() }
+            jsonPath("$.status") { value(422) }
+            jsonPath("$.message") {
+                value("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)")
+            }
+        }
+    }
+
+    @Test
+    fun `POST release upload returns 422 when descriptor cannot be parsed`() {
+        val artifact =
+            MockMultipartFile("artifact", "broken.jar", "application/octet-stream", "not-a-jar".toByteArray())
+        whenever(releaseService.upload(any(), any(), any()))
+            .thenThrow(DescriptorParseException("Invalid plugin.id in MANIFEST.MF"))
+
+        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
+            file(artifact)
+        }.andExpect {
+            status { isUnprocessableEntity() }
+            jsonPath("$.status") { value(422) }
+            jsonPath("$.message") { value("Invalid plugin.id in MANIFEST.MF") }
         }
     }
 

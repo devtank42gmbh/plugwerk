@@ -18,6 +18,8 @@
 package io.plugwerk.server.controller
 
 import io.plugwerk.api.model.ErrorResponse
+import io.plugwerk.descriptor.DescriptorNotFoundException
+import io.plugwerk.descriptor.DescriptorParseException
 import io.plugwerk.server.service.ArtifactStorageException
 import io.plugwerk.server.service.NamespaceAlreadyExistsException
 import io.plugwerk.server.service.NamespaceNotFoundException
@@ -68,6 +70,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> =
         errorResponse(HttpStatus.BAD_REQUEST, ex.message ?: "Invalid request")
+
+    @ExceptionHandler(DescriptorNotFoundException::class, DescriptorParseException::class)
+    fun handleDescriptorError(ex: RuntimeException): ResponseEntity<ErrorResponse> =
+        errorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.message ?: "Plugin descriptor is invalid or missing")
 
     @ExceptionHandler(ArtifactStorageException::class)
     fun handleStorage(ex: ArtifactStorageException): ResponseEntity<ErrorResponse> {
