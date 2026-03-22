@@ -137,7 +137,9 @@ class CatalogController(
 
     private fun buildPageable(page: Int, size: Int, sort: String): org.springframework.data.domain.Pageable {
         val parts = sort.split(",")
-        val field = parts[0].trim()
+        val requestedField = parts[0].trim()
+        val allowedSortFields = setOf("name", "downloadCount", "updatedAt", "createdAt")
+        val field = if (requestedField in allowedSortFields) requestedField else "name"
         val direction = if (parts.getOrNull(1)?.trim()?.lowercase() == "desc") {
             Sort.Direction.DESC
         } else {
