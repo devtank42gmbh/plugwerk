@@ -66,9 +66,12 @@ class CatalogController(
         val resultPage = pluginService.findPagedByNamespace(ns, pluginStatus, category, tag, q, pageable)
 
         val pluginIds = resultPage.content.mapNotNull { it.id }
-        val latestVersions: Map<java.util.UUID, String> = if (pluginIds.isEmpty()) emptyMap()
-        else releaseRepository.findLatestPublishedVersionsForPlugins(pluginIds)
-            .associate { row -> (row[0] as java.util.UUID) to (row[1] as String) }
+        val latestVersions: Map<java.util.UUID, String> = if (pluginIds.isEmpty()) {
+            emptyMap()
+        } else {
+            releaseRepository.findLatestPublishedVersionsForPlugins(pluginIds)
+                .associate { row -> (row[0] as java.util.UUID) to (row[1] as String) }
+        }
 
         val response = PluginPagedResponse(
             content = resultPage.content.map { pluginMapper.toDto(it, ns, latestVersions[it.id]) },

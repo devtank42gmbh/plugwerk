@@ -26,7 +26,6 @@ import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.NamespaceNotFoundException
-import org.springframework.security.oauth2.jwt.JwtDecoder
 import io.plugwerk.server.service.Pf4jCompatibilityService
 import io.plugwerk.server.service.PluginNotFoundException
 import io.plugwerk.server.service.PluginReleaseService
@@ -45,6 +44,7 @@ import org.springframework.context.annotation.FilterType
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get

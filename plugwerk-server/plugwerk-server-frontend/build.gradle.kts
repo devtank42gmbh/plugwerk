@@ -2,11 +2,11 @@ plugins {
     base
 }
 
-fun npmCmd(vararg args: String): List<String> =
-    if (System.getProperty("os.name").lowercase().contains("windows"))
-        listOf("cmd", "/c", "npm") + args
-    else
-        listOf("bash", "-c", "npm ${args.joinToString(" ")}")
+fun npmCmd(vararg args: String): List<String> = if (System.getProperty("os.name").lowercase().contains("windows")) {
+    listOf("cmd", "/c", "npm") + args
+} else {
+    listOf("bash", "-c", "npm ${args.joinToString(" ")}")
+}
 
 val npmInstall by tasks.registering(Exec::class) {
     workingDir = projectDir

@@ -49,10 +49,8 @@ class JwtConfiguration(private val props: PlugwerkProperties) {
     }
 
     @Bean
-    fun jwtDecoder(): JwtDecoder =
-        NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
+    fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
 
     @Bean
-    fun jwtEncoder(): JwtEncoder =
-        NimbusJwtEncoder(ImmutableSecret(secretKey))
+    fun jwtEncoder(): JwtEncoder = NimbusJwtEncoder(ImmutableSecret(secretKey))
 }

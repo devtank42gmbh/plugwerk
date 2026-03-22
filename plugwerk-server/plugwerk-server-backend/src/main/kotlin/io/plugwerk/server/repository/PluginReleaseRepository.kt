@@ -72,7 +72,5 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
           )
         """,
     )
-    fun findLatestPublishedVersionsForPlugins(
-        @Param("pluginIds") pluginIds: Collection<UUID>,
-    ): List<Array<Any>>
+    fun findLatestPublishedVersionsForPlugins(@Param("pluginIds") pluginIds: Collection<UUID>): List<Array<Any>>
 }

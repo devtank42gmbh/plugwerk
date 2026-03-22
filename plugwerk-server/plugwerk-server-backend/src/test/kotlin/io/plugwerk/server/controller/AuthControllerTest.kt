@@ -49,6 +49,7 @@ class AuthControllerTest {
     @Autowired lateinit var mockMvc: MockMvc
 
     @MockitoBean lateinit var credentialValidator: UserCredentialValidator
+
     @MockitoBean lateinit var jwtTokenService: JwtTokenService
 
     @Test

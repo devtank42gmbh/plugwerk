@@ -27,16 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-data class LoginRequest(
-    @field:NotBlank val username: String,
-    @field:NotBlank val password: String,
-)
+data class LoginRequest(@field:NotBlank val username: String, @field:NotBlank val password: String)
 
-data class LoginResponse(
-    val accessToken: String,
-    val tokenType: String = "Bearer",
-    val expiresIn: Long,
-)
+data class LoginResponse(val accessToken: String, val tokenType: String = "Bearer", val expiresIn: Long)
 
 @RestController
 @RequestMapping("/api/auth")

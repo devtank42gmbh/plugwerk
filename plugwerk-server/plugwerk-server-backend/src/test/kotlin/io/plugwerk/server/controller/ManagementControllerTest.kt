@@ -17,6 +17,8 @@
  */
 package io.plugwerk.server.controller
 
+import io.plugwerk.descriptor.DescriptorNotFoundException
+import io.plugwerk.descriptor.DescriptorParseException
 import io.plugwerk.server.controller.mapper.PluginMapper
 import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.domain.NamespaceEntity
@@ -24,10 +26,7 @@ import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
-import io.plugwerk.descriptor.DescriptorNotFoundException
-import io.plugwerk.descriptor.DescriptorParseException
 import io.plugwerk.server.service.PluginAlreadyExistsException
-import org.springframework.security.oauth2.jwt.JwtDecoder
 import io.plugwerk.server.service.PluginNotFoundException
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.PluginService
@@ -43,6 +42,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
@@ -207,14 +207,20 @@ class ManagementControllerTest {
         val artifact =
             MockMultipartFile("artifact", "invalid.jar", "application/octet-stream", "not-a-jar".toByteArray())
         whenever(releaseService.upload(any(), any(), any()))
-            .thenThrow(DescriptorNotFoundException("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)"))
+            .thenThrow(
+                DescriptorNotFoundException(
+                    "No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)",
+                ),
+            )
 
         mockMvc.multipart("/api/v1/namespaces/acme/releases") {
             file(artifact)
         }.andExpect {
             status { isUnprocessableEntity() }
             jsonPath("$.status") { value(422) }
-            jsonPath("$.message") { value("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)") }
+            jsonPath("$.message") {
+                value("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)")
+            }
         }
     }
 

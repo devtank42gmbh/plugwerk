@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class JwtTokenService(
-    private val jwtEncoder: JwtEncoder,
-    private val props: PlugwerkProperties,
-) {
+class JwtTokenService(private val jwtEncoder: JwtEncoder, private val props: PlugwerkProperties) {
 
     fun generateToken(username: String): String {
         val now = Instant.now()

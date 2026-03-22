@@ -25,7 +25,6 @@ import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.security.ApiKeyAuthFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.PluginReleaseService
-import org.springframework.security.oauth2.jwt.JwtDecoder
 import io.plugwerk.server.service.ReleaseNotFoundException
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -38,6 +37,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get

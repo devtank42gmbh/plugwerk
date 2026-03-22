@@ -106,13 +106,16 @@ class PublicNamespaceFilterTest {
         val request = MockHttpServletRequest("GET", "/api/v1/namespaces/acme/plugins/my-plugin/releases/1.0.0")
         filter.doFilter(request, MockHttpServletResponse(), MockFilterChain())
 
-        assertThat(SecurityContextHolder.getContext().authentication).isInstanceOf(AnonymousAuthenticationToken::class.java)
+        assertThat(
+            SecurityContextHolder.getContext().authentication,
+        ).isInstanceOf(AnonymousAuthenticationToken::class.java)
     }
 
     @Test
     fun `does not override existing authentication`() {
         val existingAuth = AnonymousAuthenticationToken(
-            "existing", "user",
+            "existing",
+            "user",
             listOf(org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")),
         )
         SecurityContextHolder.getContext().authentication = existingAuth
