@@ -24,7 +24,7 @@ export const tokens = {
 
   badge: {
     published: { bg: '#DEFBE6', text: '#198038' },
-    draft:     { bg: '#E0E0E0', text: '#393939' },
+    draft:     { bg: '#FFE8CC', text: '#A84400' },
     deprecated:{ bg: '#FFF1C7', text: '#8A6A00' },
     yanked:    { bg: '#FFD7D9', text: '#DA1E28' },
     tag:       { bg: '#D0E2FF', text: '#0043CE' },
