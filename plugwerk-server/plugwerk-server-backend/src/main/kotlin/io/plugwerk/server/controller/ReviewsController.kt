@@ -21,9 +21,9 @@ import io.plugwerk.api.ReviewsApi
 import io.plugwerk.api.model.PluginReleaseDto
 import io.plugwerk.api.model.ReviewDecisionRequest
 import io.plugwerk.api.model.ReviewItemDto
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.service.PluginReleaseService
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

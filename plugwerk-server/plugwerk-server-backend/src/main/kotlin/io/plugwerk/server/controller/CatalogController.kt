@@ -23,14 +23,14 @@ import io.plugwerk.api.model.PluginDto
 import io.plugwerk.api.model.PluginPagedResponse
 import io.plugwerk.api.model.PluginReleaseDto
 import io.plugwerk.api.model.ReleasePagedResponse
-import io.plugwerk.common.model.PluginStatus
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.controller.mapper.PluginMapper
 import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.service.Pf4jCompatibilityService
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.PluginService
+import io.plugwerk.spi.model.PluginStatus
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.core.io.InputStreamResource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort

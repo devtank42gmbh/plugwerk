@@ -39,6 +39,12 @@ databaseChangeLog:
                   defaultValueComputed: now()
                   constraints:
                     nullable: false
+              - column:
+                  name: public_catalog
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
 
   - changeSet:
       id: 0001-create-plugin

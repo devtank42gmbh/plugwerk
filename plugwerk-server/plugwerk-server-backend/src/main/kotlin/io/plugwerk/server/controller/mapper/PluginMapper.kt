@@ -18,8 +18,8 @@
 package io.plugwerk.server.controller.mapper
 
 import io.plugwerk.api.model.PluginDto
-import io.plugwerk.common.model.PluginStatus
 import io.plugwerk.server.domain.PluginEntity
+import io.plugwerk.spi.model.PluginStatus
 import org.springframework.stereotype.Component
 import java.net.URI
 

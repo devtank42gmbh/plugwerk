@@ -17,10 +17,10 @@
  */
 package io.plugwerk.server.service
 
-import io.plugwerk.common.model.PluginStatus
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.repository.PluginRepository
+import io.plugwerk.spi.model.PluginStatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

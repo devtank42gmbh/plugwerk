@@ -17,9 +17,9 @@
  */
 package io.plugwerk.server.service
 
-import io.plugwerk.common.model.PluginStatus
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.repository.PluginRepository
+import io.plugwerk.spi.model.PluginStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable

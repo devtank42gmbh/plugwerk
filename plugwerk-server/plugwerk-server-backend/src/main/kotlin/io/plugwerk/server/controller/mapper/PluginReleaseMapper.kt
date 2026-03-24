@@ -19,8 +19,8 @@ package io.plugwerk.server.controller.mapper
 
 import io.plugwerk.api.model.PluginDependencyDto
 import io.plugwerk.api.model.PluginReleaseDto
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.domain.PluginReleaseEntity
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.stereotype.Component
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper

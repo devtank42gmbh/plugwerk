@@ -17,7 +17,7 @@
  */
 package io.plugwerk.server.domain
 
-import io.plugwerk.common.model.PluginStatus
+import io.plugwerk.spi.model.PluginStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -71,7 +71,7 @@ import java.util.UUID
  * @property icon URL to an icon image for catalogue display (optional).
  * @property categories Free-text list of categories for catalogue filtering.
  * @property tags Free-text list of keywords for catalogue search.
- * @property status Lifecycle status of the plugin ([io.plugwerk.common.model.PluginStatus]):
+ * @property status Lifecycle status of the plugin ([io.plugwerk.spi.model.PluginStatus]):
  *   `ACTIVE` (published), `SUSPENDED` (blocked), or `ARCHIVED` (retired).
  * @property createdAt Creation timestamp (set automatically, immutable).
  * @property updatedAt Timestamp of the last modification (updated automatically).

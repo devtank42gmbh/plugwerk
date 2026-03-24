@@ -17,10 +17,10 @@
  */
 package io.plugwerk.server.repository
 
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -63,12 +63,12 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
         SELECT r.plugin.id, r.version
         FROM PluginReleaseEntity r
         WHERE r.plugin.id IN :pluginIds
-          AND r.status = io.plugwerk.common.model.ReleaseStatus.PUBLISHED
+          AND r.status = io.plugwerk.spi.model.ReleaseStatus.PUBLISHED
           AND r.createdAt = (
             SELECT MAX(r2.createdAt)
             FROM PluginReleaseEntity r2
             WHERE r2.plugin.id = r.plugin.id
-              AND r2.status = io.plugwerk.common.model.ReleaseStatus.PUBLISHED
+              AND r2.status = io.plugwerk.spi.model.ReleaseStatus.PUBLISHED
           )
         """,
     )

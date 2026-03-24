@@ -30,12 +30,12 @@ Plugwerk consists of two artifacts:
 ```
 plugwerk/
 ├── plugwerk-api/                  # OpenAPI 3.1 spec (API-First) + generated DTOs/interfaces
-├── plugwerk-common/               # Shared ExtensionPoint interfaces, DTOs, constants
+├── plugwerk-spi/                  # Shared ExtensionPoint interfaces, DTOs, constants
 ├── plugwerk-descriptor/           # plugwerk.yml parser/validator + PF4J manifest fallback
 ├── plugwerk-server/
 │   ├── plugwerk-server-backend/   # Spring Boot 4.x + Kotlin REST API
 │   └── plugwerk-server-frontend/  # React + TypeScript + Material UI + Zustand
-└── plugwerk-client-sdk/           # PF4J plugin with isolated classloader (OkHttp + Jackson)
+└── plugwerk-client-sdk-plugin/    # PF4J plugin with isolated classloader (OkHttp + Jackson)
 ```
 
 ## Technology Stack
