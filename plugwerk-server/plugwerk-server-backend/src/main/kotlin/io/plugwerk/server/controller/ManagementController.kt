@@ -86,6 +86,7 @@ class ManagementController(
             namespaceSlug = ns,
             content = artifact.inputStream,
             contentLength = artifact.size,
+            originalFilename = artifact.originalFilename,
         )
         val dto = releaseMapper.toDto(release, release.plugin.pluginId)
         return ResponseEntity.created(
