@@ -185,30 +185,19 @@ export const ManagementApiAxiosParamCreator = function (configuration?: Configur
         },
         /**
          * 
-         * @summary Upload a new release
+         * @summary Upload a new release (descriptor is read from the JAR)
          * @param {string} ns Namespace slug
-         * @param {string} pluginId PF4J Plugin-Id
          * @param {File} artifact 
-         * @param {string} version 
-         * @param {string} [changelog] 
-         * @param {string} [requiresSystemVersion] 
-         * @param {number} [requiresApiLevel] 
-         * @param {string} [pluginDependencies] JSON array of plugin dependencies
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        uploadRelease: async (ns: string, pluginId: string, artifact: File, version: string, changelog?: string, requiresSystemVersion?: string, requiresApiLevel?: number, pluginDependencies?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        uploadRelease: async (ns: string, artifact: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'ns' is not null or undefined
             assertParamExists('uploadRelease', 'ns', ns)
-            // verify required parameter 'pluginId' is not null or undefined
-            assertParamExists('uploadRelease', 'pluginId', pluginId)
             // verify required parameter 'artifact' is not null or undefined
             assertParamExists('uploadRelease', 'artifact', artifact)
-            // verify required parameter 'version' is not null or undefined
-            assertParamExists('uploadRelease', 'version', version)
-            const localVarPath = `/namespaces/{ns}/plugins/{pluginId}/releases`
-                .replace(`{${"ns"}}`, encodeURIComponent(String(ns)))
-                .replace(`{${"pluginId"}}`, encodeURIComponent(String(pluginId)));
+            const localVarPath = `/namespaces/{ns}/releases`
+                .replace(`{${"ns"}}`, encodeURIComponent(String(ns)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -227,26 +216,6 @@ export const ManagementApiAxiosParamCreator = function (configuration?: Configur
 
             if (artifact !== undefined) { 
                 localVarFormParams.append('artifact', artifact as any);
-            }
-    
-            if (version !== undefined) { 
-                localVarFormParams.append('version', version as any);
-            }
-    
-            if (changelog !== undefined) { 
-                localVarFormParams.append('changelog', changelog as any);
-            }
-    
-            if (requiresSystemVersion !== undefined) { 
-                localVarFormParams.append('requiresSystemVersion', requiresSystemVersion as any);
-            }
-    
-            if (requiresApiLevel !== undefined) { 
-                localVarFormParams.append('requiresApiLevel', requiresApiLevel as any);
-            }
-    
-            if (pluginDependencies !== undefined) { 
-                localVarFormParams.append('pluginDependencies', pluginDependencies as any);
             }
     
     
@@ -319,20 +288,14 @@ export const ManagementApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Upload a new release
+         * @summary Upload a new release (descriptor is read from the JAR)
          * @param {string} ns Namespace slug
-         * @param {string} pluginId PF4J Plugin-Id
          * @param {File} artifact 
-         * @param {string} version 
-         * @param {string} [changelog] 
-         * @param {string} [requiresSystemVersion] 
-         * @param {number} [requiresApiLevel] 
-         * @param {string} [pluginDependencies] JSON array of plugin dependencies
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async uploadRelease(ns: string, pluginId: string, artifact: File, version: string, changelog?: string, requiresSystemVersion?: string, requiresApiLevel?: number, pluginDependencies?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PluginReleaseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.uploadRelease(ns, pluginId, artifact, version, changelog, requiresSystemVersion, requiresApiLevel, pluginDependencies, options);
+        async uploadRelease(ns: string, artifact: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PluginReleaseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.uploadRelease(ns, artifact, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ManagementApi.uploadRelease']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -379,13 +342,13 @@ export const ManagementApiFactory = function (configuration?: Configuration, bas
         },
         /**
          * 
-         * @summary Upload a new release
+         * @summary Upload a new release (descriptor is read from the JAR)
          * @param {ManagementApiUploadReleaseRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         uploadRelease(requestParameters: ManagementApiUploadReleaseRequest, options?: RawAxiosRequestConfig): AxiosPromise<PluginReleaseDto> {
-            return localVarFp.uploadRelease(requestParameters.ns, requestParameters.pluginId, requestParameters.artifact, requestParameters.version, requestParameters.changelog, requestParameters.requiresSystemVersion, requestParameters.requiresApiLevel, requestParameters.pluginDependencies, options).then((request) => request(axios, basePath));
+            return localVarFp.uploadRelease(requestParameters.ns, requestParameters.artifact, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -488,53 +451,11 @@ export interface ManagementApiUploadReleaseRequest {
     readonly ns: string
 
     /**
-     * PF4J Plugin-Id
-     * @type {string}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly pluginId: string
-
-    /**
      * 
      * @type {File}
      * @memberof ManagementApiUploadRelease
      */
     readonly artifact: File
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly version: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly changelog?: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly requiresSystemVersion?: string
-
-    /**
-     * 
-     * @type {number}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly requiresApiLevel?: number
-
-    /**
-     * JSON array of plugin dependencies
-     * @type {string}
-     * @memberof ManagementApiUploadRelease
-     */
-    readonly pluginDependencies?: string
 }
 
 /**
@@ -582,14 +503,14 @@ export class ManagementApi extends BaseAPI {
 
     /**
      * 
-     * @summary Upload a new release
+     * @summary Upload a new release (descriptor is read from the JAR)
      * @param {ManagementApiUploadReleaseRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ManagementApi
      */
     public uploadRelease(requestParameters: ManagementApiUploadReleaseRequest, options?: RawAxiosRequestConfig) {
-        return ManagementApiFp(this.configuration).uploadRelease(requestParameters.ns, requestParameters.pluginId, requestParameters.artifact, requestParameters.version, requestParameters.changelog, requestParameters.requiresSystemVersion, requestParameters.requiresApiLevel, requestParameters.pluginDependencies, options).then((request) => request(this.axios, this.basePath));
+        return ManagementApiFp(this.configuration).uploadRelease(requestParameters.ns, requestParameters.artifact, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -21,11 +21,13 @@ import { ChangelogTab } from '../components/plugin-detail/ChangelogTab'
 import { DependenciesTab } from '../components/plugin-detail/DependenciesTab'
 import { catalogApi } from '../api/config'
 import type { PluginDto, PluginReleaseDto } from '../api/generated/model'
+import { useAuthStore } from '../stores/authStore'
 
 const TAB_IDS = ['overview', 'versions', 'changelog', 'dependencies']
 
 export function PluginDetailPage() {
   const { namespace = 'default', pluginId = '' } = useParams<{ namespace: string; pluginId: string }>()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const [plugin, setPlugin] = useState<PluginDto | null>(null)
   const [releases, setReleases] = useState<PluginReleaseDto[]>([])
   const [loading, setLoading] = useState(true)
@@ -132,6 +134,7 @@ export function PluginDetailPage() {
                       namespace={namespace}
                       pluginId={pluginId}
                       currentVersion={latestRelease?.version}
+                      canApprove={isAuthenticated}
                     />
                   )}
                   {tab === 2 && i === 2 && <ChangelogTab releases={releases} />}
