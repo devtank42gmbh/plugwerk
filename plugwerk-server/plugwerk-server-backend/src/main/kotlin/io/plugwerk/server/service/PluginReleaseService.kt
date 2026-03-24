@@ -84,7 +84,12 @@ class PluginReleaseService(
     }
 
     @Transactional
-    fun upload(namespaceSlug: String, content: InputStream, contentLength: Long, originalFilename: String? = null): PluginReleaseEntity {
+    fun upload(
+        namespaceSlug: String,
+        content: InputStream,
+        contentLength: Long,
+        originalFilename: String? = null,
+    ): PluginReleaseEntity {
         val bytes = content.readAllBytes()
         val descriptor = descriptorResolver.resolve(ByteArrayInputStream(bytes))
         val sha256 = computeSha256(bytes)

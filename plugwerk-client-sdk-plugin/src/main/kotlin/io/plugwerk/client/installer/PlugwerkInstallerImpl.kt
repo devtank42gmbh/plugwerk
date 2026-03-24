@@ -75,7 +75,9 @@ internal class PlugwerkInstallerImpl(private val client: PlugwerkClient, private
                 )
             }
 
-            val (suggestedFilename, bodyStream) = client.downloadWithFilename("plugins/$pluginId/releases/$version/download")
+            val (suggestedFilename, bodyStream) = client.downloadWithFilename(
+                "plugins/$pluginId/releases/$version/download",
+            )
             bodyStream.use { input ->
                 Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING)
             }

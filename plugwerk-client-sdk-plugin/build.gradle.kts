@@ -119,11 +119,13 @@ val pluginZip by tasks.registering(Zip::class) {
     // META-INF/MANIFEST.MF as a loose file at the ZIP root.
     // ManifestPluginDescriptorFinder searches for "MANIFEST.MF" by name in the extracted
     // directory; it reads loose files only, not JAR-embedded manifests.
-    from(tasks.jar.map { jar ->
-        project.zipTree(jar.archiveFile.get()).matching {
-            include("META-INF/MANIFEST.MF")
-        }
-    })
+    from(
+        tasks.jar.map { jar ->
+            project.zipTree(jar.archiveFile.get()).matching {
+                include("META-INF/MANIFEST.MF")
+            }
+        },
+    )
 
     // Plugin JAR + runtime dependencies (minus host-provided) → lib/
     // DefaultPluginClasspath scans lib/ for JARs; the main plugin JAR also goes here

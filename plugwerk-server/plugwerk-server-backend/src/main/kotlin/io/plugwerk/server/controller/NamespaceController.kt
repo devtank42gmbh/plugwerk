@@ -43,13 +43,11 @@ class NamespaceController(private val namespaceService: NamespaceService) {
     }
 
     @PostMapping
-    fun createNamespace(@RequestBody request: NamespaceCreateRequest): ResponseEntity<NamespaceSummary> {
-        return try {
-            val entity = namespaceService.create(slug = request.slug, ownerOrg = request.ownerOrg)
-            val summary = NamespaceSummary(slug = entity.slug, ownerOrg = entity.ownerOrg)
-            ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(summary)
-        } catch (ex: NamespaceAlreadyExistsException) {
-            ResponseEntity.status(409).build()
-        }
+    fun createNamespace(@RequestBody request: NamespaceCreateRequest): ResponseEntity<NamespaceSummary> = try {
+        val entity = namespaceService.create(slug = request.slug, ownerOrg = request.ownerOrg)
+        val summary = NamespaceSummary(slug = entity.slug, ownerOrg = entity.ownerOrg)
+        ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(summary)
+    } catch (ex: NamespaceAlreadyExistsException) {
+        ResponseEntity.status(409).build()
     }
 }
