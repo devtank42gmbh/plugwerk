@@ -2,6 +2,8 @@ package io.plugwerk.example.cli;
 
 import picocli.CommandLine;
 
+import java.nio.file.Path;
+
 /**
  * Entry point for the Plugwerk Java CLI example.
  *
@@ -34,8 +36,17 @@ public class Main {
         // Eagerly initialize the plugin manager so that already-installed plugins are
         // loaded and their CliCommand extensions are registered as picocli subcommands
         // before execute() tries to match the user's subcommand name.
+        // parseArgs() may have failed before applying picocli defaults, so fall back to
+        // env vars / hardcoded defaults for any field that is still null.
+        Path pluginsDir = cli.pluginsDir != null ? cli.pluginsDir
+                : Path.of(System.getenv().getOrDefault("PLUGWERK_PLUGINS_DIR", "./plugins"));
+        String serverUrl = cli.serverUrl != null ? cli.serverUrl
+                : System.getenv().getOrDefault("PLUGWERK_SERVER_URL", "http://localhost:8080");
+        String namespace = cli.namespace != null ? cli.namespace
+                : System.getenv().getOrDefault("PLUGWERK_NAMESPACE", "default");
+
         org.pf4j.PluginManager pm = PluginManagerFactory.create(
-                cli.pluginsDir, cli.serverUrl, cli.namespace, cli.accessToken);
+                pluginsDir, serverUrl, namespace, cli.accessToken);
         cli.setPluginManager(pm);
         DynamicCommandLoader.loadAll(commandLine, pm);
 
