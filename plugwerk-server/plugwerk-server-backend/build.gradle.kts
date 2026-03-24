@@ -11,8 +11,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":plugwerk-api"))
-    implementation(project(":plugwerk-common"))
+    implementation(project(":plugwerk-api:plugwerk-api-endpoint"))
+    implementation(project(":plugwerk-spi"))
     implementation(project(":plugwerk-descriptor"))
 
     implementation(libs.kotlin.reflect)

@@ -20,12 +20,12 @@ package io.plugwerk.server.service
 import io.plugwerk.api.model.Pf4jPluginInfo
 import io.plugwerk.api.model.Pf4jPluginsJson
 import io.plugwerk.api.model.Pf4jReleaseInfo
-import io.plugwerk.common.model.PluginStatus
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.PlugwerkProperties
 import io.plugwerk.server.repository.NamespaceRepository
 import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.repository.PluginRepository
+import io.plugwerk.spi.model.PluginStatus
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.URI

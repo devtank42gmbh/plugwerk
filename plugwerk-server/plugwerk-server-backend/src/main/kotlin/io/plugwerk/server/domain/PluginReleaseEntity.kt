@@ -17,7 +17,7 @@
  */
 package io.plugwerk.server.domain
 
-import io.plugwerk.common.model.ReleaseStatus
+import io.plugwerk.spi.model.ReleaseStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -49,7 +49,7 @@ import java.util.UUID
  *
  * **Lifecycle:**
  * New releases start in `DRAFT` status and progress through the following states
- * ([io.plugwerk.common.model.ReleaseStatus]):
+ * ([io.plugwerk.spi.model.ReleaseStatus]):
  * ```
  * DRAFT → PUBLISHED → DEPRECATED
  *                   → YANKED
@@ -79,7 +79,7 @@ import java.util.UUID
  * @property pluginDependencies Optional list of plugin-to-plugin dependencies as a JSON
  *   array (e.g. `[{"id":"other-plugin","version":">=1.0.0"}]`).
  * @property status Current lifecycle status of the release
- *   (default: [io.plugwerk.common.model.ReleaseStatus.DRAFT]).
+ *   (default: [io.plugwerk.spi.model.ReleaseStatus.DRAFT]).
  * @property createdAt Creation timestamp (set automatically, immutable).
  * @property updatedAt Timestamp of the last modification (updated automatically).
  */

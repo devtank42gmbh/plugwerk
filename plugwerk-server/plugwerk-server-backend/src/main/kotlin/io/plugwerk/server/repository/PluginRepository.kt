@@ -17,9 +17,9 @@
  */
 package io.plugwerk.server.repository
 
-import io.plugwerk.common.model.PluginStatus
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
+import io.plugwerk.spi.model.PluginStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

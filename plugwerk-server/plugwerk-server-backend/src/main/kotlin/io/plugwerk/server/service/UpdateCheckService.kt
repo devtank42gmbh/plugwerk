@@ -21,12 +21,12 @@ import io.plugwerk.api.model.InstalledPluginInfo
 import io.plugwerk.api.model.PluginReleaseDto
 import io.plugwerk.api.model.PluginUpdateInfo
 import io.plugwerk.api.model.UpdateCheckResponse
-import io.plugwerk.common.model.ReleaseStatus
-import io.plugwerk.common.version.compareSemVer
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.repository.NamespaceRepository
 import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.repository.PluginRepository
+import io.plugwerk.spi.model.ReleaseStatus
+import io.plugwerk.spi.version.compareSemVer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

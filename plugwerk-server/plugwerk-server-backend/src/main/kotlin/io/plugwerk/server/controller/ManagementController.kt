@@ -23,11 +23,11 @@ import io.plugwerk.api.model.PluginDto
 import io.plugwerk.api.model.PluginReleaseDto
 import io.plugwerk.api.model.PluginUpdateRequest
 import io.plugwerk.api.model.ReleaseStatusUpdateRequest
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.controller.mapper.PluginMapper
 import io.plugwerk.server.controller.mapper.PluginReleaseMapper
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.PluginService
+import io.plugwerk.spi.model.ReleaseStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

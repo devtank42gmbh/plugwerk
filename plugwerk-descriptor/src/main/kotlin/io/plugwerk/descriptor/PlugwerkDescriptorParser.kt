@@ -17,7 +17,7 @@
  */
 package io.plugwerk.descriptor
 
-import io.plugwerk.common.version.isValidSemVer
+import io.plugwerk.spi.version.isValidSemVer
 import tools.jackson.core.JacksonException
 import tools.jackson.core.StreamReadConstraints
 import tools.jackson.dataformat.yaml.YAMLFactory

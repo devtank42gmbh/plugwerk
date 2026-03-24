@@ -17,11 +17,11 @@
  */
 package io.plugwerk.server.repository
 
-import io.plugwerk.common.model.ReleaseStatus
 import io.plugwerk.server.AbstractRepositoryTest
 import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
+import io.plugwerk.spi.model.ReleaseStatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

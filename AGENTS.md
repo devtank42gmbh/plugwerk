@@ -147,19 +147,19 @@ PRs without labels or milestone are non-compliant. Set them via `gh pr edit <num
 ```
 plugwerk/
 ├── plugwerk-api/                  # OpenAPI 3.1 spec (API-First) + generated DTOs/interfaces
-├── plugwerk-common/               # Shared ExtensionPoint interfaces, DTOs, constants (JVM 11)
+├── plugwerk-spi/                  # Shared ExtensionPoint interfaces, DTOs, constants (JVM 11)
 ├── plugwerk-descriptor/           # plugwerk.yml parser/validator + PF4J manifest fallback (JVM 11)
 ├── plugwerk-server/
 │   ├── plugwerk-server-backend/   # Spring Boot 4.x + Kotlin REST API (JVM 21)
 │   └── plugwerk-server-frontend/  # React + TypeScript + MUI + Zustand (embedded in server JAR)
-└── plugwerk-client-sdk/           # PF4J plugin, OkHttp, Jackson (JVM 11)
+└── plugwerk-client-sdk-plugin/    # PF4J plugin, OkHttp, Jackson (JVM 17)
 ```
 
 ### Key Design Constraints
 
 - **Client SDK is a PF4J plugin** with isolated classloader – no dependency conflicts with host application
-- **Hybrid Extension Point pattern** – `PlugwerkMarketplace` facade + granular `PlugwerkCatalog`, `PlugwerkInstaller`, `PlugwerkUpdateChecker` as separate ExtensionPoints (interfaces in `plugwerk-common`)
-- **pf4j-update backward compatibility** – `PlugwerkUpdateRepository` is a drop-in for `DefaultUpdateRepository`; `GET /plugins.json` maintains pf4j-update format
+- **Hybrid Extension Point pattern** – `PlugwerkMarketplace` facade + granular `PlugwerkCatalog`, `PlugwerkInstaller`, `PlugwerkUpdateChecker` as separate ExtensionPoints (interfaces in `plugwerk-spi`)
+- **pf4j-update compatible endpoint** – `GET /plugins.json` serves the pf4j-update format for legacy integrations
 - **API-First** – OpenAPI 3.1 spec in `plugwerk-api` is the single source of truth
 - **Transactional installation** – no partial state on failure; rollback requires retaining previous version
 - **Namespace isolation** – all resources are scoped to a namespace; one server serves multiple products/organizations

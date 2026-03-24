@@ -18,7 +18,7 @@ tasks.compileJava {
 }
 
 dependencies {
-    api(project(":plugwerk-common"))
+    api(project(":plugwerk-spi"))
 
     implementation(platform(libs.jackson.bom))
     implementation(libs.jackson.databind)
