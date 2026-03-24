@@ -104,7 +104,11 @@ dependencies {
 //   plugwerk-spi and pf4j JARs are excluded — the host app provides them on the
 //   parent classloader so that ExtensionPoint interface identity is shared.
 // ---------------------------------------------------------------------------
-val hostProvidedArtifacts = setOf("plugwerk-spi", "pf4j")
+// slf4j-api must also be host-provided: the plugin must use the same SLF4J instance as
+// the host so that LogbackServiceProvider (in the host classloader) is visible when
+// ServiceLoader resolves SLF4JServiceProvider via the plugin classloader.
+// Bundling slf4j-api in the plugin ZIP causes "not a subtype" errors at startup.
+val hostProvidedArtifacts = setOf("plugwerk-spi", "pf4j", "slf4j-api")
 
 val pluginZip by tasks.registering(Zip::class) {
     group = "build"

@@ -64,6 +64,12 @@ public class PlugwerkCli implements Runnable {
             defaultValue = "${PLUGWERK_PLUGINS_DIR:-./plugins}")
     public Path pluginsDir;
 
+    @Option(
+            names = {"--access-token", "-t"},
+            description = "Bearer token for server authentication (env: PLUGWERK_ACCESS_TOKEN)",
+            defaultValue = "${PLUGWERK_ACCESS_TOKEN:}")
+    public String accessToken;
+
     // Lazily initialized on first subcommand invocation
     private PluginManager pluginManager;
     private PlugwerkMarketplace marketplace;
@@ -79,7 +85,7 @@ public class PlugwerkCli implements Runnable {
      */
     public synchronized PlugwerkMarketplace getMarketplace() {
         if (marketplace == null) {
-            pluginManager = PluginManagerFactory.create(pluginsDir, serverUrl, namespace);
+            pluginManager = PluginManagerFactory.create(pluginsDir, serverUrl, namespace, accessToken);
             marketplace = PluginManagerFactory.getMarketplace(pluginManager);
             registerShutdownHook();
         }
@@ -109,7 +115,13 @@ public class PlugwerkCli implements Runnable {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (pluginManager != null) {
                 log.debug("Stopping PF4J plugin manager");
-                pluginManager.stopPlugins();
+                try {
+                    pluginManager.stopPlugins();
+                } catch (Exception e) {
+                    // PF4J 3.15 has a known bug where stopPlugins() causes a
+                    // ConcurrentModificationException during JVM shutdown. Safe to ignore.
+                    log.debug("Suppressed exception during plugin manager shutdown", e);
+                }
             }
         }));
     }
