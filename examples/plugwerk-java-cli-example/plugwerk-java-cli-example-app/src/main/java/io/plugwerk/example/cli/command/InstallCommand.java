@@ -3,9 +3,14 @@ package io.plugwerk.example.cli.command;
 import io.plugwerk.example.cli.DynamicCommandLoader;
 import io.plugwerk.example.cli.PlugwerkCli;
 import io.plugwerk.spi.model.InstallResult;
+import org.pf4j.PluginManager;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Downloads and installs a plugin from the Plugwerk server.
@@ -41,17 +46,37 @@ public class InstallCommand implements Runnable {
 
         if (result instanceof InstallResult.Success s) {
             System.out.printf("✓ Successfully installed %s@%s%n", s.getPluginId(), s.getVersion());
-            // Let PF4J discover and start the newly installed plugin immediately,
-            // then register any CliCommand extensions it contributes.
-            org.pf4j.PluginManager pm = parent.getPluginManager();
+            // Load and start only the newly installed plugin, then register its extensions.
+            // Using loadPlugin(path) instead of loadPlugins() avoids a PluginAlreadyLoadedException
+            // for plugins that are already running (e.g. plugwerk-client-sdk-plugin).
+            PluginManager pm = parent.getPluginManager();
             if (pm != null) {
-                pm.loadPlugins();
+                Path artifact = findInstalledArtifact(parent.pluginsDir, pluginId, version);
+                if (artifact != null) {
+                    pm.loadPlugin(artifact);
+                }
                 pm.startPlugin(pluginId);
             }
             DynamicCommandLoader.reload(parent.getCommandLine(), pm);
         } else if (result instanceof InstallResult.Failure f) {
             System.err.printf("✗ Installation failed: %s%n", f.getReason());
             System.exit(1);
+        }
+    }
+
+    private static Path findInstalledArtifact(Path pluginsDir, String pluginId, String version) {
+        String prefix = pluginId + "-" + version + ".";
+        try (var stream = Files.list(pluginsDir)) {
+            return stream
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.startsWith(prefix)
+                                && (name.endsWith(".zip") || name.endsWith(".jar"));
+                    })
+                    .findFirst()
+                    .orElse(null);
+        } catch (IOException e) {
+            return null;
         }
     }
 }
