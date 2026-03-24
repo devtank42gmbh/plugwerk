@@ -92,11 +92,11 @@ export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
         <Typography variant="caption" color="text.disabled">{plugin.author ?? namespace}</Typography>
       </Box>
 
+      {isDraft && <Badge variant="draft">Draft</Badge>}
+      {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}
       {(plugin.latestVersion ?? plugin.latestDraftVersion) && (
         <Badge variant="version">v{plugin.latestVersion ?? plugin.latestDraftVersion}</Badge>
       )}
-      {isDraft && <Badge variant="draft">Draft</Badge>}
-      {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}
 
       <Box sx={{ display: 'flex', gap: 2, color: 'text.disabled', flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
