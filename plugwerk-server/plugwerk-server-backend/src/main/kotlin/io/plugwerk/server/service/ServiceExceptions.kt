@@ -33,4 +33,6 @@ class ReleaseAlreadyExistsException(pluginId: String, version: String) :
 class ReleaseNotFoundException(pluginId: String, version: String) :
     RuntimeException("Release not found: $pluginId@$version")
 
+class ArtifactNotFoundException(key: String) : RuntimeException("Artifact not found: $key")
+
 class ArtifactStorageException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

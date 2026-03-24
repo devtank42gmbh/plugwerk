@@ -20,6 +20,7 @@ package io.plugwerk.server.controller
 import io.plugwerk.api.model.ErrorResponse
 import io.plugwerk.descriptor.DescriptorNotFoundException
 import io.plugwerk.descriptor.DescriptorParseException
+import io.plugwerk.server.service.ArtifactNotFoundException
 import io.plugwerk.server.service.ArtifactStorageException
 import io.plugwerk.server.service.NamespaceAlreadyExistsException
 import io.plugwerk.server.service.NamespaceNotFoundException
@@ -45,6 +46,7 @@ class GlobalExceptionHandler {
         NamespaceNotFoundException::class,
         PluginNotFoundException::class,
         ReleaseNotFoundException::class,
+        ArtifactNotFoundException::class,
     )
     fun handleNotFound(ex: RuntimeException): ResponseEntity<ErrorResponse> =
         errorResponse(HttpStatus.NOT_FOUND, ex.message ?: "Resource not found")
