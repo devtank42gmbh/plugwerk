@@ -18,6 +18,7 @@
 package io.plugwerk.server.service.storage
 
 import io.plugwerk.server.PlugwerkProperties
+import io.plugwerk.server.service.ArtifactNotFoundException
 import io.plugwerk.server.service.ArtifactStorageException
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -46,7 +47,7 @@ class FilesystemArtifactStorageService(properties: PlugwerkProperties) : Artifac
 
     override fun retrieve(key: String): InputStream {
         val path = resolveKey(key)
-        if (!path.exists()) throw ArtifactStorageException("Artifact not found for key '$key'")
+        if (!path.exists()) throw ArtifactNotFoundException(key)
         return try {
             Files.newInputStream(path)
         } catch (e: Exception) {

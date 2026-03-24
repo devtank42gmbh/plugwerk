@@ -75,7 +75,10 @@ internal class PlugwerkInstallerImpl(private val client: PlugwerkClient, private
                 )
             }
 
-            client.download("plugins/$pluginId/releases/$version/download").use { input ->
+            val (suggestedFilename, bodyStream) = client.downloadWithFilename(
+                "plugins/$pluginId/releases/$version/download",
+            )
+            bodyStream.use { input ->
                 Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING)
             }
 
@@ -84,9 +87,11 @@ internal class PlugwerkInstallerImpl(private val client: PlugwerkClient, private
                 return InstallResult.Failure(pluginId, version, "SHA-256 checksum mismatch for $pluginId:$version")
             }
 
-            val finalPath = pluginDirectory.resolve("$pluginId-$version.jar")
+            val extension = suggestedFilename?.substringAfterLast('.')?.lowercase()
+                ?.takeIf { it == "zip" || it == "jar" } ?: "jar"
+            val finalPath = pluginDirectory.resolve("$pluginId-$version.$extension")
             Files.move(tempFile, finalPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-            log.info("Installed {}:{} to {}", pluginId, version, finalPath)
+            log.info("Installed {}:{} to {} ({})", pluginId, version, finalPath, extension)
             InstallResult.Success(pluginId, version)
         } catch (ex: PlugwerkNotFoundException) {
             deleteSilently(tempFile)
@@ -98,19 +103,45 @@ internal class PlugwerkInstallerImpl(private val client: PlugwerkClient, private
     }
 
     override fun uninstall(pluginId: String): InstallResult {
-        val candidates =
+        val (artifactFiles, extractedDirs) =
             Files.list(pluginDirectory).use { stream ->
                 stream.filter { path ->
                     val name = path.fileName.toString()
-                    name.startsWith("$pluginId-") && name.endsWith(".jar")
+                    name.startsWith("$pluginId-")
                 }.toList()
+            }.partition { path ->
+                val name = path.fileName.toString()
+                name.endsWith(".jar") || name.endsWith(".zip")
             }
-        if (candidates.isEmpty()) {
+
+        if (artifactFiles.isEmpty() && extractedDirs.isEmpty()) {
             return InstallResult.Failure(pluginId, "", "No installed artifact found for plugin $pluginId")
         }
-        candidates.forEach { Files.deleteIfExists(it) }
+
+        // Remove the ZIP/JAR artifact file
+        artifactFiles.forEach { Files.deleteIfExists(it) }
+
+        // Remove the extracted directory that PF4J created when loading the ZIP
+        // (DefaultPluginRepository.expandIfZip strips the .zip suffix for the dir name)
+        extractedDirs
+            .filter { Files.isDirectory(it) }
+            .forEach { deleteRecursively(it) }
+
         log.info("Uninstalled plugin {}", pluginId)
         return InstallResult.Success(pluginId, "")
+    }
+
+    private fun deleteRecursively(path: java.nio.file.Path) {
+        if (Files.isDirectory(path)) {
+            Files.list(path).use { children ->
+                children.forEach { deleteRecursively(it) }
+            }
+        }
+        try {
+            Files.deleteIfExists(path)
+        } catch (ex: Exception) {
+            log.warn("Could not delete {}: {}", path, ex.message)
+        }
     }
 
     override fun verifyChecksum(artifactPath: Path, expectedSha256: String): Boolean {

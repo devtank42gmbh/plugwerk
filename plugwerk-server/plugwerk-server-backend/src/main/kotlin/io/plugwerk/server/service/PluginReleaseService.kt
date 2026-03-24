@@ -84,7 +84,12 @@ class PluginReleaseService(
     }
 
     @Transactional
-    fun upload(namespaceSlug: String, content: InputStream, contentLength: Long): PluginReleaseEntity {
+    fun upload(
+        namespaceSlug: String,
+        content: InputStream,
+        contentLength: Long,
+        originalFilename: String? = null,
+    ): PluginReleaseEntity {
         val bytes = content.readAllBytes()
         val descriptor = descriptorResolver.resolve(ByteArrayInputStream(bytes))
         val sha256 = computeSha256(bytes)
@@ -94,7 +99,9 @@ class PluginReleaseService(
             throw ReleaseAlreadyExistsException(descriptor.id, descriptor.version)
         }
 
-        val artifactKey = "$namespaceSlug/${descriptor.id}/${descriptor.version}"
+        val extension = originalFilename?.substringAfterLast('.')?.lowercase()
+            ?.takeIf { it == "zip" || it == "jar" } ?: "jar"
+        val artifactKey = "$namespaceSlug/${descriptor.id}/${descriptor.version}.$extension"
         storageService.store(artifactKey, ByteArrayInputStream(bytes), bytes.size.toLong())
 
         return releaseRepository.save(
