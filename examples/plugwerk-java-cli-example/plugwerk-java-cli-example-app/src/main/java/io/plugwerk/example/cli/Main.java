@@ -23,6 +23,22 @@ public class Main {
         CommandLine commandLine = new CommandLine(cli);
         cli.setCommandLine(commandLine);
 
+        // Pre-parse global options so that pluginsDir, serverUrl etc. are populated
+        // from command-line args and env vars before we initialize the plugin manager.
+        // Errors (e.g. unknown subcommand before dynamic commands are registered) are
+        // intentionally ignored — execute() will handle them properly.
+        try {
+            commandLine.parseArgs(args);
+        } catch (Exception ignored) {}
+
+        // Eagerly initialize the plugin manager so that already-installed plugins are
+        // loaded and their CliCommand extensions are registered as picocli subcommands
+        // before execute() tries to match the user's subcommand name.
+        org.pf4j.PluginManager pm = PluginManagerFactory.create(
+                cli.pluginsDir, cli.serverUrl, cli.namespace, cli.accessToken);
+        cli.setPluginManager(pm);
+        DynamicCommandLoader.loadAll(commandLine, pm);
+
         int exitCode = commandLine.execute(args);
         System.exit(exitCode);
     }

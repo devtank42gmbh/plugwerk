@@ -79,22 +79,36 @@ public class PlugwerkCli implements Runnable {
 
     /**
      * Returns the {@link PlugwerkMarketplace} facade, initializing the PF4J plugin manager
-     * on first call.
+     * on first call. If {@link #setPluginManager(PluginManager)} was already called (eager
+     * startup init), the existing manager is reused.
      *
      * @return the marketplace facade connected to the configured Plugwerk server
      */
     public synchronized PlugwerkMarketplace getMarketplace() {
         if (marketplace == null) {
-            pluginManager = PluginManagerFactory.create(pluginsDir, serverUrl, namespace, accessToken);
+            if (pluginManager == null) {
+                pluginManager = PluginManagerFactory.create(pluginsDir, serverUrl, namespace, accessToken);
+                registerShutdownHook();
+            }
             marketplace = PluginManagerFactory.getMarketplace(pluginManager);
-            registerShutdownHook();
         }
         return marketplace;
     }
 
-    /** Returns the plugin manager; {@code null} if {@link #getMarketplace()} was not yet called. */
+    /** Returns the plugin manager; {@code null} if neither eager init nor {@link #getMarketplace()} was called. */
     public PluginManager getPluginManager() {
         return pluginManager;
+    }
+
+    /**
+     * Pre-sets the plugin manager created during eager startup initialization.
+     * Must be called before {@link #getMarketplace()} to avoid double initialization.
+     */
+    public synchronized void setPluginManager(PluginManager pm) {
+        if (this.pluginManager == null) {
+            this.pluginManager = pm;
+            registerShutdownHook();
+        }
     }
 
     public void setCommandLine(CommandLine commandLine) {
