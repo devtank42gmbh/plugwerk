@@ -44,6 +44,7 @@ function formatRelativeTime(dateStr: string | undefined): string {
 
 export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
   const isDeprecated = plugin.status === 'archived'
+  const isDraft = !plugin.latestVersion
   return (
     <Box
       component={Link}
@@ -59,10 +60,12 @@ export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
         borderColor: 'divider',
         textDecoration: 'none',
         color: 'inherit',
-        bgcolor: 'background.paper',
+        bgcolor: isDraft ? tokens.badge.draft.bg + '44' : 'background.paper',
+        borderLeft: isDraft ? `3px solid ${tokens.badge.draft.text}` : undefined,
+        opacity: isDraft ? 0.8 : 1,
         transition: 'background-color 0.15s',
         '&:last-child': { borderBottom: 'none' },
-        '&:hover': { bgcolor: 'background.default' },
+        '&:hover': { bgcolor: isDraft ? tokens.badge.draft.bg + '88' : 'background.default' },
       }}
     >
       <Box
@@ -92,6 +95,7 @@ export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
       {plugin.latestVersion && (
         <Badge variant="version">v{plugin.latestVersion}</Badge>
       )}
+      {isDraft && <Badge variant="draft">Draft</Badge>}
       {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}
 
       <Box sx={{ display: 'flex', gap: 2, color: 'text.disabled', flexShrink: 0 }}>

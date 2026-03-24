@@ -44,6 +44,7 @@ function formatRelativeTime(dateStr: string | undefined): string {
 
 export function PluginCard({ plugin, namespace }: PluginCardProps) {
   const isDeprecated = plugin.status === 'archived'
+  const isDraft = !plugin.latestVersion
 
   return (
     <Card
@@ -57,9 +58,13 @@ export function PluginCard({ plugin, namespace }: PluginCardProps) {
         height: '100%',
         textDecoration: 'none',
         transition: 'border-color 0.15s, box-shadow 0.15s',
+        ...(isDraft && {
+          borderColor: tokens.badge.draft.text,
+          opacity: 0.8,
+        }),
         '&:hover': {
-          borderColor: tokens.color.primary,
-          boxShadow: `0 0 0 1px ${tokens.color.primary}`,
+          borderColor: isDraft ? tokens.badge.draft.text : tokens.color.primary,
+          boxShadow: `0 0 0 1px ${isDraft ? tokens.badge.draft.text : tokens.color.primary}`,
         },
       }}
     >
@@ -110,6 +115,7 @@ export function PluginCard({ plugin, namespace }: PluginCardProps) {
               <Typography variant="caption" color="text.disabled">
                 {plugin.author ?? namespace}
               </Typography>
+              {isDraft && <Badge variant="draft">Draft</Badge>}
               {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}
             </Box>
           </Box>
