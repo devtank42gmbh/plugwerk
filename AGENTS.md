@@ -28,8 +28,18 @@ This includes **source code comments and KDoc** — inline comments, KDoc (`/** 
 
 ## Git Workflow
 
-- **Run `./gradlew spotlessApply` before every `git push`** — CI runs `spotlessCheck` and will fail
-  if any Kotlin file has formatting violations. Fix locally first, then push.
+### Mandatory pre-commit checks
+
+Before **every commit**, run the formatter and linter for the language(s) you changed:
+
+| Language | Command | Directory |
+|---|---|---|
+| Kotlin | `./gradlew spotlessApply` | repo root |
+| TypeScript / TSX | `npm run lint` | `plugwerk-server/plugwerk-server-frontend/` |
+
+CI enforces both (`spotlessKotlinCheck` and `eslint`) and will fail if violations are committed.
+Never skip these checks — even for "small" renames or refactors (longer class names can exceed line limits).
+
 - **Never commit directly to `main`** – always use a feature branch
 - Branch naming: `feature/<issue-id>_<short-description>` (e.g. `feature/42_user-auth`) – every branch ties back to a GitHub Issue
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.)
