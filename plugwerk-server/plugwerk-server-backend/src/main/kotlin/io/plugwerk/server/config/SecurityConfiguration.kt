@@ -17,7 +17,7 @@
  */
 package io.plugwerk.server.config
 
-import io.plugwerk.server.security.ApiKeyAuthFilter
+import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -34,7 +34,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration(
-    private val apiKeyAuthFilter: ApiKeyAuthFilter,
+    private val apiKeyAuthFilter: NamespaceAccessKeyAuthFilter,
     private val publicNamespaceFilter: PublicNamespaceFilter,
     private val jwtDecoder: JwtDecoder,
 ) {
@@ -71,7 +71,7 @@ class SecurityConfiguration(
             }
             // PublicNamespaceFilter runs first — sets AnonymousAuth for public namespace GETs
             .addFilterBefore(publicNamespaceFilter, UsernamePasswordAuthenticationFilter::class.java)
-            // ApiKeyAuthFilter runs after — handles machine-to-machine auth via X-Api-Key
+            // NamespaceAccessKeyAuthFilter runs after — handles machine-to-machine auth via X-Api-Key
             .addFilterAfter(apiKeyAuthFilter, PublicNamespaceFilter::class.java)
 
         return http.build()

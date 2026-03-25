@@ -40,12 +40,12 @@ import java.util.UUID
  * Only its SHA-256 hash ([keyHash]) is persisted. The original key is returned to the
  * caller exactly once at creation time and cannot be recovered afterwards.
  *
- * **Data model:** Each API key maps to one row in the `api_key` table.
+ * **Data model:** Each API key maps to one row in the `namespace_access_key` table.
  * The [keyHash] is unique (Unique Constraint). An API key belongs to exactly one
  * [NamespaceEntity].
  *
  * **Usage:**
- * - Persisted and queried via [io.plugwerk.server.repository.ApiKeyRepository].
+ * - Persisted and queried via [io.plugwerk.server.repository.NamespaceAccessKeyRepository].
  * - Incoming requests are authenticated by hashing the submitted key and comparing it
  *   against the stored [keyHash].
  * - Keys can be disabled via [revoked] without deleting them, preserving the audit trail.
@@ -64,8 +64,8 @@ import java.util.UUID
  * @property createdAt Creation timestamp (set automatically, immutable).
  */
 @Entity
-@Table(name = "api_key")
-class ApiKeyEntity(
+@Table(name = "namespace_access_key")
+class NamespaceAccessKeyEntity(
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", updatable = false)

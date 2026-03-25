@@ -25,7 +25,7 @@ import org.springframework.test.context.DynamicPropertySource
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Tag("integration")
-class ApiKeyRepositoryIntegrationTest : ApiKeyRepositoryTest() {
+class NamespaceAccessKeyRepositoryIntegrationTest : NamespaceAccessKeyRepositoryTest() {
 
     companion object {
         @DynamicPropertySource

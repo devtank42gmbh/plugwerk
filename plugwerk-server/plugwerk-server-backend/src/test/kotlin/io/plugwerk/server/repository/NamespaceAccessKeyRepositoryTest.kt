@@ -18,7 +18,7 @@
 package io.plugwerk.server.repository
 
 import io.plugwerk.server.AbstractRepositoryTest
-import io.plugwerk.server.domain.ApiKeyEntity
+import io.plugwerk.server.domain.NamespaceAccessKeyEntity
 import io.plugwerk.server.domain.NamespaceEntity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -28,13 +28,13 @@ import org.springframework.dao.DataIntegrityViolationException
 import java.time.OffsetDateTime
 import kotlin.test.assertFailsWith
 
-open class ApiKeyRepositoryTest : AbstractRepositoryTest() {
+open class NamespaceAccessKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Autowired
     lateinit var namespaceRepository: NamespaceRepository
 
     @Autowired
-    lateinit var apiKeyRepository: ApiKeyRepository
+    lateinit var apiKeyRepository: NamespaceAccessKeyRepository
 
     lateinit var namespace: NamespaceEntity
 
@@ -45,7 +45,7 @@ open class ApiKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `findByKeyHash returns key when hash exists`() {
-        apiKeyRepository.save(ApiKeyEntity(namespace = namespace, keyHash = "deadbeef01234567"))
+        apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "deadbeef01234567"))
 
         val found = apiKeyRepository.findByKeyHash("deadbeef01234567")
 
@@ -62,9 +62,13 @@ open class ApiKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `findAllByNamespaceAndRevokedFalse returns only active keys`() {
-        apiKeyRepository.save(ApiKeyEntity(namespace = namespace, keyHash = "hash-active-1", revoked = false))
-        apiKeyRepository.save(ApiKeyEntity(namespace = namespace, keyHash = "hash-active-2", revoked = false))
-        apiKeyRepository.save(ApiKeyEntity(namespace = namespace, keyHash = "hash-revoked", revoked = true))
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-active-1", revoked = false),
+        )
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-active-2", revoked = false),
+        )
+        apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-revoked", revoked = true))
 
         val activeKeys = apiKeyRepository.findAllByNamespaceAndRevokedFalse(namespace)
 
@@ -77,7 +81,7 @@ open class ApiKeyRepositoryTest : AbstractRepositoryTest() {
         val expiresAt = OffsetDateTime.now().plusDays(30)
         val key =
             apiKeyRepository.save(
-                ApiKeyEntity(
+                NamespaceAccessKeyEntity(
                     namespace = namespace,
                     keyHash = "full-key-hash",
                     description = "CI/CD key",
@@ -94,11 +98,11 @@ open class ApiKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `save fails on duplicate key_hash`() {
-        apiKeyRepository.save(ApiKeyEntity(namespace = namespace, keyHash = "duplicate-hash"))
+        apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash"))
         apiKeyRepository.flush()
 
         assertFailsWith<DataIntegrityViolationException> {
-            apiKeyRepository.saveAndFlush(ApiKeyEntity(namespace = namespace, keyHash = "duplicate-hash"))
+            apiKeyRepository.saveAndFlush(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash"))
         }
     }
 }

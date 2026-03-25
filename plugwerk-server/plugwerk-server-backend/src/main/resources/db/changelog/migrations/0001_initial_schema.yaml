@@ -200,11 +200,11 @@ databaseChangeLog:
             constraintName: uq_plugin_release_plugin_version
 
   - changeSet:
-      id: 0001-create-api-key
+      id: 0001-create-namespace-access-key
       author: plugwerk
       changes:
         - createTable:
-            tableName: api_key
+            tableName: namespace_access_key
             columns:
               - column:
                   name: id
@@ -217,7 +217,7 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_api_key_namespace
+                    foreignKeyName: fk_namespace_access_key_namespace
                     references: namespace(id)
               - column:
                   name: key_hash
@@ -225,7 +225,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
-                    uniqueConstraintName: uq_api_key_hash
+                    uniqueConstraintName: uq_namespace_access_key_hash
               - column:
                   name: description
                   type: varchar(255)
