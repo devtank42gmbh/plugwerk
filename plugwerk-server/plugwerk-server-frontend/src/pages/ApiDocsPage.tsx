@@ -2,21 +2,27 @@
 // Copyright (C) 2026 devtank42 GmbH
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
-import { useTheme } from '@mui/material'
+import { useMemo } from 'react'
+import { useUiStore } from '../stores/uiStore'
 
 export function ApiDocsPage() {
-  const theme = useTheme()
-  const isDark = theme.palette.mode === 'dark'
+  const themeMode = useUiStore((s) => s.themeMode)
+  const isDark = themeMode === 'dark'
+
+  const configuration = useMemo(
+    () => ({
+      url: '/api-docs/openapi.yaml',
+      darkMode: isDark,
+      hideDownloadButton: false,
+      layout: 'modern' as const,
+    }),
+    [isDark],
+  )
 
   return (
     <ApiReferenceReact
-      key={isDark ? 'dark' : 'light'}
-      configuration={{
-        url: '/api-docs/openapi.yaml',
-        darkMode: isDark,
-        hideDownloadButton: false,
-        layout: 'modern',
-      }}
+      key={themeMode}
+      configuration={configuration}
     />
   )
 }
