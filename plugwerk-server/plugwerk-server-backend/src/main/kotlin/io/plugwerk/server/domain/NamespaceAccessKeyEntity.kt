@@ -45,7 +45,7 @@ import java.util.UUID
  * [NamespaceEntity].
  *
  * **Usage:**
- * - Persisted and queried via [io.plugwerk.server.repository.ApiKeyRepository].
+ * - Persisted and queried via [io.plugwerk.server.repository.NamespaceAccessKeyRepository].
  * - Incoming requests are authenticated by hashing the submitted key and comparing it
  *   against the stored [keyHash].
  * - Keys can be disabled via [revoked] without deleting them, preserving the audit trail.
@@ -65,7 +65,7 @@ import java.util.UUID
  */
 @Entity
 @Table(name = "namespace_access_key")
-class ApiKeyEntity(
+class NamespaceAccessKeyEntity(
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", updatable = false)

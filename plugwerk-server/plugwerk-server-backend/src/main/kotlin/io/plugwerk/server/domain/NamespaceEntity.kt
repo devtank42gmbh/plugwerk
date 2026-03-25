@@ -37,7 +37,7 @@ import java.util.UUID
  * boundary for the entire plugin catalogue.
  *
  * **Data model:** Each namespace maps to one row in the `namespace` table.
- * All child resources ([PluginEntity], [ApiKeyEntity]) reference exactly one namespace
+ * All child resources ([PluginEntity], [NamespaceAccessKeyEntity]) reference exactly one namespace
  * via foreign key.
  *
  * **Usage:**

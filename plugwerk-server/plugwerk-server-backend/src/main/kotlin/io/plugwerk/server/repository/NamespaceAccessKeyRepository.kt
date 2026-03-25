@@ -17,15 +17,15 @@
  */
 package io.plugwerk.server.repository
 
-import io.plugwerk.server.domain.ApiKeyEntity
+import io.plugwerk.server.domain.NamespaceAccessKeyEntity
 import io.plugwerk.server.domain.NamespaceEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 import java.util.UUID
 
-interface ApiKeyRepository : JpaRepository<ApiKeyEntity, UUID> {
+interface NamespaceAccessKeyRepository : JpaRepository<NamespaceAccessKeyEntity, UUID> {
 
-    fun findByKeyHash(keyHash: String): Optional<ApiKeyEntity>
+    fun findByKeyHash(keyHash: String): Optional<NamespaceAccessKeyEntity>
 
-    fun findAllByNamespaceAndRevokedFalse(namespace: NamespaceEntity): List<ApiKeyEntity>
+    fun findAllByNamespaceAndRevokedFalse(namespace: NamespaceEntity): List<NamespaceAccessKeyEntity>
 }

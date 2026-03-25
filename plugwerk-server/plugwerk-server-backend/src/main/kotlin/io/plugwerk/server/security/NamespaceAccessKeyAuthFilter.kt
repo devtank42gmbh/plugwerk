@@ -17,7 +17,7 @@
  */
 package io.plugwerk.server.security
 
-import io.plugwerk.server.repository.ApiKeyRepository
+import io.plugwerk.server.repository.NamespaceAccessKeyRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -30,7 +30,8 @@ import java.security.MessageDigest
 import java.time.OffsetDateTime
 
 @Component
-class ApiKeyAuthFilter(private val apiKeyRepository: ApiKeyRepository) : OncePerRequestFilter() {
+class NamespaceAccessKeyAuthFilter(private val apiKeyRepository: NamespaceAccessKeyRepository) :
+    OncePerRequestFilter() {
 
     companion object {
         const val HEADER_NAME = "X-Api-Key"
