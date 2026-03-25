@@ -8,7 +8,7 @@ COPY plugwerk-api/ plugwerk-api/
 COPY plugwerk-common/ plugwerk-common/
 COPY plugwerk-descriptor/ plugwerk-descriptor/
 COPY plugwerk-server/ plugwerk-server/
-COPY plugwerk-client-sdk/ plugwerk-client-sdk/
+COPY plugwerk-client-plugin/ plugwerk-client-plugin/
 
 RUN apk add --no-cache nodejs npm && \
     cd plugwerk-server/plugwerk-server-frontend && npm ci && cd ../.. && \
