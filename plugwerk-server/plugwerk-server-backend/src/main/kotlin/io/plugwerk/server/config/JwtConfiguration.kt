@@ -48,7 +48,7 @@ class JwtConfiguration(private val props: PlugwerkProperties) {
     }
 
     /**
-     * Local HMAC-SHA256 decoder for tokens self-issued by this server via `/api/auth/login`.
+     * Local HMAC-SHA256 decoder for tokens self-issued by this server via `/api/v1/auth/login`.
      *
      * Named `localDecoder` to distinguish it from the composite [io.plugwerk.server.security.DelegatingJwtDecoder]
      * which combines this decoder with any enabled OIDC provider decoders.

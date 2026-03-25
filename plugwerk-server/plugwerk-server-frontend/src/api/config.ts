@@ -17,39 +17,29 @@ const axiosInstance = axios.create({
   baseURL: BASE_PATH,
 })
 
-// Auth endpoints live under /api/auth (no v1 segment) — a separate instance without
-// baseURL is required so that createRequestFunction uses the explicit basePath='/api'
-// rather than '' (which would cause Axios to combine with the main baseURL incorrectly).
-const authAxiosInstance = axios.create()
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('pw-access-token')
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`
+  }
+  return config
+})
 
-function addInterceptors(instance: ReturnType<typeof axios.create>) {
-  instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('pw-access-token')
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('pw-access-token')
+      localStorage.removeItem('pw-username')
+      window.location.href = '/login'
     }
-    return config
-  })
-
-  instance.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('pw-access-token')
-        localStorage.removeItem('pw-username')
-        window.location.href = '/login'
-      }
-      return Promise.reject(error)
-    },
-  )
-}
-
-addInterceptors(axiosInstance)
-addInterceptors(authAxiosInstance)
+    return Promise.reject(error)
+  },
+)
 
 const apiConfig = new Configuration({ basePath: BASE_PATH })
 
-export const authApi = new AuthApi(apiConfig, '/api', authAxiosInstance)
+export const authApi = new AuthApi(apiConfig, BASE_PATH, axiosInstance)
 export const adminUsersApi = new AdminUsersApi(apiConfig, BASE_PATH, axiosInstance)
 export const catalogApi = new CatalogApi(apiConfig, BASE_PATH, axiosInstance)
 export const managementApi = new ManagementApi(apiConfig, BASE_PATH, axiosInstance)

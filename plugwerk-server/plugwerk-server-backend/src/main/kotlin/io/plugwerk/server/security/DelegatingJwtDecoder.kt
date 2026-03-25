@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component
  * any enabled OIDC provider decoders from [OidcProviderRegistry].
  *
  * **Decoding strategy:**
- * 1. Try the [localDecoder] (HMAC-SHA256 — locally issued tokens from `/api/auth/login`).
+ * 1. Try the [localDecoder] (HMAC-SHA256 — locally issued tokens from `/api/v1/auth/login`).
  * 2. If the local decoder throws [JwtException] (e.g. wrong algorithm or unknown issuer),
  *    try each active OIDC decoder in [OidcProviderRegistry.decoders] in registration order.
  * 3. If no decoder succeeds, throw [JwtException] indicating the token is invalid.

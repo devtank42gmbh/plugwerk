@@ -71,7 +71,7 @@ class AuthControllerTest {
         whenever(jwtTokenService.tokenValiditySeconds()).thenReturn(28800L)
         whenever(userRepository.findByUsername("test")).thenReturn(Optional.empty())
 
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"test","password":"test"}"""
         }.andExpect {
@@ -90,7 +90,7 @@ class AuthControllerTest {
         whenever(jwtTokenService.tokenValiditySeconds()).thenReturn(28800L)
         whenever(userRepository.findByUsername("test")).thenReturn(Optional.of(user))
 
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"test","password":"test"}"""
         }.andExpect {
@@ -103,7 +103,7 @@ class AuthControllerTest {
     fun `POST login returns 401 for invalid credentials`() {
         whenever(credentialValidator.validate(any(), any())).thenReturn(false)
 
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"wrong","password":"wrong"}"""
         }.andExpect {
@@ -113,7 +113,7 @@ class AuthControllerTest {
 
     @Test
     fun `POST login returns 400 when username is blank`() {
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"","password":"test"}"""
         }.andExpect {
@@ -123,7 +123,7 @@ class AuthControllerTest {
 
     @Test
     fun `POST login returns 400 when password is blank`() {
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"test","password":""}"""
         }.andExpect {
@@ -133,7 +133,7 @@ class AuthControllerTest {
 
     @Test
     fun `POST login returns 400 when body is missing`() {
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = "{}"
         }.andExpect {
@@ -145,7 +145,7 @@ class AuthControllerTest {
     fun `token is not generated when credentials are invalid`() {
         whenever(credentialValidator.validate(any(), any())).thenReturn(false)
 
-        mockMvc.post("/api/auth/login") {
+        mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = """{"username":"hacker","password":"wrong"}"""
         }.andExpect {

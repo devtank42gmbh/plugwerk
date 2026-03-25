@@ -45,10 +45,10 @@ Three new tables added via Liquibase migration `0002_user_and_rbac.yaml`:
 
 ### Password Change Flow
 
-1. `POST /api/auth/login` returns `passwordChangeRequired: boolean` in the response body
+1. `POST /api/v1/auth/login` returns `passwordChangeRequired: boolean` in the response body
 2. If `true`, the frontend (`LoginPage`) redirects to `/change-password`
 3. `ProtectedRoute` enforces the redirect for all protected pages while `passwordChangeRequired` is set in Zustand state
-4. `POST /api/auth/change-password` verifies the current password, updates the hash, and clears the flag
+4. `POST /api/v1/auth/change-password` verifies the current password, updates the hash, and clears the flag
 
 ### OIDC Provider Registry
 

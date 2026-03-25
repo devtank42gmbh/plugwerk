@@ -47,7 +47,7 @@ info:
     The API supports two authentication methods:
 
     ### Bearer Token (JWT)
-    Obtain a short-lived JWT by calling `POST /api/auth/login` with your username and password.
+    Obtain a short-lived JWT by calling `POST /api/v1/auth/login` with your username and password.
     Pass the returned token in subsequent requests:
     ```
     Authorization: Bearer <token>
@@ -63,7 +63,7 @@ info:
 
     ## Quick Start
 
-    1. **Login** — `POST /api/auth/login` → receive `accessToken`
+    1. **Login** — `POST /api/v1/auth/login` → receive `accessToken`
     2. **Create a namespace** — `POST /api/v1/namespaces` with `{ "slug": "my-ns" }`
     3. **Create a plugin** — `POST /api/v1/namespaces/my-ns/plugins` with `{ "pluginId": "...", "name": "..." }`
     4. **Upload a release** — `POST /api/v1/namespaces/my-ns/releases` (multipart, artifact field)
@@ -102,7 +102,7 @@ tags:
     description: |
       Endpoints for obtaining and refreshing authentication credentials.
 
-      Call `POST /api/auth/login` to exchange a username/password pair for a short-lived JWT
+      Call `POST /api/v1/auth/login` to exchange a username/password pair for a short-lived JWT
       Bearer token. Include this token in the `Authorization` header of all subsequent requests
       that require authentication.
   - name: Namespaces
@@ -178,7 +178,7 @@ tags:
       All providers are disabled by default. Requires server-admin authentication.
 
 paths:
-  /auth/login:
+  /v1/auth/login:
     post:
       tags:
         - Auth
@@ -780,7 +780,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /auth/change-password:
+  /v1/auth/change-password:
     post:
       tags:
         - Auth
@@ -2134,7 +2134,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: |
-        Short-lived JWT token obtained via `POST /api/auth/login`.
+        Short-lived JWT token obtained via `POST /api/v1/auth/login`.
         Include as `Authorization: Bearer <token>`. Default validity: 8 hours.
     ApiKeyAuth:
       type: apiKey

@@ -80,7 +80,7 @@ class SecurityConfiguration(
             .authorizeHttpRequests { auth ->
                 auth
                     // Auth endpoints are always public (login + change-password requires auth but handled in controller)
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/v1/auth/**").permitAll()
                     // Update check is public (used by client SDK without auth)
                     .requestMatchers(HttpMethod.POST, "/api/v1/namespaces/*/updates/check").permitAll()
                     // Actuator health and info are public
