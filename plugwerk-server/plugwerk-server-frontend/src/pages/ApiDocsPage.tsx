@@ -10,6 +10,7 @@ export function ApiDocsPage() {
 
   return (
     <ApiReferenceReact
+      key={isDark ? 'dark' : 'light'}
       configuration={{
         url: '/api-docs/openapi.yaml',
         darkMode: isDark,
