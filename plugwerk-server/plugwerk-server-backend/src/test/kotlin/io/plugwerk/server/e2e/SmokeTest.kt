@@ -165,10 +165,11 @@ class SmokeTest {
 
     private fun buildMinimalJar(id: String, version: String): ByteArray {
         val descriptor = """
-            id: $id
-            version: $version
-            name: Smoke Test Plugin
-            description: Minimal plugin for E2E smoke testing
+            plugwerk:
+              id: $id
+              version: $version
+              name: Smoke Test Plugin
+              description: Minimal plugin for E2E smoke testing
         """.trimIndent()
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { zip ->

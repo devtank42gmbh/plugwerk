@@ -76,10 +76,11 @@ echo "Namespace created"
 echo "--- Building minimal test plugin JAR ---"
 DESCRIPTOR="$WORKDIR/plugwerk.yml"
 cat > "$DESCRIPTOR" <<YAML
-id: $PLUGIN_ID
-version: $PLUGIN_VERSION
-name: Smoke Test Plugin
-description: Minimal plugin for E2E smoke testing
+plugwerk:
+  id: $PLUGIN_ID
+  version: $PLUGIN_VERSION
+  name: Smoke Test Plugin
+  description: Minimal plugin for E2E smoke testing
 YAML
 
 JAR_FILE="$WORKDIR/$PLUGIN_ID-$PLUGIN_VERSION.jar"
