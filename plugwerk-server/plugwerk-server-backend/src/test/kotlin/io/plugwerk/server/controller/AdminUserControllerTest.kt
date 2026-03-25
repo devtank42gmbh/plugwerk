@@ -19,6 +19,7 @@ package io.plugwerk.server.controller
 
 import io.plugwerk.server.domain.UserEntity
 import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
+import io.plugwerk.server.security.PasswordChangeRequiredFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.ConflictException
 import io.plugwerk.server.service.EntityNotFoundException
@@ -52,6 +53,7 @@ import java.util.UUID
     excludeFilters = [
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [NamespaceAccessKeyAuthFilter::class]),
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PublicNamespaceFilter::class]),
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PasswordChangeRequiredFilter::class]),
     ],
 )
 class AdminUserControllerTest {

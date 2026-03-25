@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   username: localStorage.getItem('pw-username'),
   namespace: localStorage.getItem('pw-namespace') ?? 'default',
   isAuthenticated: !!localStorage.getItem('pw-access-token'),
-  passwordChangeRequired: false,
+  passwordChangeRequired: localStorage.getItem('pw-password-change-required') === 'true',
 
   get apiKey() {
     return get().accessToken
@@ -39,19 +39,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error('Invalid credentials')
     }
     const data = await response.json()
+    const passwordChangeRequired = data.passwordChangeRequired === true
     localStorage.setItem('pw-access-token', data.accessToken)
     localStorage.setItem('pw-username', username)
+    if (passwordChangeRequired) {
+      localStorage.setItem('pw-password-change-required', 'true')
+    } else {
+      localStorage.removeItem('pw-password-change-required')
+    }
     set({
       accessToken: data.accessToken,
       username,
       isAuthenticated: true,
-      passwordChangeRequired: data.passwordChangeRequired === true,
+      passwordChangeRequired,
     })
   },
 
   logout() {
     localStorage.removeItem('pw-access-token')
     localStorage.removeItem('pw-username')
+    localStorage.removeItem('pw-password-change-required')
     set({ accessToken: null, username: null, isAuthenticated: false, passwordChangeRequired: false })
   },
 
@@ -61,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   clearPasswordChangeRequired() {
+    localStorage.removeItem('pw-password-change-required')
     set({ passwordChangeRequired: false })
   },
 }))

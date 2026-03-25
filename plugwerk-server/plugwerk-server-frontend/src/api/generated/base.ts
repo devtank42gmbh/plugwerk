@@ -83,16 +83,4 @@ interface ServerMap {
  * @export
  */
 export const operationServerMap: ServerMap = {
-    "AuthApi.changePassword": [
-        {
-            url: "/api",
-            description: "Authentication base path (no version prefix)",
-        }
-    ],
-    "AuthApi.login": [
-        {
-            url: "/api",
-            description: "Authentication base path (no version prefix)",
-        }
-    ],
 }

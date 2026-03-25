@@ -48,7 +48,7 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
         changePassword: async (changePasswordRequest: ChangePasswordRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'changePasswordRequest' is not null or undefined
             assertParamExists('changePassword', 'changePasswordRequest', changePasswordRequest)
-            const localVarPath = `/v1/auth/change-password`;
+            const localVarPath = `/auth/change-password`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -88,7 +88,7 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
         login: async (loginRequest: LoginRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'loginRequest' is not null or undefined
             assertParamExists('login', 'loginRequest', loginRequest)
-            const localVarPath = `/v1/auth/login`;
+            const localVarPath = `/auth/login`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;

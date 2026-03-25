@@ -21,6 +21,7 @@ import io.plugwerk.server.PlugwerkProperties
 import io.plugwerk.server.security.DelegatingJwtDecoder
 import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
 import io.plugwerk.server.security.OidcProviderRegistry
+import io.plugwerk.server.security.PasswordChangeRequiredFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -42,6 +43,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfiguration(
     private val apiKeyAuthFilter: NamespaceAccessKeyAuthFilter,
     private val publicNamespaceFilter: PublicNamespaceFilter,
+    private val passwordChangeRequiredFilter: PasswordChangeRequiredFilter,
     private val props: PlugwerkProperties,
     private val oidcProviderRegistry: OidcProviderRegistry,
     private val localJwtDecoder: DelegatingJwtDecoder,
@@ -97,6 +99,8 @@ class SecurityConfiguration(
             .addFilterBefore(publicNamespaceFilter, UsernamePasswordAuthenticationFilter::class.java)
             // NamespaceAccessKeyAuthFilter runs after — handles machine-to-machine auth via X-Api-Key
             .addFilterAfter(apiKeyAuthFilter, PublicNamespaceFilter::class.java)
+            // PasswordChangeRequiredFilter runs last — blocks all API access when passwordChangeRequired = true
+            .addFilterAfter(passwordChangeRequiredFilter, NamespaceAccessKeyAuthFilter::class.java)
 
         return http.build()
     }

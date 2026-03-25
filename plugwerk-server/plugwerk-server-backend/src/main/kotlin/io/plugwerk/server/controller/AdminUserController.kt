@@ -29,7 +29,7 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 class AdminUserController(private val userService: UserService) : AdminUsersApi {
 
     override fun listUsers(): ResponseEntity<List<UserDto>> =

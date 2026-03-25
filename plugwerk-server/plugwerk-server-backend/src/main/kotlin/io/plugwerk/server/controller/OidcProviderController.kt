@@ -32,7 +32,7 @@ import java.util.UUID
 import io.plugwerk.server.domain.OidcProviderType as DomainType
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 class OidcProviderController(private val oidcProviderService: OidcProviderService) : OidcProvidersApi {
 
     override fun listOidcProviders(): ResponseEntity<List<OidcProviderDto>> =

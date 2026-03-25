@@ -38,7 +38,7 @@ import java.net.URI
 import io.plugwerk.server.domain.NamespaceRole as DomainRole
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Transactional
 class NamespaceMemberController(
     private val namespaceRepository: NamespaceRepository,

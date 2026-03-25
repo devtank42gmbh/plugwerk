@@ -48,7 +48,7 @@ export const OidcProvidersApiAxiosParamCreator = function (configuration?: Confi
         createOidcProvider: async (oidcProviderCreateRequest: OidcProviderCreateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'oidcProviderCreateRequest' is not null or undefined
             assertParamExists('createOidcProvider', 'oidcProviderCreateRequest', oidcProviderCreateRequest)
-            const localVarPath = `/v1/admin/oidc-providers`;
+            const localVarPath = `/admin/oidc-providers`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -88,7 +88,7 @@ export const OidcProvidersApiAxiosParamCreator = function (configuration?: Confi
         deleteOidcProvider: async (providerId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'providerId' is not null or undefined
             assertParamExists('deleteOidcProvider', 'providerId', providerId)
-            const localVarPath = `/v1/admin/oidc-providers/{providerId}`
+            const localVarPath = `/admin/oidc-providers/{providerId}`
                 .replace(`{${"providerId"}}`, encodeURIComponent(String(providerId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -123,7 +123,7 @@ export const OidcProvidersApiAxiosParamCreator = function (configuration?: Confi
          * @throws {RequiredError}
          */
         listOidcProviders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/v1/admin/oidc-providers`;
+            const localVarPath = `/admin/oidc-providers`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -163,7 +163,7 @@ export const OidcProvidersApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('updateOidcProvider', 'providerId', providerId)
             // verify required parameter 'oidcProviderUpdateRequest' is not null or undefined
             assertParamExists('updateOidcProvider', 'oidcProviderUpdateRequest', oidcProviderUpdateRequest)
-            const localVarPath = `/v1/admin/oidc-providers/{providerId}`
+            const localVarPath = `/admin/oidc-providers/{providerId}`
                 .replace(`{${"providerId"}}`, encodeURIComponent(String(providerId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);

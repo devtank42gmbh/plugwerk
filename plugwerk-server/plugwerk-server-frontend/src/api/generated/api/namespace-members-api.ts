@@ -51,7 +51,7 @@ export const NamespaceMembersApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('addNamespaceMember', 'ns', ns)
             // verify required parameter 'namespaceMemberCreateRequest' is not null or undefined
             assertParamExists('addNamespaceMember', 'namespaceMemberCreateRequest', namespaceMemberCreateRequest)
-            const localVarPath = `/v1/namespaces/{ns}/members`
+            const localVarPath = `/namespaces/{ns}/members`
                 .replace(`{${"ns"}}`, encodeURIComponent(String(ns)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -95,7 +95,7 @@ export const NamespaceMembersApiAxiosParamCreator = function (configuration?: Co
         listNamespaceMembers: async (ns: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'ns' is not null or undefined
             assertParamExists('listNamespaceMembers', 'ns', ns)
-            const localVarPath = `/v1/namespaces/{ns}/members`
+            const localVarPath = `/namespaces/{ns}/members`
                 .replace(`{${"ns"}}`, encodeURIComponent(String(ns)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -139,7 +139,7 @@ export const NamespaceMembersApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('removeNamespaceMember', 'ns', ns)
             // verify required parameter 'userSubject' is not null or undefined
             assertParamExists('removeNamespaceMember', 'userSubject', userSubject)
-            const localVarPath = `/v1/namespaces/{ns}/members/{userSubject}`
+            const localVarPath = `/namespaces/{ns}/members/{userSubject}`
                 .replace(`{${"ns"}}`, encodeURIComponent(String(ns)))
                 .replace(`{${"userSubject"}}`, encodeURIComponent(String(userSubject)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -187,7 +187,7 @@ export const NamespaceMembersApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('updateNamespaceMember', 'userSubject', userSubject)
             // verify required parameter 'namespaceMemberUpdateRequest' is not null or undefined
             assertParamExists('updateNamespaceMember', 'namespaceMemberUpdateRequest', namespaceMemberUpdateRequest)
-            const localVarPath = `/v1/namespaces/{ns}/members/{userSubject}`
+            const localVarPath = `/namespaces/{ns}/members/{userSubject}`
                 .replace(`{${"ns"}}`, encodeURIComponent(String(ns)))
                 .replace(`{${"userSubject"}}`, encodeURIComponent(String(userSubject)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.

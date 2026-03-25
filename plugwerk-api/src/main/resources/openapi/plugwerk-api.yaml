@@ -91,9 +91,7 @@ info:
 
 servers:
   - url: /api/v1
-    description: Versioned REST API (all plugin/catalog/management endpoints)
-  - url: /api
-    description: Authentication endpoints (login)
+    description: Versioned REST API base path
 
 security: []
 
@@ -178,7 +176,7 @@ tags:
       All providers are disabled by default. Requires server-admin authentication.
 
 paths:
-  /v1/auth/login:
+  /auth/login:
     post:
       tags:
         - Auth
@@ -192,9 +190,6 @@ paths:
         Returns `401 Unauthorized` if the username does not exist or the password is wrong.
         The response body is intentionally empty on `401` to avoid leaking user existence.
       operationId: login
-      servers:
-        - url: /api
-          description: Authentication base path (no version prefix)
       requestBody:
         required: true
         content:
@@ -780,7 +775,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /v1/auth/change-password:
+  /auth/change-password:
     post:
       tags:
         - Auth
@@ -792,9 +787,6 @@ paths:
         This endpoint must be called before accessing any other resource when the login response
         contains `passwordChangeRequired: true`.
       operationId: changePassword
-      servers:
-        - url: /api
-          description: Authentication base path (no version prefix)
       security:
         - BearerAuth: []
       requestBody:
@@ -809,7 +801,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /v1/admin/users:
+  /admin/users:
     get:
       tags:
         - AdminUsers
@@ -859,7 +851,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /v1/admin/users/{userId}:
+  /admin/users/{userId}:
     patch:
       tags:
         - AdminUsers
@@ -919,7 +911,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /v1/namespaces/{ns}/members:
+  /namespaces/{ns}/members:
     get:
       tags:
         - NamespaceMembers
@@ -981,7 +973,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /v1/namespaces/{ns}/members/{userSubject}:
+  /namespaces/{ns}/members/{userSubject}:
     put:
       tags:
         - NamespaceMembers
@@ -1037,7 +1029,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /v1/admin/oidc-providers:
+  /admin/oidc-providers:
     get:
       tags:
         - OidcProviders
@@ -1081,7 +1073,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /v1/admin/oidc-providers/{providerId}:
+  /admin/oidc-providers/{providerId}:
     patch:
       tags:
         - OidcProviders

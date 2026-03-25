@@ -48,7 +48,7 @@ export const AdminUsersApiAxiosParamCreator = function (configuration?: Configur
         createUser: async (userCreateRequest: UserCreateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userCreateRequest' is not null or undefined
             assertParamExists('createUser', 'userCreateRequest', userCreateRequest)
-            const localVarPath = `/v1/admin/users`;
+            const localVarPath = `/admin/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -88,7 +88,7 @@ export const AdminUsersApiAxiosParamCreator = function (configuration?: Configur
         deleteUser: async (userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('deleteUser', 'userId', userId)
-            const localVarPath = `/v1/admin/users/{userId}`
+            const localVarPath = `/admin/users/{userId}`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -123,7 +123,7 @@ export const AdminUsersApiAxiosParamCreator = function (configuration?: Configur
          * @throws {RequiredError}
          */
         listUsers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/v1/admin/users`;
+            const localVarPath = `/admin/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -163,7 +163,7 @@ export const AdminUsersApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('updateUser', 'userId', userId)
             // verify required parameter 'userUpdateRequest' is not null or undefined
             assertParamExists('updateUser', 'userUpdateRequest', userUpdateRequest)
-            const localVarPath = `/v1/admin/users/{userId}`
+            const localVarPath = `/admin/users/{userId}`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
