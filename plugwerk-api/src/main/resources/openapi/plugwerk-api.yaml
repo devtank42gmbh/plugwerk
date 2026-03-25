@@ -9,11 +9,15 @@ info:
 
 servers:
   - url: /api/v1
-    description: Base path for all API endpoints
+    description: Versioned REST API
+  - url: /api
+    description: Authentication endpoints
 
 security: []
 
 tags:
+  - name: Auth
+    description: Authentication (login, token)
   - name: Namespaces
     description: Namespace management (authenticated)
   - name: Catalog
@@ -26,6 +30,31 @@ tags:
     description: Admin review workflow
 
 paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login with username and password
+      description: Returns a JWT Bearer token valid for 8 hours.
+      operationId: login
+      servers:
+        - url: /api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+
   /namespaces:
     get:
       tags:
@@ -516,6 +545,38 @@ components:
       description: Filter by plugin status
 
   schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: test
+        password:
+          type: string
+          format: password
+          example: test
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT Bearer token
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          format: int64
+          description: Token validity in seconds
+      required:
+        - accessToken
+        - tokenType
+        - expiresIn
+
     NamespaceSummary:
       type: object
       properties:

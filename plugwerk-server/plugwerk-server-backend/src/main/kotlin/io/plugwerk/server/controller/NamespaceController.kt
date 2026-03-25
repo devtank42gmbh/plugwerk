@@ -45,7 +45,7 @@ class NamespaceController(private val namespaceService: NamespaceService) : Name
             )
             val summary = NamespaceSummary(slug = entity.slug, ownerOrg = entity.ownerOrg)
             ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(summary)
-        } catch (ex: NamespaceAlreadyExistsException) {
+        } catch (_: NamespaceAlreadyExistsException) {
             ResponseEntity.status(409).build()
         }
 }
