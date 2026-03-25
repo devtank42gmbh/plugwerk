@@ -82,7 +82,95 @@ The server starts at `http://localhost:8080`.
 docker compose up
 ```
 
-Starts Plugwerk Server + PostgreSQL 18.
+Starts Plugwerk Server + PostgreSQL 18. Open `http://localhost:8080` in your browser.
+
+## Quick Start (Self-Hosted)
+
+```bash
+# Clone and start
+git clone https://github.com/devtank42gmbh/plugwerk.git
+cd plugwerk
+docker compose up -d
+
+# Wait for health
+curl http://localhost:8080/actuator/health
+```
+
+### First login
+
+Default dev credentials (change in production via `PLUGWERK_JWT_SECRET` and `plugwerk.auth.dev-users`):
+
+| Username | Password |
+|---|---|
+| `test` | `test` |
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","password":"test"}' | jq -r '.accessToken')
+```
+
+### Create a namespace and upload a plugin
+
+```bash
+# Create namespace
+curl -X POST http://localhost:8080/api/v1/namespaces \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"myproduct","ownerOrg":"My Company"}'
+
+# Upload a plugin JAR (must contain plugwerk.yml)
+curl -X POST http://localhost:8080/api/v1/namespaces/myproduct/releases \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "artifact=@my-plugin-1.0.0.jar"
+
+# List plugins
+curl http://localhost:8080/api/v1/namespaces/myproduct/plugins \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### API Documentation
+
+Interactive API reference powered by [Scalar](https://scalar.com/):
+
+```
+http://localhost:8080/api-docs
+```
+
+The raw OpenAPI 3.1 spec is available at:
+
+```
+http://localhost:8080/api-docs/openapi.yaml
+```
+
+### Client SDK (Gradle)
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation("io.plugwerk:plugwerk-client-plugin:<version>")
+}
+```
+
+```kotlin
+val config = PlugwerkConfig.builder()
+    .serverUrl("https://plugins.mycompany.com")
+    .namespace("myproduct")
+    .apiKey(System.getenv("PLUGWERK_API_KEY"))
+    .build()
+
+val marketplace = PlugwerkMarketplace(config)
+// Use as pf4j-update UpdateRepository drop-in:
+val updateManager = UpdateManager(pluginManager, listOf(marketplace.asUpdateRepository()))
+```
+
+### E2E Smoke Test
+
+```bash
+./scripts/smoke-test.sh
+```
+
+Runs the full upload → catalog → download flow against a Docker Compose stack.
 
 ## Documentation
 
