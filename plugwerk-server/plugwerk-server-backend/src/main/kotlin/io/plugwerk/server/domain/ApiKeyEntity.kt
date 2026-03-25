@@ -40,7 +40,7 @@ import java.util.UUID
  * Only its SHA-256 hash ([keyHash]) is persisted. The original key is returned to the
  * caller exactly once at creation time and cannot be recovered afterwards.
  *
- * **Data model:** Each API key maps to one row in the `api_key` table.
+ * **Data model:** Each API key maps to one row in the `namespace_access_key` table.
  * The [keyHash] is unique (Unique Constraint). An API key belongs to exactly one
  * [NamespaceEntity].
  *
@@ -64,7 +64,7 @@ import java.util.UUID
  * @property createdAt Creation timestamp (set automatically, immutable).
  */
 @Entity
-@Table(name = "api_key")
+@Table(name = "namespace_access_key")
 class ApiKeyEntity(
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
