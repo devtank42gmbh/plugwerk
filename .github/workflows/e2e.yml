@@ -33,5 +33,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Pre-pull Docker images (with retry)
+        run: |
+          for i in 1 2 3; do
+            docker pull postgres:18-alpine && break
+            echo "Pull attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+
       - name: Run E2E smoke test
         run: ./scripts/smoke-test.sh
