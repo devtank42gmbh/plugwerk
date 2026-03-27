@@ -17,7 +17,6 @@
  */
 package io.plugwerk.server.security
 
-
 /**
  * Strategy interface for validating username/password credentials.
  *
