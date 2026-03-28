@@ -169,11 +169,6 @@ data class PlugwerkProperties(
         @field:Size(min = 16, max = 16, message = "plugwerk.auth.encryption-key must be exactly 16 characters")
         val encryptionKey: String = "",
         /**
-         * Initial admin username. Defaults to `admin`.
-         * Environment variable: `PLUGWERK_AUTH_ADMIN_USERNAME`
-         */
-        val adminUsername: String = "admin",
-        /**
          * Optional fixed initial admin password. When set the admin user is created with
          * this password and `passwordChangeRequired = false`. When absent a random 16-char
          * password is generated and `passwordChangeRequired = true`.

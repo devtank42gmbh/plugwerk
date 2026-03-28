@@ -44,7 +44,6 @@ jobs:
       - name: Run E2E smoke test
         run: ./scripts/smoke-test.sh
         env:
-          PLUGWERK_PASSWORD: admin
           PLUGWERK_AUTH_ADMIN_PASSWORD: admin
           PLUGWERK_JWT_SECRET: ci-smoke-test-secret-min-32-characters!!
           PLUGWERK_ENCRYPTION_KEY: ci-encrypt-16chr
