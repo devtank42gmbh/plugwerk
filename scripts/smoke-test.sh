@@ -51,7 +51,7 @@ done
 # 2. Login                                                                      #
 # --------------------------------------------------------------------------- #
 echo "--- Login ---"
-TOKEN=$(curl -sf -X POST "$BASE_URL/api/auth/login" \
+TOKEN=$(curl -sf -X POST "$BASE_URL/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['accessToken'])")

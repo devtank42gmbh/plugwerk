@@ -169,7 +169,7 @@ export const useExampleStore = create<ExampleState>((set, get) => ({
 
 ### Authentication (Phase 1)
 
-The frontend uses JWT Bearer tokens issued by `POST /api/auth/login`.
+The frontend uses JWT Bearer tokens issued by `POST /api/v1/auth/login`.
 
 | Item | Detail |
 |------|--------|

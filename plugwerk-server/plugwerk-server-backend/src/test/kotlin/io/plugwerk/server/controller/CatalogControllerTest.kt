@@ -24,6 +24,7 @@ import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.repository.PluginReleaseRepository
 import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
+import io.plugwerk.server.security.PasswordChangeRequiredFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.NamespaceNotFoundException
 import io.plugwerk.server.service.Pf4jCompatibilityService
@@ -57,6 +58,7 @@ import java.util.UUID
     excludeFilters = [
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [NamespaceAccessKeyAuthFilter::class]),
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PublicNamespaceFilter::class]),
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PasswordChangeRequiredFilter::class]),
     ],
 )
 class CatalogControllerTest {

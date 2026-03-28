@@ -63,7 +63,7 @@ Open the Web UI at **http://localhost:8080**.
 
 ```bash
 # Login
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}' | jq -r '.accessToken')
 

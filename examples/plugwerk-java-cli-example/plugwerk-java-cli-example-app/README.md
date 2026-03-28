@@ -58,7 +58,7 @@ JVM (Host)
 Namespaces on the Plugwerk server require a JWT Bearer token. Obtain one via the login endpoint:
 
 ```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}' | jq -r .accessToken)
 ```
@@ -177,7 +177,7 @@ Use the management API to upload a plugin release. The server reads the
 
 ```bash
 # Register the plugin in the default namespace (requires auth token)
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}' | jq -r .accessToken)
 

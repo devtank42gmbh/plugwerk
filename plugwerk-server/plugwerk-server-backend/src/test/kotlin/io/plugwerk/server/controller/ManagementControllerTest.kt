@@ -25,6 +25,8 @@ import io.plugwerk.server.domain.NamespaceEntity
 import io.plugwerk.server.domain.PluginEntity
 import io.plugwerk.server.domain.PluginReleaseEntity
 import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
+import io.plugwerk.server.security.NamespaceAuthorizationService
+import io.plugwerk.server.security.PasswordChangeRequiredFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
 import io.plugwerk.server.service.PluginAlreadyExistsException
 import io.plugwerk.server.service.PluginNotFoundException
@@ -43,6 +45,7 @@ import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
@@ -50,17 +53,21 @@ import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 import java.util.UUID
 
+@WithMockUser
 @WebMvcTest(
     ManagementController::class,
     excludeAutoConfiguration = [SecurityAutoConfiguration::class, ServletWebSecurityAutoConfiguration::class],
     excludeFilters = [
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [NamespaceAccessKeyAuthFilter::class]),
         ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PublicNamespaceFilter::class]),
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [PasswordChangeRequiredFilter::class]),
     ],
 )
 class ManagementControllerTest {
 
     @MockitoBean lateinit var jwtDecoder: JwtDecoder
+
+    @MockitoBean lateinit var namespaceAuthorizationService: NamespaceAuthorizationService
 
     @MockitoBean lateinit var pluginService: PluginService
 

@@ -20,16 +20,21 @@ package io.plugwerk.server.controller
 import io.plugwerk.api.NamespacesApi
 import io.plugwerk.api.model.NamespaceCreateRequest
 import io.plugwerk.api.model.NamespaceSummary
+import io.plugwerk.server.security.NamespaceAuthorizationService
 import io.plugwerk.server.service.NamespaceAlreadyExistsException
 import io.plugwerk.server.service.NamespaceService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
 @RequestMapping("/api/v1")
-class NamespaceController(private val namespaceService: NamespaceService) : NamespacesApi {
+class NamespaceController(
+    private val namespaceService: NamespaceService,
+    private val namespaceAuthorizationService: NamespaceAuthorizationService,
+) : NamespacesApi {
 
     override fun listNamespaces(): ResponseEntity<List<NamespaceSummary>> {
         val namespaces = namespaceService.findAll()
@@ -37,8 +42,11 @@ class NamespaceController(private val namespaceService: NamespaceService) : Name
         return ResponseEntity.ok(namespaces)
     }
 
-    override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceSummary> =
-        try {
+    override fun createNamespace(namespaceCreateRequest: NamespaceCreateRequest): ResponseEntity<NamespaceSummary> {
+        val auth = SecurityContextHolder.getContext().authentication
+            ?: throw io.plugwerk.server.service.ForbiddenException("Not authenticated")
+        namespaceAuthorizationService.requireSuperadmin(auth)
+        return try {
             val entity = namespaceService.create(
                 slug = namespaceCreateRequest.slug,
                 ownerOrg = namespaceCreateRequest.ownerOrg ?: "default",
@@ -48,4 +56,5 @@ class NamespaceController(private val namespaceService: NamespaceService) : Name
         } catch (_: NamespaceAlreadyExistsException) {
             ResponseEntity.status(409).build()
         }
+    }
 }

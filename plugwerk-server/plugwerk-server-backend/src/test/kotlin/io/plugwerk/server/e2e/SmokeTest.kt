@@ -79,7 +79,7 @@ class SmokeTest {
 
     @BeforeAll
     fun login() {
-        val result = mockMvc.post("/api/auth/login") {
+        val result = mockMvc.post("/api/v1/auth/login") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(mapOf("username" to "smoke", "password" to "smoke"))
         }.andExpect {

@@ -21,7 +21,7 @@ Two token types are supported in parallel and intentionally serve different purp
 
 | Token type | Header | Issued by | Lifetime | Use case |
 |---|---|---|---|---|
-| JWT (Bearer) | `Authorization: Bearer <token>` | Plugwerk server (`/api/auth/login`) | 8 h (configurable) | Human users via Web UI |
+| JWT (Bearer) | `Authorization: Bearer <token>` | Plugwerk server (`/api/v1/auth/login`) | 8 h (configurable) | Human users via Web UI |
 | Namespace Access Key | `X-Api-Key: <key>` | Namespace admin (via UI/API) | Long-lived, revocable | PF4J host apps, CI/CD pipelines |
 
 **JWT tokens** are stateless and short-lived. No database lookup per request.
