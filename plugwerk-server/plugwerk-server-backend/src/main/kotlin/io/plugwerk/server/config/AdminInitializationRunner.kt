@@ -30,7 +30,7 @@ import java.security.SecureRandom
 /**
  * Bootstraps the initial superadmin user on first startup.
  *
- * If no user with the configured admin username exists in the database, this runner:
+ * If no user named [ADMIN_USERNAME] exists in the database, this runner:
  * 1. Uses [PlugwerkProperties.AuthProperties.adminPassword] if set (CI/smoke-test), or
  *    generates a cryptographically random initial password (production).
  * 2. Creates the superadmin user with [isSuperadmin = true]. If the password was generated,
@@ -51,9 +51,13 @@ class AdminInitializationRunner(
 
     private val log = LoggerFactory.getLogger(AdminInitializationRunner::class.java)
 
+    companion object {
+        /** Fixed admin username — not configurable. */
+        const val ADMIN_USERNAME = "admin"
+    }
+
     override fun run(args: ApplicationArguments) {
-        val adminUsername = properties.auth.adminUsername
-        if (userRepository.existsByUsername(adminUsername)) return
+        if (userRepository.existsByUsername(ADMIN_USERNAME)) return
 
         val fixedPassword = properties.auth.adminPassword
         val initialPassword = fixedPassword ?: generatePassword()
@@ -61,7 +65,7 @@ class AdminInitializationRunner(
 
         val admin = userRepository.save(
             UserEntity(
-                username = adminUsername,
+                username = ADMIN_USERNAME,
                 passwordHash = passwordEncoder.encode(initialPassword)!!,
                 passwordChangeRequired = passwordChangeRequired,
                 isSuperadmin = true,

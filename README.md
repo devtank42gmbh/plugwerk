@@ -72,7 +72,7 @@ Retrieve the password from the logs:
 docker compose logs plugwerk-server | grep "Password :"
 ```
 
-You will be prompted to change the password on first login. The admin username defaults to `admin` and can be overridden via `PLUGWERK_AUTH_ADMIN_USERNAME`.
+You will be prompted to change the password on first login. The admin username is always `admin`.
 
 > **CI/CD or smoke tests:** Set `PLUGWERK_AUTH_ADMIN_PASSWORD` to a fixed value to skip random generation and the forced password change.
 
@@ -200,17 +200,19 @@ http://localhost:8080/api-docs/openapi.yaml
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PLUGWERK_DB_URL` | `jdbc:postgresql://localhost:5432/plugwerk` | PostgreSQL JDBC URL |
-| `PLUGWERK_DB_USERNAME` | `plugwerk` | Database username |
-| `PLUGWERK_DB_PASSWORD` | `plugwerk` | Database password |
-| `PLUGWERK_JWT_SECRET` | _(dev default)_ | HMAC-SHA256 signing secret, minimum 32 characters. **Must be changed in production.** |
-| `PLUGWERK_AUTH_ADMIN_USERNAME` | `admin` | Username of the superadmin account created on first startup |
-| `PLUGWERK_AUTH_ADMIN_PASSWORD` | _(randomly generated)_ | Fixed initial admin password. When set, skips random generation and the forced password change. Intended for CI/CD and smoke tests only. |
-| `PLUGWERK_BASE_URL` | `http://localhost:8080` | Public base URL of the server (used for artifact download links) |
-| `PLUGWERK_STORAGE_ROOT` | `/var/plugwerk/artifacts` | Filesystem path for storing artifact binaries |
-| `PLUGWERK_STORAGE_TYPE` | `fs` | Storage backend: `fs` (filesystem) |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `PLUGWERK_JWT_SECRET` | **yes** | — | HMAC-SHA256 signing secret, minimum 32 characters. Generate with `openssl rand -base64 32`. |
+| `PLUGWERK_ENCRYPTION_KEY` | **yes** | — | AES encryption key for OIDC client secrets at rest, exactly 16 characters. Generate with `openssl rand -hex 8`. |
+| `PLUGWERK_AUTH_ADMIN_PASSWORD` | no | _(random)_ | Fixed initial admin password. When set, skips random generation and the forced password change. When absent, a random password is generated and logged once. |
+| `PLUGWERK_DB_URL` | no | `jdbc:postgresql://localhost:5432/plugwerk` | PostgreSQL JDBC URL |
+| `PLUGWERK_DB_USERNAME` | no | `plugwerk` | Database username |
+| `PLUGWERK_DB_PASSWORD` | no | `plugwerk` | Database password |
+| `PLUGWERK_BASE_URL` | no | `http://localhost:8080` | Public base URL of the server (used for artifact download links) |
+| `PLUGWERK_STORAGE_ROOT` | no | `/var/plugwerk/artifacts` | Filesystem path for storing artifact binaries |
+| `PLUGWERK_STORAGE_TYPE` | no | `fs` | Storage backend: `fs` (filesystem) |
+
+> **Tip:** Copy `.env.example` to `.env` and fill in the required values. The `.env` file is git-ignored.
 
 ## Key Features
 

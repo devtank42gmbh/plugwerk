@@ -75,7 +75,7 @@ If `plugwerk.yml` is absent, the server falls back to the PF4J manifest.
 ./gradlew build                                   # Build all modules + run all tests
 ./gradlew build -x test                           # Build without tests
 ./gradlew :plugwerk-api:plugwerk-api-endpoint:openApiGenerate :plugwerk-api:plugwerk-api-model:openApiGenerate  # Regenerate backend DTOs/interfaces from OpenAPI YAML
-./gradlew :plugwerk-server:plugwerk-server-backend:bootRun --args='--spring.profiles.active=dev'
+./gradlew :plugwerk-server:plugwerk-server-backend:bootRun
 docker compose up -d postgres                     # Start dev database
 ```
 
@@ -108,5 +108,14 @@ Docker Compose:
 ├── postgres         (PostgreSQL 18)
 └── nginx            (reverse proxy, TLS – optional)
 ```
+
+Required environment variables (server refuses to start without them):
+- `PLUGWERK_JWT_SECRET` — HMAC signing key, min 32 chars
+- `PLUGWERK_ENCRYPTION_KEY` — AES key for OIDC secrets, exactly 16 chars
+
+Optional:
+- `PLUGWERK_AUTH_ADMIN_PASSWORD` — fixed initial admin password (random if absent)
+
+See `.env.example` for a complete template.
 
 Health: `/actuator/health` | Metrics: Prometheus | Logging: structured JSON
