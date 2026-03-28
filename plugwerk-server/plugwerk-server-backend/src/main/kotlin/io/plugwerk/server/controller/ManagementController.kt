@@ -18,7 +18,6 @@
 package io.plugwerk.server.controller
 
 import io.plugwerk.api.ManagementApi
-import io.plugwerk.api.model.PluginCreateRequest
 import io.plugwerk.api.model.PluginDto
 import io.plugwerk.api.model.PluginReleaseDto
 import io.plugwerk.api.model.PluginUpdateRequest
@@ -47,29 +46,6 @@ class ManagementController(
     private val namespaceAuthorizationService: NamespaceAuthorizationService,
 ) : ManagementApi {
 
-    override fun createPlugin(ns: String, pluginCreateRequest: PluginCreateRequest): ResponseEntity<PluginDto> {
-        namespaceAuthorizationService.requireRole(
-            ns,
-            SecurityContextHolder.getContext().authentication!!,
-            NamespaceRole.MEMBER,
-        )
-        val plugin = pluginService.create(
-            namespaceSlug = ns,
-            pluginId = pluginCreateRequest.pluginId,
-            name = pluginCreateRequest.name,
-            description = pluginCreateRequest.description,
-            author = pluginCreateRequest.author,
-            license = pluginCreateRequest.license,
-            homepage = pluginCreateRequest.homepage?.toString(),
-            repository = pluginCreateRequest.repository?.toString(),
-            icon = pluginCreateRequest.icon?.toString(),
-            categories = pluginCreateRequest.categories?.toTypedArray() ?: emptyArray(),
-            tags = pluginCreateRequest.tags?.toTypedArray() ?: emptyArray(),
-        )
-        val dto = pluginMapper.toDto(plugin, ns)
-        return ResponseEntity.created(URI("/api/v1/namespaces/$ns/plugins/${plugin.pluginId}")).body(dto)
-    }
-
     override fun updatePlugin(
         ns: String,
         pluginId: String,
@@ -95,7 +71,7 @@ class ManagementController(
         return ResponseEntity.ok(pluginMapper.toDto(plugin, ns))
     }
 
-    override fun uploadRelease(ns: String, artifact: MultipartFile): ResponseEntity<PluginReleaseDto> {
+    override fun uploadPluginRelease(ns: String, artifact: MultipartFile): ResponseEntity<PluginReleaseDto> {
         namespaceAuthorizationService.requireRole(
             ns,
             SecurityContextHolder.getContext().authentication!!,

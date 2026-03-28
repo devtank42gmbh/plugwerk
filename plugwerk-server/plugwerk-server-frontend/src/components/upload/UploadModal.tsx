@@ -63,7 +63,7 @@ export function UploadModal() {
     formData.append('artifact', file)
 
     try {
-      await axiosInstance.post(`/namespaces/${namespace}/releases`, formData, {
+      await axiosInstance.post(`/namespaces/${namespace}/plugin-releases`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (evt) => {
           if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100))

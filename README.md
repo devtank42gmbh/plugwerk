@@ -95,7 +95,7 @@ curl -s -X POST http://localhost:8080/api/v1/namespaces \
 
 ```bash
 # Upload a plugin JAR/ZIP — descriptor is read automatically from plugwerk.yml inside the artifact
-curl -s -X POST http://localhost:8080/api/v1/namespaces/myproduct/releases \
+curl -s -X POST http://localhost:8080/api/v1/namespaces/myproduct/plugin-releases \
   -H "Authorization: Bearer $TOKEN" \
   -F "artifact=@my-plugin-1.0.0.jar"
 # Returns: {"id":"...","version":"1.0.0","status":"draft",...}

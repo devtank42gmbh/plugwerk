@@ -92,7 +92,7 @@ class PublicNamespaceFilterTest {
 
     @Test
     fun `POST on public namespace does not set authentication`() {
-        val request = MockHttpServletRequest("POST", "/api/v1/namespaces/acme/plugins")
+        val request = MockHttpServletRequest("POST", "/api/v1/namespaces/acme/plugin-releases")
         filter.doFilter(request, MockHttpServletResponse(), MockFilterChain())
 
         assertThat(SecurityContextHolder.getContext().authentication).isNull()

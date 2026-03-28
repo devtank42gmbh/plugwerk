@@ -182,14 +182,14 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -d '{"username":"admin","password":"<your-admin-password>"}' | jq -r .accessToken)
 
 # Upload hello-cli-plugin
-curl -s -X POST "http://localhost:8080/api/v1/namespaces/default/plugins/hello-cli-plugin/releases" \
+curl -s -X POST "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
-  -F "file=@plugwerk-java-cli-example/hello-cli-plugin/build/pf4j/hello-cli-plugin-0.1.0-SNAPSHOT.zip"
+  -F "artifact=@plugwerk-java-cli-example/hello-cli-plugin/build/pf4j/hello-cli-plugin-0.1.0-SNAPSHOT.zip"
 
 # Upload sysinfo-cli-plugin
-curl -s -X POST "http://localhost:8080/api/v1/namespaces/default/plugins/sysinfo-cli-plugin/releases" \
+curl -s -X POST "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
-  -F "file=@plugwerk-java-cli-example/sysinfo-cli-plugin/build/pf4j/sysinfo-cli-plugin-0.1.0-SNAPSHOT.zip"
+  -F "artifact=@plugwerk-java-cli-example/sysinfo-cli-plugin/build/pf4j/sysinfo-cli-plugin-0.1.0-SNAPSHOT.zip"
 ```
 
 ### Install and use
