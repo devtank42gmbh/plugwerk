@@ -65,10 +65,9 @@ info:
 
     1. **Login** — `POST /api/v1/auth/login` → receive `accessToken`
     2. **Create a namespace** — `POST /api/v1/namespaces` with `{ "slug": "my-ns" }`
-    3. **Create a plugin** — `POST /api/v1/namespaces/my-ns/plugins` with `{ "pluginId": "...", "name": "..." }`
-    4. **Upload a release** — `POST /api/v1/namespaces/my-ns/releases` (multipart, artifact field)
-    5. **Publish the release** — `PATCH /api/v1/namespaces/my-ns/plugins/{pluginId}/releases/{version}` with `{ "status": "published" }`
-    6. **Clients poll for updates** — `POST /api/v1/namespaces/my-ns/updates/check`
+    3. **Upload a release** — `POST /api/v1/namespaces/my-ns/plugin-releases` (multipart, artifact field) — the plugin is created automatically from the descriptor inside the artifact
+    4. **Publish the release** — `PATCH /api/v1/namespaces/my-ns/plugins/{pluginId}/releases/{version}` with `{ "status": "published" }`
+    5. **Clients poll for updates** — `POST /api/v1/namespaces/my-ns/updates/check`
 
     ## pf4j-update Compatibility
     The `GET /namespaces/{ns}/plugins.json` endpoint returns a response that is fully compatible
@@ -127,8 +126,7 @@ tags:
       Authenticated endpoints for publishing and maintaining plugins.
 
       Use these endpoints from your CI/CD pipeline or release tooling:
-      - **Create** a plugin entry with metadata before uploading the first release
-      - **Upload** a release artifact (JAR/ZIP); the server reads the embedded `plugwerk.yml`
+      - **Upload** a release artifact (JAR/ZIP); the plugin is created automatically from the embedded `plugwerk.yml` descriptor
       - **Update** plugin metadata (description, categories, tags, links)
       - **Change release status** to publish, deprecate, or yank a release
 
@@ -303,61 +301,6 @@ paths:
                 $ref: '#/components/schemas/PluginPagedResponse'
         '404':
           $ref: '#/components/responses/NotFound'
-    post:
-      tags:
-        - Management
-      summary: Create a new plugin
-      description: |
-        Registers a new plugin in the namespace with the given metadata.
-
-        The `pluginId` must match the `Plugin-Id` value in the PF4J manifest of all release
-        artifacts that will be uploaded for this plugin. It must be unique within the namespace.
-
-        Creating the plugin entry is optional if you upload a release first — the server will
-        auto-create the plugin from the descriptor embedded in the artifact. Use this endpoint
-        when you want to pre-register metadata (categories, links, description) before the first
-        release is ready.
-
-        Returns `409 Conflict` if a plugin with the same `pluginId` already exists in the namespace.
-      operationId: createPlugin
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - $ref: '#/components/parameters/NamespaceSlug'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PluginCreateRequest'
-            example:
-              pluginId: com.example.my-plugin
-              name: My Plugin
-              description: A useful plugin for Example App
-              author: ACME Corp
-              license: Apache-2.0
-              categories:
-                - analytics
-              tags:
-                - reporting
-                - export
-      responses:
-        '201':
-          description: Plugin created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PluginDto'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '409':
-          description: A plugin with this pluginId already exists in the namespace
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   /namespaces/{ns}/plugins/{pluginId}:
     get:
@@ -418,7 +361,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /namespaces/{ns}/releases:
+  /namespaces/{ns}/plugin-releases:
     post:
       tags:
         - Management
@@ -434,11 +377,15 @@ paths:
         **Descriptor requirements** (`plugwerk.yml` inside the archive):
         ```yaml
         plugwerk:
-          id: com.example.my-plugin   # must match the registered plugin
+          id: com.example.my-plugin   # plugin ID, must be unique within the namespace
           version: 1.2.0              # SemVer, must be unique for this plugin
           name: My Plugin
           description: Short description
         ```
+
+        If the plugin ID from the descriptor is not yet known in this namespace, a new plugin
+        entry is created automatically. If the plugin already exists, the new release is added
+        to it. There is no need to pre-register a plugin before uploading.
 
         The artifact SHA-256 is computed server-side and stored with the release for
         integrity verification by the client SDK.
@@ -447,7 +394,7 @@ paths:
         `PATCH /namespaces/{ns}/plugins/{pluginId}/releases/{version}`.
 
         Returns `422 Unprocessable Entity` if the descriptor is missing or invalid.
-      operationId: uploadRelease
+      operationId: uploadPluginRelease
       security:
         - ApiKeyAuth: []
       parameters:
@@ -1528,55 +1475,6 @@ components:
       required:
         - id
         - version
-
-    PluginCreateRequest:
-      type: object
-      description: Request body for creating a new plugin entry in a namespace
-      properties:
-        pluginId:
-          type: string
-          description: |
-            PF4J plugin identifier. Must match `Plugin-Id` in the plugin manifest exactly.
-            Unique within the namespace.
-          example: com.example.my-plugin
-        name:
-          type: string
-          description: Human-readable display name
-          example: My Plugin
-        description:
-          type: string
-          description: Short description of the plugin's purpose
-        author:
-          type: string
-          description: Author or maintainer name or organisation
-        license:
-          type: string
-          description: SPDX license expression (e.g. `Apache-2.0`, `MIT`)
-        categories:
-          type: array
-          items:
-            type: string
-          description: Category slugs for catalog browsing and filtering
-        tags:
-          type: array
-          items:
-            type: string
-          description: Free-form tags for discovery
-        icon:
-          type: string
-          format: uri
-          description: URL to plugin icon (recommended 128×128 px)
-        homepage:
-          type: string
-          format: uri
-          description: Project homepage or documentation URL
-        repository:
-          type: string
-          format: uri
-          description: Source code repository URL
-      required:
-        - pluginId
-        - name
 
     PluginUpdateRequest:
       type: object

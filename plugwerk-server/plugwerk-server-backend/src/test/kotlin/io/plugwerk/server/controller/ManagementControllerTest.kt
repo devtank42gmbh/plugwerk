@@ -28,7 +28,6 @@ import io.plugwerk.server.security.NamespaceAccessKeyAuthFilter
 import io.plugwerk.server.security.NamespaceAuthorizationService
 import io.plugwerk.server.security.PasswordChangeRequiredFilter
 import io.plugwerk.server.security.PublicNamespaceFilter
-import io.plugwerk.server.service.PluginAlreadyExistsException
 import io.plugwerk.server.service.PluginNotFoundException
 import io.plugwerk.server.service.PluginReleaseService
 import io.plugwerk.server.service.PluginService
@@ -88,47 +87,6 @@ class ManagementControllerTest {
     )
 
     @Test
-    fun `POST plugin creates and returns 201`() {
-        // create() has 11 params: namespaceSlug, pluginId, name, description?, author?, license?,
-        // homepage?, repository?, icon?, categories, tags
-        whenever(
-            pluginService.create(
-                any(), any(), any(),
-                anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
-                any(), any(),
-            ),
-        ).thenReturn(plugin)
-        whenever(pluginMapper.toDto(any(), any(), anyOrNull(), anyOrNull())).thenReturn(buildPluginDto())
-
-        mockMvc.post("/api/v1/namespaces/acme/plugins") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"pluginId":"my-plugin","name":"My Plugin"}"""
-        }.andExpect {
-            status { isCreated() }
-            jsonPath("$.pluginId") { value("my-plugin") }
-        }
-    }
-
-    @Test
-    fun `POST plugin returns 409 when plugin already exists`() {
-        whenever(
-            pluginService.create(
-                any(), any(), any(),
-                anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
-                any(), any(),
-            ),
-        ).thenThrow(PluginAlreadyExistsException("acme", "my-plugin"))
-
-        mockMvc.post("/api/v1/namespaces/acme/plugins") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"pluginId":"my-plugin","name":"My Plugin"}"""
-        }.andExpect {
-            status { isConflict() }
-            jsonPath("$.status") { value(409) }
-        }
-    }
-
-    @Test
     fun `PATCH plugin returns 200 with updated plugin`() {
         // update() has 12 params: namespaceSlug, pluginId, name?, description?, author?, license?,
         // homepage?, repository?, icon?, categories?, tags?, status?
@@ -182,7 +140,7 @@ class ManagementControllerTest {
         val artifact =
             MockMultipartFile("artifact", "my-plugin-1.0.0.jar", "application/octet-stream", "fake".toByteArray())
 
-        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
+        mockMvc.multipart("/api/v1/namespaces/acme/plugin-releases") {
             file(artifact)
         }.andExpect {
             status { isCreated() }
@@ -220,7 +178,7 @@ class ManagementControllerTest {
                 ),
             )
 
-        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
+        mockMvc.multipart("/api/v1/namespaces/acme/plugin-releases") {
             file(artifact)
         }.andExpect {
             status { isUnprocessableEntity() }
@@ -238,7 +196,7 @@ class ManagementControllerTest {
         whenever(releaseService.upload(any(), any(), any(), anyOrNull()))
             .thenThrow(DescriptorParseException("Invalid plugin.id in MANIFEST.MF"))
 
-        mockMvc.multipart("/api/v1/namespaces/acme/releases") {
+        mockMvc.multipart("/api/v1/namespaces/acme/plugin-releases") {
             file(artifact)
         }.andExpect {
             status { isUnprocessableEntity() }

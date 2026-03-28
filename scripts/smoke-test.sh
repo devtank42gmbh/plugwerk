@@ -102,7 +102,7 @@ echo "JAR built: $JAR_FILE (SHA-256: $EXPECTED_SHA)"
 # 5. Upload plugin release                                                      #
 # --------------------------------------------------------------------------- #
 echo "--- Uploading plugin release ---"
-UPLOAD_RESPONSE=$(curl -sf -X POST "$BASE_URL/api/v1/namespaces/$NAMESPACE/releases" \
+UPLOAD_RESPONSE=$(curl -sf -X POST "$BASE_URL/api/v1/namespaces/$NAMESPACE/plugin-releases" \
   -H "$AUTH_HEADER" \
   -F "artifact=@$JAR_FILE;type=application/java-archive")
 echo "Upload response: $UPLOAD_RESPONSE"

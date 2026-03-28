@@ -26,7 +26,7 @@ All endpoints: `/api/v1/namespaces/{ns}/...`
 | `GET` | `/plugins` | Catalog with filters |
 | `GET` | `/plugins/{id}/releases/{version}/download` | Artifact download |
 | `GET` | `/plugins.json` | pf4j-update compatible drop-in |
-| `POST` | `/releases` | Upload new release (descriptor auto-read from JAR/ZIP) |
+| `POST` | `/plugin-releases` | Upload new release — plugin auto-created if unknown (descriptor read from JAR/ZIP) |
 | `POST` | `/updates/check` | Body: installed plugins+versions → available updates |
 | `GET` | `/reviews/pending` | Admin review queue |
 | `POST` | `/reviews/{releaseId}/approve` | Approve release |

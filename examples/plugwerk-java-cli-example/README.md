@@ -162,13 +162,13 @@ The server reads the `plugwerk.yml` descriptor embedded inside the JAR
 ```bash
 # Upload hello-cmd-plugin
 curl -s -X POST \
-  "http://localhost:8080/api/v1/namespaces/default/releases" \
+  "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
   -F "artifact=@plugwerk-java-cli-example-hello-cmd-plugin/build/pf4j/plugwerk-java-cli-example-hello-cmd-plugin-0.1.0-SNAPSHOT.zip"
 
 # Upload sysinfo-cmd-plugin
 curl -s -X POST \
-  "http://localhost:8080/api/v1/namespaces/default/releases" \
+  "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
   -F "artifact=@plugwerk-java-cli-example-sysinfo-cmd-plugin/build/pf4j/plugwerk-java-cli-example-sysinfo-cmd-plugin-0.1.0-SNAPSHOT.zip"
 ```
