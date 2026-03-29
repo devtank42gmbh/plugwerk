@@ -144,6 +144,12 @@ class PlugwerkClient(internal val config: PlugwerkConfig) {
         }
     }
 
+    /** Shuts down the underlying HTTP client, releasing connection pool and dispatcher threads. */
+    fun close() {
+        httpClient.dispatcher.executorService.shutdown()
+        httpClient.connectionPool.evictAll()
+    }
+
     companion object {
         @PublishedApi
         internal val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()

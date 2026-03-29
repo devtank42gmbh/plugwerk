@@ -44,6 +44,7 @@ import io.plugwerk.spi.extension.PlugwerkUpdateChecker
  * ```
  */
 class PlugwerkMarketplaceImpl internal constructor(
+    internal val client: PlugwerkClient,
     private val catalog: PlugwerkCatalog,
     private val installer: PlugwerkInstaller,
     private val updateChecker: PlugwerkUpdateChecker,
@@ -54,6 +55,11 @@ class PlugwerkMarketplaceImpl internal constructor(
     override fun installer(): PlugwerkInstaller = installer
 
     override fun updateChecker(): PlugwerkUpdateChecker = updateChecker
+
+    /** Shuts down the underlying HTTP client, releasing connection pool and dispatcher threads. */
+    internal fun close() {
+        client.close()
+    }
 
     companion object {
         /**
@@ -69,6 +75,7 @@ class PlugwerkMarketplaceImpl internal constructor(
             )
             val client = PlugwerkClient(config)
             return PlugwerkMarketplaceImpl(
+                client = client,
                 catalog = PlugwerkCatalogImpl(client),
                 installer = PlugwerkInstallerImpl(client, pluginDir),
                 updateChecker = PlugwerkUpdateCheckerImpl(client),

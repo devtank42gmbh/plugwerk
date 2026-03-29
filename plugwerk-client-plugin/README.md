@@ -61,6 +61,33 @@ plugin.configure(
 val marketplace = plugin.marketplace()
 ```
 
+### Multiple Servers
+
+A single plugin instance can manage connections to multiple Plugwerk servers simultaneously:
+
+```kotlin
+plugin.configure("production", PlugwerkConfig.Builder("https://prod.example.com", "acme")
+    .accessToken("prod-token")
+    .pluginDirectory(Path.of("/var/app/plugins"))
+    .build())
+plugin.configure("staging", PlugwerkConfig.Builder("https://staging.example.com", "acme")
+    .accessToken("staging-token")
+    .pluginDirectory(Path.of("/var/app/plugins"))
+    .build())
+
+val prodCatalog = plugin.marketplace("production").catalog()
+val stagingInstaller = plugin.marketplace("staging").installer()
+
+// List all registered servers
+plugin.serverIds()  // ["production", "staging"]
+
+// Remove a server (closes its HTTP client)
+plugin.remove("staging")
+```
+
+The single-server `configure(config)` / `marketplace()` methods are convenience shortcuts
+that use `"default"` as the server ID.
+
 Or load from a properties file:
 
 ```properties

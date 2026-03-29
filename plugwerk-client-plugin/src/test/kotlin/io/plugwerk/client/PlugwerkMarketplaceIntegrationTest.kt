@@ -166,6 +166,53 @@ class PlugwerkMarketplaceIntegrationTest {
         assertEquals("Bearer integration-token", request.getHeader("Authorization"))
     }
 
+    @Test
+    fun `multi-server isolation — each server receives its own requests`() {
+        val serverB = MockWebServer()
+        serverB.start()
+
+        try {
+            val plugin = PlugwerkMarketplacePlugin()
+            plugin.configure(
+                "server-a",
+                PlugwerkConfig(
+                    serverUrl = server.url("/").toString().trimEnd('/'),
+                    namespace = "ns-a",
+                    accessToken = "token-a",
+                    pluginDirectory = pluginDir,
+                ),
+            )
+            plugin.configure(
+                "server-b",
+                PlugwerkConfig(
+                    serverUrl = serverB.url("/").toString().trimEnd('/'),
+                    namespace = "ns-b",
+                    accessToken = "token-b",
+                    pluginDirectory = pluginDir,
+                ),
+            )
+
+            val emptyPage = """{"content":[],"totalElements":0,"page":0,"size":20,"totalPages":0}"""
+            server.enqueue(MockResponse().setBody(emptyPage).setResponseCode(200))
+            serverB.enqueue(MockResponse().setBody(emptyPage).setResponseCode(200))
+
+            plugin.marketplace("server-a").catalog().listPlugins()
+            plugin.marketplace("server-b").catalog().listPlugins()
+
+            val requestA = server.takeRequest()
+            assertTrue(requestA.path!!.contains("/namespaces/ns-a/"))
+            assertEquals("Bearer token-a", requestA.getHeader("Authorization"))
+
+            val requestB = serverB.takeRequest()
+            assertTrue(requestB.path!!.contains("/namespaces/ns-b/"))
+            assertEquals("Bearer token-b", requestB.getHeader("Authorization"))
+
+            plugin.removeAll()
+        } finally {
+            serverB.shutdown()
+        }
+    }
+
     private fun sha256Hex(bytes: ByteArray): String {
         val digest = MessageDigest.getInstance("SHA-256")
         return digest.digest(bytes).joinToString("") { "%02x".format(it) }
