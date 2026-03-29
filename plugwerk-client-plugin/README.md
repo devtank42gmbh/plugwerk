@@ -42,21 +42,69 @@ Plugin Classloader (isolated)
 
 ## Configuration
 
+The host application configures the plugin by passing a `PlugwerkConfig` instance:
+
 ```kotlin
-val config = PlugwerkConfig.Builder()
-    .serverUrl("https://plugwerk.example.com")
-    .namespace("acme-crm")
-    .accessToken("eyJhbG...")
-    .build()
+val pluginManager = DefaultPluginManager(pluginsDir)
+pluginManager.loadPlugins()
+pluginManager.startPlugins()
+
+val plugin = pluginManager.getPlugin("plugwerk-client")
+    .plugin as PlugwerkMarketplacePlugin
+plugin.configure(
+    PlugwerkConfig.Builder("https://plugwerk.example.com", "acme-crm")
+        .accessToken("eyJhbG...")
+        .pluginDirectory(Path.of("/var/app/plugins"))
+        .build()
+)
+
+val marketplace = plugin.marketplace()
 ```
 
-Or from a properties file:
+### Multiple Servers
+
+A single plugin instance can manage connections to multiple Plugwerk servers simultaneously:
+
+```kotlin
+plugin.configure("production", PlugwerkConfig.Builder("https://prod.example.com", "acme")
+    .accessToken("prod-token")
+    .pluginDirectory(Path.of("/var/app/plugins"))
+    .build())
+plugin.configure("staging", PlugwerkConfig.Builder("https://staging.example.com", "acme")
+    .accessToken("staging-token")
+    .pluginDirectory(Path.of("/var/app/plugins"))
+    .build())
+
+val prodCatalog = plugin.marketplace("production").catalog()
+val stagingInstaller = plugin.marketplace("staging").installer()
+
+// List all registered servers
+plugin.serverIds()  // ["production", "staging"]
+
+// Remove a server (closes its HTTP client)
+plugin.remove("staging")
+```
+
+The single-server `configure(config)` / `marketplace()` methods are convenience shortcuts
+that use `"default"` as the server ID.
+
+Or load from a properties file:
 
 ```properties
-plugwerk.server-url=https://plugwerk.example.com
+plugwerk.serverUrl=https://plugwerk.example.com
 plugwerk.namespace=acme-crm
-plugwerk.access-token=eyJhbG...
+plugwerk.accessToken=eyJhbG...
+plugwerk.pluginDirectory=/var/app/plugins
 ```
+
+```kotlin
+val config = PlugwerkConfig.fromProperties(Path.of("plugwerk-client.properties"))
+plugin.configure(config)
+```
+
+> **Security:** Never pass access tokens as JVM system properties (`-Dplugwerk.accessToken=…`) —
+> they are visible in `ps aux` and `/proc/PID/cmdline`. Use the builder or a properties file
+> with restricted filesystem permissions instead.
 
 ## Compatibility
 
