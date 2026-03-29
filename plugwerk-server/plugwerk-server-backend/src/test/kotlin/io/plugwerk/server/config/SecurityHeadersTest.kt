@@ -80,4 +80,20 @@ class SecurityHeadersTest {
                 header { exists("Content-Security-Policy") }
             }
     }
+
+    @Test
+    fun `actuator health is publicly accessible`() {
+        mockMvc.get("/actuator/health")
+            .andExpect {
+                status { isOk() }
+            }
+    }
+
+    @Test
+    fun `actuator info requires authentication`() {
+        mockMvc.get("/actuator/info")
+            .andExpect {
+                status { isUnauthorized() }
+            }
+    }
 }

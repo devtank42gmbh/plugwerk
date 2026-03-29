@@ -120,8 +120,8 @@ class SecurityConfiguration(
                     .requestMatchers(HttpMethod.POST, "/api/v1/namespaces/*/updates/check").permitAll()
                     // Public server config (upload limits etc.) — used by frontend without auth
                     .requestMatchers(HttpMethod.GET, "/api/v1/config").permitAll()
-                    // Actuator health and info are public
-                    .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                    // Actuator health is public; info and prometheus require authentication
+                    .requestMatchers("/actuator/health").permitAll()
                     // SPA static assets are always public
                     .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/*.svg", "/*.ico").permitAll()
                     // OpenAPI spec is public (used by API docs page without login)
