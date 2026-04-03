@@ -26,7 +26,7 @@ public class ListCommand implements Runnable {
     @ParentCommand
     private PlugwerkCli parent;
 
-    @Option(names = {"--verbose", "-v"}, description = "Show additional metadata (author, license, homepage)")
+    @Option(names = {"--verbose", "-v"}, description = "Show additional metadata (provider, license, homepage)")
     private boolean verbose;
 
     @Override
@@ -68,7 +68,7 @@ public class ListCommand implements Runnable {
             System.out.printf("  Version:  %s%n", orDash(p.getLatestVersion()));
             System.out.printf("  Status:   %s%n", p.getStatus());
             if (p.getDescription() != null) System.out.printf("  Desc:     %s%n", p.getDescription());
-            if (p.getAuthor() != null)      System.out.printf("  Author:   %s%n", p.getAuthor());
+            if (p.getProvider() != null)    System.out.printf("  Provider: %s%n", p.getProvider());
             if (p.getLicense() != null)     System.out.printf("  License:  %s%n", p.getLicense());
             if (p.getHomepage() != null)    System.out.printf("  Homepage: %s%n", p.getHomepage());
             if (!p.getCategories().isEmpty()) System.out.printf("  Categories: %s%n", String.join(", ", p.getCategories()));

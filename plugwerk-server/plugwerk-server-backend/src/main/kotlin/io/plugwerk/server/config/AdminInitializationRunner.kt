@@ -80,8 +80,8 @@ class AdminInitializationRunner(
                 ╔══════════════════════════════════════════════════════════╗
                 ║         Plugwerk — Initial Superadmin Password           ║
                 ║                                                          ║
-                ║  Username : {}                                      ║
-                ║  Password : {}                           ║
+                ║  Username : {}                                        ║
+                ║  Password : {}                             ║
                 ║                                                          ║
                 ║  Change this password immediately after first login.     ║
                 ╚══════════════════════════════════════════════════════════╝

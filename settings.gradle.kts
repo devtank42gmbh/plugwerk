@@ -7,3 +7,7 @@ include("plugwerk-descriptor")
 include("plugwerk-server:plugwerk-server-backend")
 include("plugwerk-server:plugwerk-server-frontend")
 include("plugwerk-client-plugin")
+
+// Examples — composite build so they resolve plugwerk-spi (and other modules)
+// directly from the main build without publishToMavenLocal.
+includeBuild("examples")

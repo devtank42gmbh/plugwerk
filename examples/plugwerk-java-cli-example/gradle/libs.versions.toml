@@ -7,7 +7,7 @@ logback    = "1.5.18"
 junit      = "5.12.2"
 
 [libraries]
-# Plugwerk — resolved from mavenLocal() after `./gradlew publishToMavenLocal`
+# Plugwerk — resolved via composite build (see settings.gradle.kts)
 plugwerk-spi        = { module = "io.plugwerk:plugwerk-spi",              version.ref = "plugwerk" }
 
 # PF4J

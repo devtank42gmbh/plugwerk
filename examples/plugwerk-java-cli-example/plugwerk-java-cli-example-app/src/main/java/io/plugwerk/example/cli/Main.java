@@ -9,7 +9,7 @@ import java.nio.file.Path;
  *
  * <p>Run via Gradle:
  * <pre>
- * ./gradlew :plugwerk-java-cli-example:plugwerk-java-cli-example-app:run \
+ * ./gradlew :plugwerk-java-cli-example-app:run \
  *     --args="--server=http://localhost:8080 list"
  * </pre>
  *

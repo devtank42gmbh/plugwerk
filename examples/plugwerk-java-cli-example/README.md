@@ -27,7 +27,24 @@ public interface CliCommand extends ExtensionPoint {
 
 ### plugwerk-java-cli-example-app
 
-The host application. Provides built-in subcommands:
+The host application. Uses [picocli](https://picocli.info/) for command parsing
+and PF4J's `DefaultPluginManager` for plugin lifecycle management.
+
+```
+JVM (Host)
+├── Classpath: plugwerk-spi, pf4j, picocli, plugwerk-java-cli-example-api
+└── DefaultPluginManager → plugins/plugwerk-client-plugin-<version>.zip
+                                → extracted to plugins/<id>/ on first run
+                                → exposes PlugwerkMarketplace via @Extension
+                           plugins/<any-cli-plugin>.zip
+                                → exposes CliCommand extensions (dynamic subcommands)
+```
+
+> **Note:** `DefaultPluginManager` is required (not `JarPluginManager`). In PF4J 3.15,
+> `JarPluginManager` only accepts plain `.jar` files. `DefaultPluginManager` includes
+> `DefaultPluginRepository`, which automatically extracts ZIP files to directories before loading.
+
+Built-in subcommands:
 
 | Subcommand  | Description |
 |-------------|-------------|
@@ -48,25 +65,31 @@ is gone on the next invocation.
 Ready-made example plugins that can be uploaded to the server and installed via
 the CLI to demonstrate dynamic command loading:
 
-| Plugin | Plugwerk ID | Subcommand | What it does |
-|--------|-------------|------------|--------------|
-| `plugwerk-java-cli-example-hello-cmd-plugin` | same | `hello` | Greets with `--name` and `--language` (en/de/es) |
-| `plugwerk-java-cli-example-sysinfo-cmd-plugin` | same | `sysinfo` | Prints Java/OS/heap info; `--all` for all system properties |
+| Plugin | Plugin ID | Subcommand | What it does |
+|--------|-----------|------------|--------------|
+| `plugwerk-java-cli-example-hello-cmd-plugin` | `io.plugwerk.example.cli.hello` | `hello` | Greets with `--name` and `--language` (en/de/es) |
+| `plugwerk-java-cli-example-sysinfo-cmd-plugin` | `io.plugwerk.example.cli.sysinfo` | `sysinfo` | Prints Java/OS/heap info; `--all` for all system properties |
 
 ---
 
-## Prerequisites
+## Building
 
-### 1. Publish Plugwerk artifacts to Maven Local
-
-The example build resolves `plugwerk-spi` and `plugwerk-client-plugin` from
-Maven Local. Run once from the **main project root**:
+This example is a self-contained Gradle project that can be built independently:
 
 ```bash
-./gradlew publishToMavenLocal
+cd examples/plugwerk-java-cli-example/
+./gradlew build
 ```
 
-### 2. Start a local Plugwerk server
+Dependencies on `plugwerk-spi` are resolved automatically via Gradle composite
+build — no `publishToMavenLocal` needed.
+
+> **Standalone mode**: If you build outside of the monorepo checkout, run
+> `./gradlew publishToMavenLocal` in the main project first.
+
+## Prerequisites
+
+### 1. Start a local Plugwerk server
 
 ```bash
 # Start the database
@@ -134,14 +157,14 @@ java -jar *-fat.jar --server=http://localhost:8080 list
 ### 1. Build the plugin ZIPs
 
 ```bash
-cd examples/
-./gradlew :plugwerk-java-cli-example:plugwerk-java-cli-example-hello-cmd-plugin:assemble \
-          :plugwerk-java-cli-example:plugwerk-java-cli-example-sysinfo-cmd-plugin:assemble
+cd examples/plugwerk-java-cli-example/
+./gradlew :plugwerk-java-cli-example-hello-cmd-plugin:assemble \
+          :plugwerk-java-cli-example-sysinfo-cmd-plugin:assemble
 ```
 
 Artifacts are written to each module's `build/pf4j/` directory:
-- `plugwerk-java-cli-example-hello-cmd-plugin/build/pf4j/plugwerk-java-cli-example-hello-cmd-plugin-0.1.0-SNAPSHOT.zip`
-- `plugwerk-java-cli-example-sysinfo-cmd-plugin/build/pf4j/plugwerk-java-cli-example-sysinfo-cmd-plugin-0.1.0-SNAPSHOT.zip`
+- `plugwerk-java-cli-example-hello-cmd-plugin/build/pf4j/io.plugwerk.example.cli.hello-0.1.0-SNAPSHOT.zip`
+- `plugwerk-java-cli-example-sysinfo-cmd-plugin/build/pf4j/io.plugwerk.example.cli.sysinfo-0.1.0-SNAPSHOT.zip`
 
 ### 2. Create a namespace (if it does not exist yet)
 
@@ -164,13 +187,13 @@ The server reads the `MANIFEST.MF` metadata embedded inside the JAR
 curl -s -X POST \
   "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
-  -F "artifact=@plugwerk-java-cli-example-hello-cmd-plugin/build/pf4j/plugwerk-java-cli-example-hello-cmd-plugin-0.1.0-SNAPSHOT.zip"
+  -F "artifact=@plugwerk-java-cli-example-hello-cmd-plugin/build/pf4j/io.plugwerk.example.cli.hello-0.1.0-SNAPSHOT.zip"
 
 # Upload sysinfo-cmd-plugin
 curl -s -X POST \
   "http://localhost:8080/api/v1/namespaces/default/plugin-releases" \
   -H "Authorization: Bearer $TOKEN" \
-  -F "artifact=@plugwerk-java-cli-example-sysinfo-cmd-plugin/build/pf4j/plugwerk-java-cli-example-sysinfo-cmd-plugin-0.1.0-SNAPSHOT.zip"
+  -F "artifact=@plugwerk-java-cli-example-sysinfo-cmd-plugin/build/pf4j/io.plugwerk.example.cli.sysinfo-0.1.0-SNAPSHOT.zip"
 ```
 
 A successful upload returns HTTP 201 with the release details in JSON.
@@ -182,7 +205,7 @@ until explicitly published. Use the management API to approve them:
 
 ```bash
 # Get the release ID from the upload response, or look it up:
-curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/plugwerk-java-cli-example-hello-cmd-plugin/releases/0.1.0-SNAPSHOT" \
+curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/io.plugwerk.example.cli.hello/releases/0.1.0-SNAPSHOT" \
   -H "Authorization: Bearer $TOKEN" | jq .id
 
 # Approve (DRAFT → PUBLISHED) — replace <release-id> with the UUID from above
@@ -201,10 +224,10 @@ are installable via the CLI.
 curl -s "http://localhost:8080/api/v1/namespaces/default/plugins" | jq .
 
 # Show a specific plugin with its releases
-curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/plugwerk-java-cli-example-hello-cmd-plugin" | jq .
+curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/io.plugwerk.example.cli.hello" | jq .
 
 # Show the release detail (includes the release ID needed for approval)
-curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/plugwerk-java-cli-example-hello-cmd-plugin/releases/0.1.0-SNAPSHOT" \
+curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/io.plugwerk.example.cli.hello/releases/0.1.0-SNAPSHOT" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
 
@@ -215,18 +238,18 @@ curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/plugwerk-java-c
 ### Build the host application
 
 ```bash
-cd examples/
-./gradlew :plugwerk-java-cli-example:plugwerk-java-cli-example-app:assemble
+cd examples/plugwerk-java-cli-example/
+./gradlew :plugwerk-java-cli-example-app:assemble
 ```
 
 The fat JAR is written to
-`plugwerk-java-cli-example/plugwerk-java-cli-example-app/build/libs/*-fat.jar`.
+`plugwerk-java-cli-example-app/build/libs/*-fat.jar`.
 
 ### Built-in marketplace commands
 
 ```bash
-cd examples/
-JAR=plugwerk-java-cli-example/plugwerk-java-cli-example-app/build/libs/*-fat.jar
+cd examples/plugwerk-java-cli-example/
+JAR=plugwerk-java-cli-example-app/build/libs/*-fat.jar
 
 # List published plugins
 java -jar $JAR --server=http://localhost:8080 --access-token=$TOKEN list
@@ -249,14 +272,14 @@ java -jar $JAR --server=http://localhost:8080 --access-token=$TOKEN update --app
 ```bash
 # Install hello-cmd-plugin from the server
 java -jar $JAR --server=http://localhost:8080 --access-token=$TOKEN \
-    install plugwerk-java-cli-example-hello-cmd-plugin 0.1.0-SNAPSHOT
-# -> Successfully installed plugwerk-java-cli-example-hello-cmd-plugin@0.1.0-SNAPSHOT
+    install io.plugwerk.example.cli.hello 0.1.0-SNAPSHOT
+# -> Successfully installed io.plugwerk.example.cli.hello@0.1.0-SNAPSHOT
 # -> [plugin] Registered dynamic command: hello
 
 # Install sysinfo-cmd-plugin
 java -jar $JAR --server=http://localhost:8080 --access-token=$TOKEN \
-    install plugwerk-java-cli-example-sysinfo-cmd-plugin 0.1.0-SNAPSHOT
-# -> Successfully installed plugwerk-java-cli-example-sysinfo-cmd-plugin@0.1.0-SNAPSHOT
+    install io.plugwerk.example.cli.sysinfo 0.1.0-SNAPSHOT
+# -> Successfully installed io.plugwerk.example.cli.sysinfo@0.1.0-SNAPSHOT
 # -> [plugin] Registered dynamic command: sysinfo
 
 # Use the dynamically loaded commands (on the next invocation)
@@ -275,19 +298,19 @@ java -jar $JAR sysinfo
 java -jar $JAR sysinfo --all     # includes all system properties
 
 # Uninstall a plugin (stops + unloads it, removes ZIP and extracted directory)
-java -jar $JAR uninstall plugwerk-java-cli-example-hello-cmd-plugin
+java -jar $JAR uninstall io.plugwerk.example.cli.hello
 ```
 
 ### Via Gradle (without building the fat JAR)
 
 ```bash
-cd examples/
+cd examples/plugwerk-java-cli-example/
 
-./gradlew :plugwerk-java-cli-example:plugwerk-java-cli-example-app:run \
+./gradlew :plugwerk-java-cli-example-app:run \
     --args="--server=http://localhost:8080 --access-token=$TOKEN list"
 
-./gradlew :plugwerk-java-cli-example:plugwerk-java-cli-example-app:run \
-    --args="install plugwerk-java-cli-example-hello-cmd-plugin 0.1.0-SNAPSHOT"
+./gradlew :plugwerk-java-cli-example-app:run \
+    --args="install io.plugwerk.example.cli.hello 0.1.0-SNAPSHOT"
 ```
 
 ---
@@ -337,11 +360,30 @@ java -jar $JAR --plugins-dir=/absolute/path/to/plugins --server=http://localhost
    public class MyPlugin extends Plugin {}
    ```
 
-4. Configure PF4J metadata in `tasks.jar { manifest { attributes(...) } }` and
-   build a ZIP with the same structure used by `plugwerk-java-cli-example-hello-cmd-plugin`.
+4. Configure **all** plugin metadata in `tasks.jar { manifest { attributes(...) } }`.
+   The Plugwerk server reads everything from `MANIFEST.MF` — no `plugwerk.yml` needed.
 
-5. Add `Plugin-Name`, `Plugin-Version`, `Plugin-Id`, and at least a `Plugin-Description`
-   to the JAR's `MANIFEST.MF` via the Gradle `manifest { attributes(...) }` block.
+   ```kotlin
+   tasks.jar {
+       manifest {
+           attributes(
+               // PF4J standard attributes
+               "Plugin-Id"          to "com.example.my-plugin",
+               "Plugin-Class"       to "com.example.MyPlugin",
+               "Plugin-Version"     to project.version.toString(),
+               "Plugin-Provider"    to "Example Corp",
+               "Plugin-Description" to "Does something useful.",
+               // Plugwerk custom attributes (optional, but recommended)
+               "Plugin-Name"        to "My Plugin",
+               "Plugin-License"     to "MIT",
+               "Plugin-Categories"  to "utilities, examples",
+               "Plugin-Tags"        to "my-tag, demo",
+           )
+       }
+   }
+   ```
+
+5. Build a ZIP with the same structure used by `plugwerk-java-cli-example-hello-cmd-plugin`.
 
 6. Upload the ZIP to the Plugwerk server, approve the release (DRAFT → PUBLISHED),
    and install it via the CLI.
@@ -355,3 +397,16 @@ Set `PLUGWERK_LOG_LEVEL=DEBUG` to see PF4J plugin loading details:
 ```bash
 PLUGWERK_LOG_LEVEL=DEBUG java -jar $JAR --server=http://localhost:8080 list
 ```
+
+---
+
+## Known Limitations
+
+- **PF4J 3.15 shutdown bug**: `stopPlugins()` throws a `ConcurrentModificationException` during
+  JVM shutdown. This is suppressed internally and has no functional impact.
+- **ZIP extraction**: The SDK plugin ZIP is extracted to a subdirectory on first run. If you
+  replace the ZIP with a newer version, delete the extracted directory manually before the next run:
+  ```bash
+  rm -rf plugins/plugwerk-client-plugin-*/
+  cp plugwerk-client-plugin-<new-version>.zip plugins/
+  ```
