@@ -64,7 +64,7 @@ import java.util.UUID
  *   (matches the PF4J plugin ID, e.g. `my-awesome-plugin`).
  * @property name Display name of the plugin.
  * @property description Long-form description (optional, free text).
- * @property author Name of the author or author group (optional).
+ * @property provider Name of the plugin provider or organisation (optional).
  * @property license SPDX licence identifier of the plugin (optional, e.g. `Apache-2.0`).
  * @property homepage URL to the project homepage (optional).
  * @property repository URL to the source-code repository (optional).
@@ -100,8 +100,8 @@ class PluginEntity(
     @Column(name = "description", columnDefinition = "text")
     var description: String? = null,
 
-    @Column(name = "author", length = 255)
-    var author: String? = null,
+    @Column(name = "provider", length = 255)
+    var provider: String? = null,
 
     @Column(name = "license", length = 100)
     var license: String? = null,

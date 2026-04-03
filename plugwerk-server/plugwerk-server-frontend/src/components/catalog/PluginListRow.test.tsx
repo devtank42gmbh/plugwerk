@@ -10,7 +10,7 @@ const plugin: PluginDto = {
   id: 'uuid-1',
   pluginId: 'cache-plugin',
   name: 'Cache Plugin',
-  author: 'Acme',
+  provider: 'Acme',
   status: 'active',
   latestRelease: {
     id: 'rel-1',
@@ -28,13 +28,13 @@ describe('PluginListRow', () => {
     expect(screen.getByText('Cache Plugin')).toBeInTheDocument()
   })
 
-  it('renders author', () => {
+  it('renders provider', () => {
     renderWithRouter(<PluginListRow plugin={plugin} namespace="acme" />)
     expect(screen.getByText('Acme')).toBeInTheDocument()
   })
 
-  it('falls back to namespace when author is absent', () => {
-    renderWithRouter(<PluginListRow plugin={{ ...plugin, author: undefined }} namespace="acme" />)
+  it('falls back to namespace when provider is absent', () => {
+    renderWithRouter(<PluginListRow plugin={{ ...plugin, provider: undefined }} namespace="acme" />)
     expect(screen.getByText('acme')).toBeInTheDocument()
   })
 

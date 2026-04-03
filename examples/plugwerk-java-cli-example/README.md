@@ -156,7 +156,7 @@ If the namespace already exists the server returns HTTP 409 — that is fine.
 
 ### 3. Upload the plugin releases
 
-The server reads the `plugwerk.yml` descriptor embedded inside the JAR
+The server reads the `MANIFEST.MF` metadata embedded inside the JAR
 (within the ZIP) automatically. No manual metadata entry is required.
 
 ```bash
@@ -340,8 +340,8 @@ java -jar $JAR --plugins-dir=/absolute/path/to/plugins --server=http://localhost
 4. Configure PF4J metadata in `tasks.jar { manifest { attributes(...) } }` and
    build a ZIP with the same structure used by `plugwerk-java-cli-example-hello-cmd-plugin`.
 
-5. Add `name`, `version`, `id`, and at least a `description` to `plugwerk.yml`
-   embedded in `src/main/resources/`. The `id` must match `Plugin-Id` in the manifest.
+5. Add `Plugin-Name`, `Plugin-Version`, `Plugin-Id`, and at least a `Plugin-Description`
+   to the JAR's `MANIFEST.MF` via the Gradle `manifest { attributes(...) }` block.
 
 6. Upload the ZIP to the Plugwerk server, approve the release (DRAFT → PUBLISHED),
    and install it via the CLI.

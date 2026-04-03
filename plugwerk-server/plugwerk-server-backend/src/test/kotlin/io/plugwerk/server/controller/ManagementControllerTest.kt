@@ -191,7 +191,7 @@ class ManagementControllerTest {
         whenever(releaseService.upload(any(), any(), any(), anyOrNull()))
             .thenThrow(
                 DescriptorNotFoundException(
-                    "No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)",
+                    "No PF4J descriptor found in JAR (neither MANIFEST.MF with Plugin-Id nor plugin.properties)",
                 ),
             )
 
@@ -201,7 +201,7 @@ class ManagementControllerTest {
             status { isUnprocessableEntity() }
             jsonPath("$.status") { value(422) }
             jsonPath("$.message") {
-                value("No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)")
+                value("No PF4J descriptor found in JAR (neither MANIFEST.MF with Plugin-Id nor plugin.properties)")
             }
         }
     }

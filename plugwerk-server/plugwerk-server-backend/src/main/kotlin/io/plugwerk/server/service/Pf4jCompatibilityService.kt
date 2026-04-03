@@ -59,7 +59,7 @@ class Pf4jCompatibilityService(
                 Pf4jPluginInfo(
                     id = plugin.pluginId,
                     description = plugin.description,
-                    provider = plugin.author,
+                    provider = plugin.provider,
                     projectUrl = plugin.homepage,
                     releases = releases,
                 )

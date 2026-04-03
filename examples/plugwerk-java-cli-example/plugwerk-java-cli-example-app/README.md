@@ -173,7 +173,7 @@ The ZIPs are placed in each module's `build/pf4j/` directory.
 ### Upload to the Plugwerk server
 
 Use the management API to upload a plugin release. The server reads the
-`plugwerk.yml` descriptor from inside the JAR automatically.
+`MANIFEST.MF` metadata from inside the JAR automatically.
 
 ```bash
 # Register the plugin in the default namespace (requires auth token)

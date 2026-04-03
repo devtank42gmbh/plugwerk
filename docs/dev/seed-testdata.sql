@@ -21,7 +21,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- ============================================================
 -- Plugins — default namespace
 -- ============================================================
-INSERT INTO plugin (id, namespace_id, plugin_id, name, description, author, license, categories, tags, status) VALUES
+INSERT INTO plugin (id, namespace_id, plugin_id, name, description, provider, license, categories, tags, status) VALUES
   ('10000000-0000-0000-0000-000000000001',(SELECT id FROM namespace WHERE slug = 'default'),'io.plugwerk.auth-sso','Auth SSO','Single sign-on integration for enterprise systems','devtank42','MIT','{Security,Auth}','{sso,oauth2,enterprise}','ACTIVE'),
   ('10000000-0000-0000-0000-000000000002',(SELECT id FROM namespace WHERE slug = 'default'),'io.plugwerk.audit-log','Audit Log','Persistent audit trail for all user actions','devtank42','MIT','{Compliance,Security}','{audit,logging,compliance}','ACTIVE'),
   ('10000000-0000-0000-0000-000000000003',(SELECT id FROM namespace WHERE slug = 'default'),'io.plugwerk.backup-manager','Backup Manager','Automated backup scheduling and restore','devtank42','Apache-2.0','{Operations}','{backup,restore,scheduling}','ACTIVE'),
@@ -57,7 +57,7 @@ ON CONFLICT (namespace_id, plugin_id) DO NOTHING;
 -- ============================================================
 -- Plugins — acme-corp namespace
 -- ============================================================
-INSERT INTO plugin (id, namespace_id, plugin_id, name, description, author, license, categories, tags, status) VALUES
+INSERT INTO plugin (id, namespace_id, plugin_id, name, description, provider, license, categories, tags, status) VALUES
   ('20000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000002','com.acme.crm-connector','CRM Connector','Bidirectional sync with Salesforce CRM','ACME Corp','AGPL-3.0','{Integrations,CRM}','{crm,salesforce,sync}','ACTIVE'),
   ('20000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000002','com.acme.invoice-engine','Invoice Engine','Automated invoice generation and PDF delivery','ACME Corp','AGPL-3.0','{Finance,Documents}','{invoice,pdf,billing}','ACTIVE'),
   ('20000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-000000000002','com.acme.hr-onboarding','HR Onboarding','Employee onboarding workflow automation','ACME Corp','AGPL-3.0','{HR,Workflow}','{hr,onboarding,automation}','ACTIVE'),
@@ -93,7 +93,7 @@ ON CONFLICT (namespace_id, plugin_id) DO NOTHING;
 -- ============================================================
 -- Plugins — community namespace
 -- ============================================================
-INSERT INTO plugin (id, namespace_id, plugin_id, name, description, author, license, categories, tags, status) VALUES
+INSERT INTO plugin (id, namespace_id, plugin_id, name, description, provider, license, categories, tags, status) VALUES
   ('30000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000003','org.community.markdown-renderer','Markdown Renderer','Fast CommonMark renderer with syntax highlighting','community','MIT','{UI,Documents}','{markdown,rendering,syntax}','ACTIVE'),
   ('30000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000003','org.community.chart-builder','Chart Builder','D3.js-powered chart and graph builder','community','MIT','{UI,Analytics}','{charts,d3,visualization}','ACTIVE'),
   ('30000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-000000000003','org.community.dark-mode','Dark Mode','System-aware dark/light theme toggle','community','MIT','{UI}','{dark-mode,theme,accessibility}','ACTIVE'),

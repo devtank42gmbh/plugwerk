@@ -25,22 +25,28 @@ info:
     returned to catalog and update-check consumers. A namespace owner can optionally require
     manual review before a release is published (see the **Reviews** tag).
 
-    ### Plugin Descriptor (`plugwerk.yml`)
-    When you upload a release artifact, the server reads a `plugwerk.yml` file embedded in the
-    JAR/ZIP. This descriptor extends the standard PF4J manifest with Plugwerk-specific metadata:
-    ```yaml
-    plugwerk:
-      id: com.example.my-plugin
-      version: 1.2.0
-      name: My Plugin
-      description: Does something useful
-      requires:
-        system-version: ">=2.0.0 & <4.0.0"
-        plugins:
-          - id: com.example.dependency
-            version: ">=1.0.0"
-    ```
-    If `plugwerk.yml` is absent the server falls back to the PF4J manifest headers.
+    ### Plugin Descriptor (MANIFEST.MF)
+    When you upload a release artifact, the server reads the `MANIFEST.MF` from the
+    JAR/ZIP. Standard PF4J attributes are supplemented by custom `Plugin-*` attributes:
+
+    | Attribute | Required | Description |
+    |-----------|----------|-------------|
+    | `Plugin-Id` | **Yes** | Unique plugin identifier |
+    | `Plugin-Version` | **Yes** | SemVer version |
+    | `Plugin-Name` | No | Human-readable display name |
+    | `Plugin-Description` | No | Short description |
+    | `Plugin-Provider` | No | Author / organisation |
+    | `Plugin-License` | No | SPDX license identifier |
+    | `Plugin-Requires` | No | SemVer range for host system |
+    | `Plugin-Dependencies` | No | Comma-separated `pluginId@version` |
+    | `Plugin-Categories` | No | Comma-separated category slugs |
+    | `Plugin-Tags` | No | Comma-separated tags |
+    | `Plugin-Icon` | No | Icon URL or relative path |
+    | `Plugin-Screenshots` | No | Comma-separated screenshot URLs |
+    | `Plugin-Homepage` | No | Project homepage URL |
+    | `Plugin-Repository` | No | Source code repository URL |
+
+    Falls back to `plugin.properties` if `MANIFEST.MF` has no `Plugin-Id`.
 
     ## Authentication
 
@@ -132,7 +138,7 @@ tags:
       Authenticated endpoints for publishing and maintaining plugins.
 
       Use these endpoints from your CI/CD pipeline or release tooling:
-      - **Upload** a release artifact (JAR/ZIP); the plugin is created automatically from the embedded `plugwerk.yml` descriptor
+      - **Upload** a release artifact (JAR/ZIP); the plugin is created automatically from the embedded MANIFEST.MF descriptor
       - **Update** plugin metadata (description, categories, tags, links)
       - **Change release status** to publish, deprecate, or yank a release
 
@@ -419,18 +425,16 @@ paths:
       description: |
         Uploads a plugin artifact (JAR or ZIP) and creates a new release.
 
-        The server reads the `plugwerk.yml` descriptor embedded in the artifact to extract
-        the plugin ID, version, and all other metadata. If `plugwerk.yml` is absent, the
-        server falls back to reading the PF4J manifest headers (`MANIFEST.MF` /
-        `plugin.properties`).
+        The server reads the `MANIFEST.MF` from the artifact to extract the plugin ID,
+        version, and all other metadata. Falls back to `plugin.properties` if `MANIFEST.MF`
+        has no `Plugin-Id` attribute.
 
-        **Descriptor requirements** (`plugwerk.yml` inside the archive):
-        ```yaml
-        plugwerk:
-          id: com.example.my-plugin   # plugin ID, must be unique within the namespace
-          version: 1.2.0              # SemVer, must be unique for this plugin
-          name: My Plugin
-          description: Short description
+        **Required MANIFEST.MF attributes:**
+        ```
+        Plugin-Id: com.example.my-plugin
+        Plugin-Version: 1.2.0
+        Plugin-Name: My Plugin
+        Plugin-Description: Short description
         ```
 
         If the plugin ID from the descriptor is not yet known in this namespace, a new plugin
@@ -445,12 +449,12 @@ paths:
 
         **Descriptor validation:**
         All descriptor fields are validated on upload. Key constraints:
-        - `id`: `^[a-zA-Z0-9._-]{1,128}$`
-        - `version`: valid SemVer, max 100 characters
-        - `name`: max 255 characters
-        - `description`: max 10,000 characters
-        - `author`: max 255 characters
-        - `license`: max 100 characters
+        - `Plugin-Id`: `^[a-zA-Z0-9._-]{1,128}$`
+        - `Plugin-Version`: valid SemVer, max 100 characters
+        - `Plugin-Name`: max 255 characters
+        - `Plugin-Description`: max 10,000 characters
+        - `Plugin-Provider`: max 255 characters
+        - `Plugin-License`: max 100 characters
         - URL fields (`homepage`, `repository`, `icon`): max 2,048 characters, must be valid http/https
         - `categories`: max 20 entries, each max 64 characters
         - `tags`: max 50 entries, each max 64 characters
@@ -1425,9 +1429,9 @@ components:
         description:
           type: string
           description: Short description of what the plugin does
-        author:
+        provider:
           type: string
-          description: Author or maintainer name
+          description: Plugin provider or organisation name
         license:
           type: string
           description: SPDX license identifier (e.g. `Apache-2.0`, `MIT`, `GPL-3.0-only`)
@@ -1524,12 +1528,6 @@ components:
           description: |
             SemVer range expression for the minimum required host application version.
             Uses the Maven/PF4J range syntax, e.g. `>=2.0.0 & <4.0.0`.
-        requiresApiLevel:
-          type: integer
-          format: int32
-          description: |
-            Minimum API level integer required by the host application (alternative to
-            `requiresSystemVersion`). Use the mechanism your host application supports.
         pluginDependencies:
           type: array
           items:
@@ -1628,9 +1626,9 @@ components:
           type: string
           format: binary
           description: |
-            The plugin artifact file (JAR or ZIP). Must contain a `plugwerk.yml` descriptor
-            (or a valid PF4J manifest as fallback) for the server to extract version and
-            plugin metadata.
+            The plugin artifact file (JAR or ZIP). Must contain a valid MANIFEST.MF with
+            `Plugin-Id` and `Plugin-Version` attributes (or `plugin.properties` as fallback)
+            for the server to extract version and plugin metadata.
       required:
         - artifact
 
@@ -1743,7 +1741,7 @@ components:
           description: Short plugin description
         provider:
           type: string
-          description: Plugin author or provider name
+          description: Plugin provider or organisation name
         projectUrl:
           type: string
           description: Homepage or project URL
@@ -2169,7 +2167,7 @@ components:
     UnprocessableEntity:
       description: |
         The artifact was received but the plugin descriptor is missing or invalid.
-        Check that `plugwerk.yml` is present inside the JAR/ZIP and has the correct structure.
+        Check that MANIFEST.MF contains valid `Plugin-Id` and `Plugin-Version` attributes.
       content:
         application/json:
           schema:

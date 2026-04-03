@@ -70,7 +70,7 @@ export function PluginHeader({ plugin, latestRelease, namespace }: PluginHeaderP
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
           <Typography variant="caption" color="text.disabled">
-            by <strong style={{ color: 'inherit' }}>{plugin.author ?? namespace}</strong>
+            by <strong style={{ color: 'inherit' }}>{plugin.provider ?? namespace}</strong>
             {' · '}Namespace: <code>{namespace}</code>
           </Typography>
         </Box>

@@ -35,16 +35,29 @@ class Pf4jManifestParser {
         val requires = attrs.getValue("Plugin-Requires")
         val license = attrs.getValue("Plugin-License")
         val dependencies = parseDependencyString(attrs.getValue("Plugin-Dependencies"))
+        val name = attrs.getValue("Plugin-Name") ?: description ?: id
+        val categories = parseCommaSeparatedList(attrs.getValue("Plugin-Categories"))
+        val tags = parseCommaSeparatedList(attrs.getValue("Plugin-Tags"))
+        val icon = attrs.getValue("Plugin-Icon")
+        val screenshots = parseCommaSeparatedList(attrs.getValue("Plugin-Screenshots"))
+        val homepage = attrs.getValue("Plugin-Homepage")
+        val repository = attrs.getValue("Plugin-Repository")
 
         val descriptor = PlugwerkDescriptor(
             id = id,
             version = version,
-            name = description ?: id,
+            name = name,
             description = description,
-            author = provider,
+            provider = provider,
             license = license,
+            categories = categories,
+            tags = tags,
             requiresSystemVersion = requires,
             pluginDependencies = dependencies,
+            icon = icon,
+            screenshots = screenshots,
+            homepage = homepage,
+            repository = repository,
         )
         DescriptorValidator.validate(descriptor)
         return descriptor
@@ -60,16 +73,29 @@ class Pf4jManifestParser {
         val requires = properties.getProperty("plugin.requires")
         val license = properties.getProperty("plugin.license")
         val dependencies = parseDependencyString(properties.getProperty("plugin.dependencies"))
+        val name = properties.getProperty("plugin.name") ?: description ?: id
+        val categories = parseCommaSeparatedList(properties.getProperty("plugin.categories"))
+        val tags = parseCommaSeparatedList(properties.getProperty("plugin.tags"))
+        val icon = properties.getProperty("plugin.icon")
+        val screenshots = parseCommaSeparatedList(properties.getProperty("plugin.screenshots"))
+        val homepage = properties.getProperty("plugin.homepage")
+        val repository = properties.getProperty("plugin.repository")
 
         val descriptor = PlugwerkDescriptor(
             id = id,
             version = version,
-            name = description ?: id,
+            name = name,
             description = description,
-            author = provider,
+            provider = provider,
             license = license,
+            categories = categories,
+            tags = tags,
             requiresSystemVersion = requires,
             pluginDependencies = dependencies,
+            icon = icon,
+            screenshots = screenshots,
+            homepage = homepage,
+            repository = repository,
         )
         DescriptorValidator.validate(descriptor)
         return descriptor
@@ -107,5 +133,10 @@ class Pf4jManifestParser {
                 version = if (parts.size > 1) parts[1].trim() else "*",
             )
         }
+    }
+
+    private fun parseCommaSeparatedList(value: String?): List<String> {
+        if (value.isNullOrBlank()) return emptyList()
+        return value.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     }
 }

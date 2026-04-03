@@ -28,7 +28,7 @@ package io.plugwerk.spi.model
  *   (typically reverse-domain notation, e.g. `"io.example.my-plugin"`)
  * @property name           human-readable display name
  * @property description    short description of what the plugin does; `null` if not provided
- * @property author         name or organisation of the plugin author; `null` if not provided
+ * @property provider       name or organisation of the plugin provider; `null` if not provided
  * @property license        SPDX license identifier (e.g. `"Apache-2.0"`); `null` if not provided
  * @property namespace      slug of the namespace this plugin belongs to;
  *   `null` when the namespace is implicit from the request context
@@ -45,7 +45,7 @@ data class PluginInfo(
     val pluginId: String,
     val name: String,
     val description: String? = null,
-    val author: String? = null,
+    val provider: String? = null,
     val license: String? = null,
     val namespace: String? = null,
     val categories: List<String> = emptyList(),

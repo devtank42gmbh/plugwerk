@@ -20,10 +20,6 @@ tasks.compileJava {
 dependencies {
     api(project(":plugwerk-spi"))
 
-    implementation(platform(libs.jackson.bom))
-    implementation(libs.jackson.databind)
-    implementation(libs.jackson.dataformat.yaml)
-    implementation(libs.jackson.module.kotlin)
     implementation(libs.slf4j.api)
 
     testImplementation(platform(libs.junit.bom))

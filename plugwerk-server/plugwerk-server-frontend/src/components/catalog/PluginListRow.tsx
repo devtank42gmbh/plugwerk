@@ -88,7 +88,7 @@ export function PluginListRow({ plugin, namespace }: PluginListRowProps) {
 
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography variant="body2" fontWeight={600} noWrap>{plugin.name}</Typography>
-        <Typography variant="caption" color="text.disabled">{plugin.author ?? namespace}</Typography>
+        <Typography variant="caption" color="text.disabled">{plugin.provider ?? namespace}</Typography>
       </Box>
 
       {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}

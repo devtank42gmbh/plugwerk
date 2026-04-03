@@ -41,7 +41,7 @@ class PluginMapper(private val releaseMapper: PluginReleaseMapper) {
             name = entity.name,
             status = entity.status.toDto(),
             description = entity.description,
-            author = entity.author,
+            provider = entity.provider,
             license = entity.license,
             namespace = namespaceSlug,
             categories = entity.categories.toList().takeIf { it.isNotEmpty() },

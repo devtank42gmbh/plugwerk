@@ -45,7 +45,7 @@ object DescriptorValidator {
     const val VERSION_MAX_LENGTH = 100
     const val NAME_MAX_LENGTH = 255
     const val DESCRIPTION_MAX_LENGTH = 10_000
-    const val AUTHOR_MAX_LENGTH = 255
+    const val PROVIDER_MAX_LENGTH = 255
     const val LICENSE_MAX_LENGTH = 100
     const val URL_MAX_LENGTH = 2048
     const val REQUIRES_SYSTEM_VERSION_MAX_LENGTH = 255
@@ -90,12 +90,12 @@ object DescriptorValidator {
             checkNoHtml("description", value, violations)
         }
 
-        // --- author ---
-        descriptor.author?.let { value ->
-            if (value.length > AUTHOR_MAX_LENGTH) {
-                violations += "author must not exceed $AUTHOR_MAX_LENGTH characters (got ${value.length})"
+        // --- provider ---
+        descriptor.provider?.let { value ->
+            if (value.length > PROVIDER_MAX_LENGTH) {
+                violations += "provider must not exceed $PROVIDER_MAX_LENGTH characters (got ${value.length})"
             }
-            checkNoHtml("author", value, violations)
+            checkNoHtml("provider", value, violations)
         }
 
         // --- license ---

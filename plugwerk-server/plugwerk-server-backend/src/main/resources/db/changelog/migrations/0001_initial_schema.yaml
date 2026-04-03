@@ -80,7 +80,7 @@ databaseChangeLog:
                   name: description
                   type: text
               - column:
-                  name: author
+                  name: provider
                   type: varchar(255)
               - column:
                   name: license
