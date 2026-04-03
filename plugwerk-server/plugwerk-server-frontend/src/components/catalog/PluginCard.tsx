@@ -50,10 +50,10 @@ export function PluginCard({ plugin, namespace }: PluginCardProps) {
   const latestRelease = plugin.latestRelease
 
   const nameRef = useRef<HTMLElement>(null)
-  const authorRef = useRef<HTMLElement>(null)
+  const providerRef = useRef<HTMLElement>(null)
   const descRef = useRef<HTMLElement>(null)
   const nameOverflowing = useIsOverflowing(nameRef)
-  const authorOverflowing = useIsOverflowing(authorRef)
+  const providerOverflowing = useIsOverflowing(providerRef)
   const descOverflowing = useIsOverflowing(descRef)
 
   return (
@@ -121,14 +121,14 @@ export function PluginCard({ plugin, namespace }: PluginCardProps) {
               )}
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Tooltip title={authorOverflowing ? (plugin.author ?? namespace) : ''} placement="bottom">
+              <Tooltip title={providerOverflowing ? (plugin.provider ?? namespace) : ''} placement="bottom">
                 <Typography
-                  ref={authorRef}
+                  ref={providerRef}
                   variant="caption"
                   color="text.disabled"
                   sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
                 >
-                  {plugin.author ?? namespace}
+                  {plugin.provider ?? namespace}
                 </Typography>
               </Tooltip>
               {isDeprecated && <Badge variant="deprecated">Deprecated</Badge>}

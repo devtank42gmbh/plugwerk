@@ -8,7 +8,7 @@ application {
 
 dependencies {
     // CliCommand extension-point interface
-    implementation(project(":plugwerk-java-cli-example:plugwerk-java-cli-example-api"))
+    implementation(project(":plugwerk-java-cli-example-api"))
 
     // plugwerk-spi must be on the HOST classpath so PF4J can match the interface
     // loaded by the parent classloader with the plugin's implementation.

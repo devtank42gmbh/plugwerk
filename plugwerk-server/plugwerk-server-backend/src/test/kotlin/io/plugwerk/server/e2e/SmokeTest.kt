@@ -40,8 +40,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import tools.jackson.databind.ObjectMapper
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 import kotlin.test.assertNotNull
 
 @Tag("integration")
@@ -164,18 +162,18 @@ class SmokeTest {
     // ----------------------------------------------------------------------- //
 
     private fun buildMinimalJar(id: String, version: String): ByteArray {
-        val descriptor = """
-            plugwerk:
-              id: $id
-              version: $version
-              name: Smoke Test Plugin
-              description: Minimal plugin for E2E smoke testing
-        """.trimIndent()
+        val manifest = java.util.jar.Manifest().apply {
+            mainAttributes[java.util.jar.Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", id)
+            mainAttributes.putValue("Plugin-Version", version)
+            mainAttributes.putValue("Plugin-Name", "Smoke Test Plugin")
+            mainAttributes.putValue("Plugin-Description", "Minimal plugin for E2E smoke testing")
+        }
         val out = ByteArrayOutputStream()
-        ZipOutputStream(out).use { zip ->
-            zip.putNextEntry(ZipEntry("plugwerk.yml"))
-            zip.write(descriptor.toByteArray())
-            zip.closeEntry()
+        java.util.jar.JarOutputStream(out, manifest).use { jar ->
+            jar.putNextEntry(java.util.jar.JarEntry("dummy.txt"))
+            jar.write("smoke-test".toByteArray())
+            jar.closeEntry()
         }
         return out.toByteArray()
     }

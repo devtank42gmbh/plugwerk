@@ -57,15 +57,29 @@ PlugwerkMarketplace      // Facade combining all three (ExtensionPoint)
 PlugwerkUpdateRepository // Implements pf4j-update UpdateRepository (drop-in replacement)
 ```
 
-### Plugin Descriptor (`plugwerk.yml`)
+### Plugin Descriptor (`MANIFEST.MF`)
 
-Embedded in plugin artifacts. Extends the PF4J manifest (`MANIFEST.MF` / `plugin.properties`) with:
-- `requires.system-version` – SemVer range (e.g. `>=2.0.0 & <4.0.0`)
-- `requires.api-level` – integer (alternative to concrete version)
-- `requires.plugins[]` – plugin-to-plugin dependencies with version ranges
-- `categories[]`, `tags[]`, `license`, `icon`, `screenshots`
+Plugin metadata is read from the standard Java `MANIFEST.MF` inside the plugin JAR. Plugwerk extends the PF4J-standard attributes with custom `Plugin-*` headers:
 
-If `plugwerk.yml` is absent, the server falls back to the PF4J manifest.
+| MANIFEST.MF Attribute | Purpose | Required | PF4J Standard |
+|---|---|---|---|
+| `Plugin-Id` | Unique plugin identifier | **Yes** | Yes |
+| `Plugin-Version` | SemVer version | **Yes** | Yes |
+| `Plugin-Class` | Plugin class name | No | Yes |
+| `Plugin-Provider` | Provider/organisation | No | Yes |
+| `Plugin-Description` | Short description | No | Yes |
+| `Plugin-Dependencies` | Comma-separated deps | No | Yes |
+| `Plugin-Requires` | SemVer range for host | No | Yes |
+| `Plugin-License` | SPDX license | No | Yes |
+| `Plugin-Name` | Display name | No | No (custom) |
+| `Plugin-Categories` | Comma-separated categories | No | No (custom) |
+| `Plugin-Tags` | Comma-separated tags | No | No (custom) |
+| `Plugin-Icon` | Icon URL/path | No | No (custom) |
+| `Plugin-Screenshots` | Comma-separated URLs | No | No (custom) |
+| `Plugin-Homepage` | Project URL | No | No (custom) |
+| `Plugin-Repository` | Source code URL | No | No (custom) |
+
+If `MANIFEST.MF` is absent, the server falls back to `plugin.properties`.
 
 ## Build Commands
 

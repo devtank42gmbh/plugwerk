@@ -31,7 +31,7 @@ class DescriptorValidatorTest {
         name: String = "My Plugin",
         version: String = "1.0.0",
         description: String? = null,
-        author: String? = null,
+        provider: String? = null,
         license: String? = null,
         homepage: String? = null,
         repository: String? = null,
@@ -46,7 +46,7 @@ class DescriptorValidatorTest {
         version = version,
         name = name,
         description = description,
-        author = author,
+        provider = provider,
         license = license,
         homepage = homepage,
         repository = repository,
@@ -159,23 +159,25 @@ class DescriptorValidatorTest {
         assertTrue(ex.violations.any { it.contains("description") })
     }
 
-    // ---- author ----
+    // ---- provider ----
 
     @Test
-    fun `author at max length passes`() {
+    fun `provider at max length passes`() {
         assertDoesNotThrow {
-            DescriptorValidator.validate(minimalDescriptor(author = "a".repeat(DescriptorValidator.AUTHOR_MAX_LENGTH)))
+            DescriptorValidator.validate(
+                minimalDescriptor(provider = "a".repeat(DescriptorValidator.PROVIDER_MAX_LENGTH)),
+            )
         }
     }
 
     @Test
-    fun `author exceeding max length throws`() {
+    fun `provider exceeding max length throws`() {
         val ex = assertThrows<DescriptorValidationException> {
             DescriptorValidator.validate(
-                minimalDescriptor(author = "a".repeat(DescriptorValidator.AUTHOR_MAX_LENGTH + 1)),
+                minimalDescriptor(provider = "a".repeat(DescriptorValidator.PROVIDER_MAX_LENGTH + 1)),
             )
         }
-        assertTrue(ex.violations.any { it.contains("author") })
+        assertTrue(ex.violations.any { it.contains("provider") })
     }
 
     // ---- license ----
@@ -455,11 +457,11 @@ class DescriptorValidatorTest {
     }
 
     @Test
-    fun `author with iframe tag throws`() {
+    fun `provider with iframe tag throws`() {
         val ex = assertThrows<DescriptorValidationException> {
-            DescriptorValidator.validate(minimalDescriptor(author = "<iframe src=evil>"))
+            DescriptorValidator.validate(minimalDescriptor(provider = "<iframe src=evil>"))
         }
-        assertTrue(ex.violations.any { it.contains("author") && it.contains("HTML") })
+        assertTrue(ex.violations.any { it.contains("provider") && it.contains("HTML") })
     }
 
     @Test

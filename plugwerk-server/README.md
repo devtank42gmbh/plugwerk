@@ -28,7 +28,7 @@ The backend implements the REST endpoints defined in `plugwerk-api` and manages 
 ### Key Dependencies
 
 - `plugwerk-api-endpoint` — generated Spring controller interfaces
-- `plugwerk-descriptor` — parses `plugwerk.yml` / `MANIFEST.MF` from uploaded artifacts
+- `plugwerk-descriptor` — parses `MANIFEST.MF` / `plugin.properties` from uploaded artifacts
 - Spring Boot Starter (Web, Data JPA, Security, Validation, Actuator)
 - Spring OAuth2 Resource Server (OIDC support)
 - PostgreSQL + Liquibase (schema migrations)

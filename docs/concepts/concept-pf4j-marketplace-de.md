@@ -93,7 +93,7 @@ PlugWerk ist **das fehlende Bindeglied** zwischen dem Plugin-Framework (PF4J) un
 
 - Durchsuchbares Verzeichnis aller Plugins mit Volltextsuche
 - Filterung nach: Produkt/Namespace, Kategorie/Tags, Kompatibilitätsversion, Bewertung, Aktualität
-- Detailseite pro Plugin: Beschreibung, Screenshots, Changelog, Lizenz, Autor, Download-Zahlen, Kompatibilitätsmatrix
+- Detailseite pro Plugin: Beschreibung, Screenshots, Changelog, Lizenz, Anbieter, Download-Zahlen, Kompatibilitätsmatrix
 - Katalog verfügbar als Web-UI und als REST-API
 
 #### 4.1.2 Plugin-Upload & Release-Management
@@ -109,7 +109,7 @@ PlugWerk ist **das fehlende Bindeglied** zwischen dem Plugin-Framework (PF4J) un
 - SemVer-basierte Versionierung (konsistent mit pf4j-update)
 - Kompatibilitätsmatrix: Plugin deklariert, mit welchen Versionen des Host-Produkts es kompatibel ist (`requires: >=2.0.0 & <3.0.0`)
 - Dependency-Resolution: Plugin-zu-Plugin-Abhängigkeiten werden beim Download/Install aufgelöst
-- API-Level-Konzept (optional): Host-Produkte können ein API-Level deklarieren, Plugins referenzieren dieses statt konkreter Produktversionen
+- Host-Version-Kompatibilität: Plugins deklarieren kompatible Host-Versionen über `Plugin-Requires` SemVer-Ranges
 
 #### 4.1.4 Sicherheit & Trust
 
@@ -192,49 +192,46 @@ PlugWerk ist **das fehlende Bindeglied** zwischen dem Plugin-Framework (PF4J) un
 
 ## 5. Plugin Descriptor Format
 
-Über das Standard-PF4J-Manifest hinaus definiert PlugWerk ein erweitertes Descriptor-Format:
+PlugWerk nutzt `MANIFEST.MF` als einzige Quelle der Wahrheit für Plugin-Metadaten. Standard-PF4J-Attribute werden zusammen mit benutzerdefinierten `Plugin-*`-Headern für Marketplace-spezifische Felder unterstützt:
 
-```yaml
-# plugwerk.yml – liegt im Plugin-Artefakt
-plugwerk:
-  # Pflichtfelder (erweitern PF4J-Manifest)
-  id: "acme-pdf-export"
-  version: "1.2.0"
-  name: "PDF Export Plugin"
-  description: "Exportiert Berichte als PDF mit konfigurierbaren Templates."
-  author: "ACME GmbH"
-  license: "Apache-2.0"
+| MANIFEST.MF Attribut | Zweck | Pflicht | PF4J Standard |
+|---|---|---|---|
+| `Plugin-Id` | Eindeutige Plugin-Kennung | **Ja** | Ja |
+| `Plugin-Version` | SemVer-Version | **Ja** | Ja |
+| `Plugin-Class` | Plugin-Klassenname | Nein | Ja |
+| `Plugin-Provider` | Anbieter/Organisation | Nein | Ja |
+| `Plugin-Description` | Kurzbeschreibung | Nein | Ja |
+| `Plugin-Dependencies` | Komma-getrennte Abhängigkeiten | Nein | Ja |
+| `Plugin-Requires` | SemVer-Range für Host | Nein | Ja |
+| `Plugin-License` | SPDX-Lizenz | Nein | Ja |
+| `Plugin-Name` | Anzeigename | Nein | Nein (custom) |
+| `Plugin-Categories` | Komma-getrennte Kategorien | Nein | Nein (custom) |
+| `Plugin-Tags` | Komma-getrennte Tags | Nein | Nein (custom) |
+| `Plugin-Icon` | Icon URL/Pfad | Nein | Nein (custom) |
+| `Plugin-Screenshots` | Komma-getrennte URLs | Nein | Nein (custom) |
+| `Plugin-Homepage` | Projekt-URL | Nein | Nein (custom) |
+| `Plugin-Repository` | Quellcode-URL | Nein | Nein (custom) |
 
-  # Kompatibilität
-  requires:
-    system-version: ">=2.0.0 & <4.0.0"    # Host-Produkt-Version
-    api-level: 3                            # Optional: API-Level statt konkreter Version
-    plugins:                                # Plugin-zu-Plugin-Dependencies
-      - id: "acme-template-engine"
-        version: ">=1.0.0"
+Beispiel `MANIFEST.MF`:
 
-  # Katalog-Metadaten
-  namespace: "acme-crm"
-  categories:
-    - "export"
-    - "reporting"
-  tags:
-    - "pdf"
-    - "report"
-    - "template"
-  icon: "icon.png"                          # Relativ im Artefakt
-  screenshots:
-    - "screenshot-config.png"
-    - "screenshot-output.png"
-  homepage: "https://plugins.acme.com/pdf-export"
-  repository: "https://github.com/acme/pdf-export-plugin"
-
-  # Sicherheit
-  min-java-version: "17"
-  signed: true
+```
+Plugin-Id: acme-pdf-export
+Plugin-Version: 1.2.0
+Plugin-Class: com.acme.PdfExportPlugin
+Plugin-Provider: ACME GmbH
+Plugin-Description: Exportiert Berichte als PDF mit konfigurierbaren Templates.
+Plugin-License: Apache-2.0
+Plugin-Requires: >=2.0.0 & <4.0.0
+Plugin-Dependencies: acme-template-engine@>=1.0.0
+Plugin-Categories: export,reporting
+Plugin-Tags: pdf,report,template
+Plugin-Icon: icon.png
+Plugin-Screenshots: screenshot-config.png,screenshot-output.png
+Plugin-Homepage: https://plugins.acme.com/pdf-export
+Plugin-Repository: https://github.com/acme/pdf-export-plugin
 ```
 
-Der Descriptor ist abwärtskompatibel: Fehlt die `plugwerk.yml`, extrahiert der Server die Basisinformationen aus dem PF4J-Manifest (`MANIFEST.MF` oder `plugin.properties`). Die erweiterten Felder sind dann leer und können über die Web-UI nachgepflegt werden.
+Fehlt die `MANIFEST.MF`, fällt der Server auf `plugin.properties` zurück. Erweiterte Felder, die nicht im Manifest vorhanden sind, bleiben leer und können über die Web-UI nachgepflegt werden.
 
 ---
 
@@ -309,7 +306,7 @@ Plugin
 ├── namespace_id (FK)
 ├── name
 ├── description (Markdown)
-├── author
+├── provider
 ├── license
 ├── icon_url
 ├── homepage_url
@@ -331,7 +328,6 @@ PluginRelease
 ├── artifact_sha256
 ├── signature (optional, Base64)
 ├── requires_system_version (SemVer-Range)
-├── requires_api_level (int, optional)
 ├── requires_java_version
 ├── plugin_dependencies (JSON Array)
 ├── status (draft, published, deprecated, yanked)
@@ -423,8 +419,8 @@ PlugWerkConfig                  // Server-URL, API-Key, Namespace, Cache-Dir, et
 - Properties-basierte Konfiguration
 
 **Descriptor:**
-- `plugwerk.yml` mit Pflichtfeldern
-- Fallback auf PF4J-Manifest
+- `MANIFEST.MF` mit Standard-PF4J-Attributen und benutzerdefinierten `Plugin-*`-Headern
+- Fallback auf `plugin.properties`
 
 ### Phase 2 – Enterprise Features (geschätzt: 6–10 Wochen)
 
@@ -529,7 +525,7 @@ devtank42 betreibt den PlugWerk-Server als Managed Service.
 | PF4J-Entwicklung stagniert oder wird eingestellt | Mittel | Hoch | PlugWerk abstrahiert die PF4J-Abhängigkeit im Client SDK; bei Bedarf kann ein eigener PluginManager implementiert werden. Zudem: PF4J ist Apache-lizenziert und kann geforkt werden. |
 | Geringe Adoption mangels Bekanntheit | Hoch | Hoch | Open-Source-Core für Reichweite, Integration in pf4j-Ökosystem anstreben (offizielles pf4j-Projekt?), Talks/Blog-Posts in der Java-Community |
 | Sicherheitslücken in gehosteten Plugins | Mittel | Hoch | Vulnerability-Scanning, Review-Prozess, Code-Signing; Haftungsausschluss im Nutzungsvertrag |
-| Komplexität des Kompatibilitätsmodells | Mittel | Mittel | MVP startet mit einfacher SemVer-Range; API-Level-Konzept erst in Phase 2 |
+| Komplexität des Kompatibilitätsmodells | Mittel | Mittel | MVP startet mit einfacher SemVer-Range über `Plugin-Requires` |
 | Konkurrenz durch PF4J-eigene Lösung | Niedrig | Hoch | Frühzeitig Kontakt zum PF4J-Maintainer (Decebal Suiu) suchen; idealerweise PlugWerk als offizielles Ökosystem-Projekt positionieren |
 
 ---

@@ -184,7 +184,7 @@ class PluginReleaseService(
                         pluginId = descriptor.id,
                         name = descriptor.name,
                         description = descriptor.description,
-                        author = descriptor.author,
+                        provider = descriptor.provider,
                         license = descriptor.license,
                         homepage = descriptor.homepage,
                         repository = descriptor.repository,

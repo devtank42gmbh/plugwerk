@@ -12,7 +12,7 @@ const basePlugin: PluginDto = {
   pluginId: 'auth-plugin',
   name: 'Auth Plugin',
   description: 'Handles authentication for your application.',
-  author: 'ACME Corp',
+  provider: 'ACME Corp',
   status: 'active',
   latestRelease: {
     id: 'rel-1',
@@ -41,13 +41,13 @@ describe('PluginCard', () => {
     expect(screen.getByText('Handles authentication for your application.')).toBeInTheDocument()
   })
 
-  it('renders the author', () => {
+  it('renders the provider', () => {
     renderWithRouter(<PluginCard plugin={basePlugin} namespace="acme" />)
     expect(screen.getByText('ACME Corp')).toBeInTheDocument()
   })
 
-  it('falls back to namespace when author is not set', () => {
-    const plugin = { ...basePlugin, author: undefined }
+  it('falls back to namespace when provider is not set', () => {
+    const plugin = { ...basePlugin, provider: undefined }
     renderWithRouter(<PluginCard plugin={plugin} namespace="acme" />)
     expect(screen.getByText('acme')).toBeInTheDocument()
   })

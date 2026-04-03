@@ -18,23 +18,18 @@
 package io.plugwerk.descriptor
 
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.zip.ZipInputStream
 
-class DescriptorResolver(
-    private val plugwerkParser: PlugwerkDescriptorParser = PlugwerkDescriptorParser(),
-    private val manifestParser: Pf4jManifestParser = Pf4jManifestParser(),
-) {
+class DescriptorResolver(private val manifestParser: Pf4jManifestParser = Pf4jManifestParser()) {
 
     fun resolve(jarStream: InputStream): PlugwerkDescriptor {
         val bytes = jarStream.readAllBytes()
 
-        return tryParse { plugwerkParser.parseFromJar(ByteArrayInputStream(bytes)) }
-            ?: tryParse { manifestParser.parseFromJar(ByteArrayInputStream(bytes)) }
+        return tryParse { manifestParser.parseFromJar(ByteArrayInputStream(bytes)) }
             ?: tryParse { resolveFromZipBundle(bytes) }
             ?: throw DescriptorNotFoundException(
-                "No descriptor found in artifact (tried plugwerk.yml, MANIFEST.MF, plugin.properties, ZIP bundle)",
+                "No descriptor found in artifact (tried MANIFEST.MF, plugin.properties, ZIP bundle)",
             )
     }
 
@@ -59,8 +54,7 @@ class DescriptorResolver(
         }
 
         for (jarBytes in rootJars + libJars) {
-            val descriptor = tryParse { plugwerkParser.parseFromJar(ByteArrayInputStream(jarBytes)) }
-                ?: tryParse { manifestParser.parseFromJar(ByteArrayInputStream(jarBytes)) }
+            val descriptor = tryParse { manifestParser.parseFromJar(ByteArrayInputStream(jarBytes)) }
             if (descriptor != null) return descriptor
         }
 

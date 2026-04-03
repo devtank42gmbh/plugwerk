@@ -26,7 +26,7 @@ Your Application                     Plugwerk Server
   end users / admins                    plugin developers
 ```
 
-A **namespace** scopes all plugins for one product (e.g. `acme-crm`). Plugin artifacts (JAR/ZIP) embed a `plugwerk.yml` descriptor; the server reads it automatically on upload.
+A **namespace** scopes all plugins for one product (e.g. `acme-crm`). Plugin metadata is read from the standard `MANIFEST.MF` inside the artifact; the server extracts it automatically on upload.
 
 ## Quick Start (Self-Hosted)
 
@@ -94,7 +94,7 @@ curl -s -X POST http://localhost:8080/api/v1/namespaces \
 ### Upload and publish a plugin
 
 ```bash
-# Upload a plugin JAR/ZIP — descriptor is read automatically from plugwerk.yml inside the artifact
+# Upload a plugin JAR/ZIP — metadata is read automatically from MANIFEST.MF inside the artifact
 curl -s -X POST http://localhost:8080/api/v1/namespaces/myproduct/plugin-releases \
   -H "Authorization: Bearer $TOKEN" \
   -F "artifact=@my-plugin-1.0.0.jar"
@@ -156,33 +156,44 @@ Already using `pf4j-update`? Point it at Plugwerk's `plugins.json` endpoint — 
 https://your-plugwerk-server/api/v1/namespaces/{namespace}/plugins.json
 ```
 
-### The `plugwerk.yml` descriptor
+### Plugin Metadata via `MANIFEST.MF`
 
-Embed this file inside your plugin JAR/ZIP so the server can read metadata automatically:
+Plugwerk reads plugin metadata directly from the standard Java `MANIFEST.MF` inside your plugin JAR. PF4J-standard attributes are supported alongside custom `Plugin-*` headers:
 
-```yaml
-# src/main/resources/plugwerk.yml
-plugwerk:
-  id: com.example.my-plugin         # must match Plugin-Id in MANIFEST.MF
-  version: 1.2.0
-  name: My Plugin
-  description: Exports reports as PDF with configurable templates
-  author: ACME GmbH
-  license: Apache-2.0
-  requires:
-    system-version: ">=2.0.0 & <4.0.0"   # compatible host application versions
-    plugins:
-      - id: com.example.template-engine
-        version: ">=1.0.0"
-  categories:
-    - export
-    - reporting
-  tags:
-    - pdf
-    - report
+| MANIFEST.MF Attribute | Purpose | Required | PF4J Standard |
+|---|---|---|---|
+| `Plugin-Id` | Unique plugin identifier | **Yes** | Yes |
+| `Plugin-Version` | SemVer version | **Yes** | Yes |
+| `Plugin-Class` | Plugin class name | No | Yes |
+| `Plugin-Provider` | Provider/organisation | No | Yes |
+| `Plugin-Description` | Short description | No | Yes |
+| `Plugin-Dependencies` | Comma-separated deps | No | Yes |
+| `Plugin-Requires` | SemVer range for host | No | Yes |
+| `Plugin-License` | SPDX license | No | Yes |
+| `Plugin-Name` | Display name | No | No (custom) |
+| `Plugin-Categories` | Comma-separated categories | No | No (custom) |
+| `Plugin-Tags` | Comma-separated tags | No | No (custom) |
+| `Plugin-Icon` | Icon URL/path | No | No (custom) |
+| `Plugin-Screenshots` | Comma-separated URLs | No | No (custom) |
+| `Plugin-Homepage` | Project URL | No | No (custom) |
+| `Plugin-Repository` | Source code URL | No | No (custom) |
+
+Example `MANIFEST.MF`:
+
+```
+Plugin-Id: com.example.my-plugin
+Plugin-Version: 1.2.0
+Plugin-Class: com.example.MyPlugin
+Plugin-Provider: ACME GmbH
+Plugin-Description: Exports reports as PDF with configurable templates
+Plugin-License: Apache-2.0
+Plugin-Requires: >=2.0.0 & <4.0.0
+Plugin-Dependencies: com.example.template-engine@>=1.0.0
+Plugin-Categories: export,reporting
+Plugin-Tags: pdf,report
 ```
 
-If `plugwerk.yml` is absent, the server falls back to the PF4J manifest (`MANIFEST.MF` / `plugin.properties`).
+If `MANIFEST.MF` is absent, the server falls back to `plugin.properties`.
 
 ## API Documentation
 
@@ -281,7 +292,7 @@ Runs the full upload → catalog → download flow against a Docker Compose stac
 plugwerk/
 ├── plugwerk-api/                  # OpenAPI 3.1 spec (API-First) + generated DTOs/interfaces
 ├── plugwerk-spi/                  # Shared ExtensionPoint interfaces, DTOs, constants (JVM 11)
-├── plugwerk-descriptor/           # plugwerk.yml parser/validator + PF4J manifest fallback (JVM 11)
+├── plugwerk-descriptor/           # MANIFEST.MF parser/validator + plugin.properties fallback (JVM 11)
 ├── plugwerk-server/
 │   ├── plugwerk-server-backend/   # Spring Boot 4.x + Kotlin REST API (JVM 21)
 │   └── plugwerk-server-frontend/  # React + TypeScript + Material UI + Zustand (embedded in server JAR)

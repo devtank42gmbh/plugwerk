@@ -34,28 +34,7 @@ class DescriptorResolverTest {
     private val resolver = DescriptorResolver()
 
     @Test
-    fun `resolve prefers plugwerk yml over manifest`() {
-        val yaml = """
-            plugwerk:
-              id: "yaml-plugin"
-              version: "1.0.0"
-              name: "YAML Plugin"
-        """.trimIndent()
-        val manifest = Manifest().apply {
-            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
-            mainAttributes.putValue("Plugin-Id", "manifest-plugin")
-            mainAttributes.putValue("Plugin-Version", "2.0.0")
-        }
-        val jar = createJarWithManifestAndEntry(manifest, "plugwerk.yml", yaml)
-
-        val descriptor = resolver.resolve(jar)
-
-        assertEquals("yaml-plugin", descriptor.id)
-        assertEquals("1.0.0", descriptor.version)
-    }
-
-    @Test
-    fun `resolve falls back to manifest when no plugwerk yml`() {
+    fun `resolve reads from MANIFEST MF`() {
         val manifest = Manifest().apply {
             mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
             mainAttributes.putValue("Plugin-Id", "manifest-plugin")
@@ -92,14 +71,13 @@ class DescriptorResolverTest {
     // --- ZIP bundle tests ---
 
     @Test
-    fun `resolve finds plugwerk yml inside root-level JAR in ZIP bundle`() {
-        val yaml = """
-            plugwerk:
-              id: "zip-bundle-plugin"
-              version: "1.2.3"
-              name: "ZIP Bundle Plugin"
-        """.trimIndent()
-        val innerJar = createJarWithEntry("plugwerk.yml", yaml)
+    fun `resolve finds manifest inside root-level JAR in ZIP bundle`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "zip-bundle-plugin")
+            mainAttributes.putValue("Plugin-Version", "1.2.3")
+        }
+        val innerJar = createJarWithManifest(manifest)
         val zip = createZipWithEntry("my-plugin.jar", innerJar.readBytes())
 
         val descriptor = resolver.resolve(zip)
@@ -110,20 +88,18 @@ class DescriptorResolverTest {
 
     @Test
     fun `resolve prefers root-level JAR over lib subdirectory JAR in ZIP bundle`() {
-        val rootYaml = """
-            plugwerk:
-              id: "root-plugin"
-              version: "1.0.0"
-              name: "Root Plugin"
-        """.trimIndent()
-        val libYaml = """
-            plugwerk:
-              id: "lib-plugin"
-              version: "2.0.0"
-              name: "Lib Plugin"
-        """.trimIndent()
-        val rootJarBytes = createJarWithEntry("plugwerk.yml", rootYaml).readBytes()
-        val libJarBytes = createJarWithEntry("plugwerk.yml", libYaml).readBytes()
+        val rootManifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "root-plugin")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+        }
+        val libManifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "lib-plugin")
+            mainAttributes.putValue("Plugin-Version", "2.0.0")
+        }
+        val rootJarBytes = createJarWithManifest(rootManifest).readBytes()
+        val libJarBytes = createJarWithManifest(libManifest).readBytes()
         val zip = createZipWithEntries(
             "my-plugin.jar" to rootJarBytes,
             "lib/dependency.jar" to libJarBytes,
@@ -136,13 +112,12 @@ class DescriptorResolverTest {
 
     @Test
     fun `resolve finds descriptor in lib subdirectory JAR when no root-level JAR has descriptor`() {
-        val libYaml = """
-            plugwerk:
-              id: "lib-only-plugin"
-              version: "3.0.0"
-              name: "Lib Only Plugin"
-        """.trimIndent()
-        val libJarBytes = createJarWithEntry("plugwerk.yml", libYaml).readBytes()
+        val libManifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "lib-only-plugin")
+            mainAttributes.putValue("Plugin-Version", "3.0.0")
+        }
+        val libJarBytes = createJarWithManifest(libManifest).readBytes()
         val zip = createZipWithEntries(
             "lib/my-plugin.jar" to libJarBytes,
         )
@@ -153,7 +128,7 @@ class DescriptorResolverTest {
     }
 
     @Test
-    fun `resolve falls back to manifest in nested JAR inside ZIP bundle`() {
+    fun `resolve finds manifest in nested JAR inside ZIP bundle`() {
         val manifest = Manifest().apply {
             mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
             mainAttributes.putValue("Plugin-Id", "manifest-in-zip")
@@ -202,31 +177,26 @@ class DescriptorResolverTest {
     }
 
     @Test
-    fun `resolve propagates parse error for malformed plugwerk yml`() {
-        val badYaml = """
-            plugwerk:
-              version: "1.0.0"
-              name: "No ID"
-        """.trimIndent()
-        val jar = createJarWithEntry("plugwerk.yml", badYaml)
-
-        assertThrows<DescriptorParseException> {
-            resolver.resolve(jar)
+    fun `resolve reads custom Plugin attributes from MANIFEST MF`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "full-plugin")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+            mainAttributes.putValue("Plugin-Name", "Full Plugin")
+            mainAttributes.putValue("Plugin-Provider", "ACME")
+            mainAttributes.putValue("Plugin-Categories", "tools, export")
+            mainAttributes.putValue("Plugin-Tags", "pdf, csv")
+            mainAttributes.putValue("Plugin-Homepage", "https://example.com")
         }
-    }
+        val jar = createJarWithManifest(manifest)
 
-    private fun createJarWithManifestAndEntry(
-        manifest: Manifest,
-        entryName: String,
-        content: String,
-    ): ByteArrayInputStream {
-        val baos = ByteArrayOutputStream()
-        JarOutputStream(baos, manifest).use { jar ->
-            jar.putNextEntry(JarEntry(entryName))
-            jar.write(content.toByteArray())
-            jar.closeEntry()
-        }
-        return ByteArrayInputStream(baos.toByteArray())
+        val descriptor = resolver.resolve(jar)
+
+        assertEquals("Full Plugin", descriptor.name)
+        assertEquals("ACME", descriptor.provider)
+        assertEquals(listOf("tools", "export"), descriptor.categories)
+        assertEquals(listOf("pdf", "csv"), descriptor.tags)
+        assertEquals("https://example.com", descriptor.homepage)
     }
 
     private fun createJarWithManifest(manifest: Manifest): ByteArrayInputStream {

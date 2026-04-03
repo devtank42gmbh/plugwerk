@@ -158,7 +158,7 @@ PRs without labels or milestone are non-compliant. Set them via `gh pr edit <num
 plugwerk/
 ├── plugwerk-api/                  # OpenAPI 3.1 spec (API-First) + generated DTOs/interfaces
 ├── plugwerk-spi/                  # Shared ExtensionPoint interfaces, DTOs, constants (JVM 11)
-├── plugwerk-descriptor/           # plugwerk.yml parser/validator + PF4J manifest fallback (JVM 11)
+├── plugwerk-descriptor/           # MANIFEST.MF parser/validator + plugin.properties fallback (JVM 11)
 ├── plugwerk-server/
 │   ├── plugwerk-server-backend/   # Spring Boot 4.x + Kotlin REST API (JVM 21)
 │   └── plugwerk-server-frontend/  # React + TypeScript + MUI + Zustand (embedded in server JAR)

@@ -63,7 +63,7 @@ describe('UploadModal', () => {
     useUiStore.setState({ uploadModalOpen: true })
     const axiosError = new axios.AxiosError('Request failed with status code 422', '422', undefined, undefined, {
       status: 422,
-      data: { message: 'No descriptor found in JAR (tried plugwerk.yml, MANIFEST.MF, plugin.properties)' },
+      data: { message: 'No PF4J descriptor found in JAR (neither MANIFEST.MF with Plugin-Id nor plugin.properties)' },
       statusText: 'Unprocessable Entity',
       headers: {},
       config: {} as never,
@@ -79,7 +79,7 @@ describe('UploadModal', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toBeInTheDocument()
-      expect(screen.getByText(/no descriptor found in jar/i)).toBeInTheDocument()
+      expect(screen.getByText(/no pf4j descriptor found in jar/i)).toBeInTheDocument()
     }, { timeout: 15000 })
   }, 20000)
 

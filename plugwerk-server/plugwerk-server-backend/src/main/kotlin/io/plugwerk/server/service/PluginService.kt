@@ -112,7 +112,7 @@ class PluginService(
         pluginId: String,
         name: String,
         description: String? = null,
-        author: String? = null,
+        provider: String? = null,
         license: String? = null,
         homepage: String? = null,
         repository: String? = null,
@@ -130,7 +130,7 @@ class PluginService(
                 pluginId = pluginId,
                 name = name,
                 description = description,
-                author = author,
+                provider = provider,
                 license = license,
                 homepage = homepage,
                 repository = repository,
@@ -147,7 +147,7 @@ class PluginService(
         pluginId: String,
         name: String? = null,
         description: String? = null,
-        author: String? = null,
+        provider: String? = null,
         license: String? = null,
         homepage: String? = null,
         repository: String? = null,
@@ -159,7 +159,7 @@ class PluginService(
         val entity = findByNamespaceAndPluginId(namespaceSlug, pluginId)
         name?.let { entity.name = it }
         description?.let { entity.description = it }
-        author?.let { entity.author = it }
+        provider?.let { entity.provider = it }
         license?.let { entity.license = it }
         homepage?.let { entity.homepage = it }
         repository?.let { entity.repository = it }

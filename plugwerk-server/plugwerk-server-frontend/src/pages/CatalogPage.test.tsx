@@ -26,7 +26,7 @@ const mockPlugin: PluginDto = {
   pluginId: 'auth-plugin',
   name: 'Auth Plugin',
   description: 'Authentication support.',
-  author: 'ACME Corp',
+  provider: 'ACME Corp',
   status: 'active',
   latestRelease: {
     id: 'rel-1',

@@ -51,7 +51,7 @@ class PluginMapperTest {
         pluginId = "my-plugin",
         name = "My Plugin",
         description = "A great plugin",
-        author = "ACME",
+        provider = "ACME",
         categories = arrayOf("tools", "productivity"),
         tags = arrayOf("kotlin", "pf4j"),
         status = PluginStatus.ACTIVE,
@@ -81,7 +81,7 @@ class PluginMapperTest {
         assertThat(dto.pluginId).isEqualTo("my-plugin")
         assertThat(dto.name).isEqualTo("My Plugin")
         assertThat(dto.description).isEqualTo("A great plugin")
-        assertThat(dto.author).isEqualTo("ACME")
+        assertThat(dto.provider).isEqualTo("ACME")
         assertThat(dto.namespace).isEqualTo("acme")
         assertThat(dto.status).isEqualTo(PluginDto.Status.ACTIVE)
         assertThat(dto.categories).containsExactly("tools", "productivity")

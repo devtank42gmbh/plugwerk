@@ -48,7 +48,7 @@ class Pf4jManifestParserTest {
         assertEquals("2.0.0", descriptor.version)
         assertEquals("Export plugin", descriptor.name)
         assertEquals("Export plugin", descriptor.description)
-        assertEquals("ACME GmbH", descriptor.author)
+        assertEquals("ACME GmbH", descriptor.provider)
         assertEquals("MIT", descriptor.license)
         assertEquals(">=1.0.0", descriptor.requiresSystemVersion)
     }
@@ -116,7 +116,7 @@ class Pf4jManifestParserTest {
         assertEquals("props-plugin", descriptor.id)
         assertEquals("3.0.0", descriptor.version)
         assertEquals("A properties plugin", descriptor.name)
-        assertEquals("Test Corp", descriptor.author)
+        assertEquals("Test Corp", descriptor.provider)
         assertEquals(">=2.0.0", descriptor.requiresSystemVersion)
         assertEquals("Apache-2.0", descriptor.license)
         assertEquals(1, descriptor.pluginDependencies.size)
@@ -159,6 +159,116 @@ class Pf4jManifestParserTest {
         assertEquals("2.0.0", descriptor.version)
     }
 
+    @Test
+    fun `parse MANIFEST MF with custom Plugin attributes`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "acme-export")
+            mainAttributes.putValue("Plugin-Version", "2.0.0")
+            mainAttributes.putValue("Plugin-Name", "ACME Export")
+            mainAttributes.putValue("Plugin-Description", "Export plugin")
+            mainAttributes.putValue("Plugin-Categories", "export, reporting")
+            mainAttributes.putValue("Plugin-Tags", "pdf, report, template")
+            mainAttributes.putValue("Plugin-Icon", "icon.png")
+            mainAttributes.putValue("Plugin-Screenshots", "screenshot-1.png, screenshot-2.png")
+            mainAttributes.putValue("Plugin-Homepage", "https://example.com")
+            mainAttributes.putValue("Plugin-Repository", "https://github.com/acme/export")
+        }
+
+        val descriptor = parser.parseManifest(manifest)
+
+        assertEquals("ACME Export", descriptor.name)
+        assertEquals("Export plugin", descriptor.description)
+        assertEquals(listOf("export", "reporting"), descriptor.categories)
+        assertEquals(listOf("pdf", "report", "template"), descriptor.tags)
+        assertEquals("icon.png", descriptor.icon)
+        assertEquals(listOf("screenshot-1.png", "screenshot-2.png"), descriptor.screenshots)
+        assertEquals("https://example.com", descriptor.homepage)
+        assertEquals("https://github.com/acme/export", descriptor.repository)
+    }
+
+    @Test
+    fun `Plugin-Name takes precedence over Plugin-Description for name`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "acme-export")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+            mainAttributes.putValue("Plugin-Name", "Custom Display Name")
+            mainAttributes.putValue("Plugin-Description", "Some description")
+        }
+
+        val descriptor = parser.parseManifest(manifest)
+
+        assertEquals("Custom Display Name", descriptor.name)
+        assertEquals("Some description", descriptor.description)
+    }
+
+    @Test
+    fun `name falls back to description when Plugin-Name is absent`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "acme-export")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+            mainAttributes.putValue("Plugin-Description", "Some description")
+        }
+
+        val descriptor = parser.parseManifest(manifest)
+
+        assertEquals("Some description", descriptor.name)
+    }
+
+    @Test
+    fun `name falls back to id when both Plugin-Name and Plugin-Description are absent`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "acme-export")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+        }
+
+        val descriptor = parser.parseManifest(manifest)
+
+        assertEquals("acme-export", descriptor.name)
+    }
+
+    @Test
+    fun `comma-separated lists handle whitespace and empty entries`() {
+        val manifest = Manifest().apply {
+            mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
+            mainAttributes.putValue("Plugin-Id", "test-plugin")
+            mainAttributes.putValue("Plugin-Version", "1.0.0")
+            mainAttributes.putValue("Plugin-Tags", " tag1 , , tag2 , tag3 ")
+        }
+
+        val descriptor = parser.parseManifest(manifest)
+
+        assertEquals(listOf("tag1", "tag2", "tag3"), descriptor.tags)
+    }
+
+    @Test
+    fun `parse properties with custom Plugin attributes`() {
+        val props = Properties().apply {
+            setProperty("plugin.id", "props-plugin")
+            setProperty("plugin.version", "1.0.0")
+            setProperty("plugin.name", "Props Display Name")
+            setProperty("plugin.categories", "tools, utility")
+            setProperty("plugin.tags", "cli")
+            setProperty("plugin.icon", "icon.svg")
+            setProperty("plugin.screenshots", "s1.png")
+            setProperty("plugin.homepage", "https://example.com")
+            setProperty("plugin.repository", "https://github.com/test/repo")
+        }
+
+        val descriptor = parser.parseProperties(props)
+
+        assertEquals("Props Display Name", descriptor.name)
+        assertEquals(listOf("tools", "utility"), descriptor.categories)
+        assertEquals(listOf("cli"), descriptor.tags)
+        assertEquals("icon.svg", descriptor.icon)
+        assertEquals(listOf("s1.png"), descriptor.screenshots)
+        assertEquals("https://example.com", descriptor.homepage)
+        assertEquals("https://github.com/test/repo", descriptor.repository)
+    }
+
     // ---- Validation via DescriptorValidator ----
 
     @Test
@@ -188,7 +298,7 @@ class Pf4jManifestParserTest {
     }
 
     @Test
-    fun `manifest with oversized author throws DescriptorValidationException`() {
+    fun `manifest with oversized provider throws DescriptorValidationException`() {
         val manifest = Manifest().apply {
             mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
             mainAttributes.putValue("Plugin-Id", "valid-plugin")
@@ -198,7 +308,7 @@ class Pf4jManifestParserTest {
         val ex = assertThrows<DescriptorValidationException> {
             parser.parseManifest(manifest)
         }
-        assertTrue(ex.violations.any { it.contains("author") })
+        assertTrue(ex.violations.any { it.contains("provider") })
     }
 
     @Test

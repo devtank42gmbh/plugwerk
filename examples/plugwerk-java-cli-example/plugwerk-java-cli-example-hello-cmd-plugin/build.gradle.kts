@@ -1,5 +1,5 @@
-// PF4J plugin metadata
-val pf4jPluginId          = "plugwerk-java-cli-example-hello-cmd-plugin"
+// PF4J + Plugwerk plugin metadata (all in MANIFEST.MF — no plugwerk.yml needed)
+val pf4jPluginId          = "io.plugwerk.example.cli.hello"
 val pf4jPluginClass       = "io.plugwerk.example.cli.hello.HelloPlugin"
 val pf4jPluginVersion     = project.version.toString()
 val pf4jPluginProvider    = "plugwerk-examples"
@@ -8,18 +8,24 @@ val pf4jPluginDescription = "Example CLI plugin — adds a 'hello' greeting subc
 tasks.jar {
     manifest {
         attributes(
+            // PF4J standard attributes
             "Plugin-Id"          to pf4jPluginId,
             "Plugin-Class"       to pf4jPluginClass,
             "Plugin-Version"     to pf4jPluginVersion,
             "Plugin-Provider"    to pf4jPluginProvider,
             "Plugin-Description" to pf4jPluginDescription,
+            // Plugwerk custom attributes (read by the server during upload)
+            "Plugin-Name"        to "Hello CLI Plugin",
+            "Plugin-License"     to "Apache-2.0",
+            "Plugin-Categories"  to "utilities, examples",
+            "Plugin-Tags"        to "hello, demo, cli, greeting",
         )
     }
 }
 
 dependencies {
     // compileOnly — the host application provides this JAR (and all its transitive deps) at runtime
-    compileOnly(project(":plugwerk-java-cli-example:plugwerk-java-cli-example-api"))
+    compileOnly(project(":plugwerk-java-cli-example-api"))
     // PF4J annotation processor generates META-INF/extensions.idx from @Extension annotations
     annotationProcessor(libs.pf4j)
 }
@@ -27,7 +33,7 @@ dependencies {
 // ---------------------------------------------------------------------------
 // PF4J Plugin ZIP (compatible with DefaultPluginManager)
 //
-//   plugwerk-java-cli-example-hello-cmd-plugin-<version>.zip
+//   io.plugwerk.example.cli.hello-<version>.zip
 //   ├── META-INF/MANIFEST.MF   ← loose file (required by ManifestPluginDescriptorFinder)
 //   └── lib/
 //       └── plugwerk-java-cli-example-hello-cmd-plugin-<version>.jar

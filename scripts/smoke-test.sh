@@ -90,17 +90,17 @@ echo "Namespace created"
 # 4. Build minimal test plugin JAR                                              #
 # --------------------------------------------------------------------------- #
 echo "--- Building minimal test plugin JAR ---"
-DESCRIPTOR="$WORKDIR/plugwerk.yml"
-cat > "$DESCRIPTOR" <<YAML
-plugwerk:
-  id: $PLUGIN_ID
-  version: $PLUGIN_VERSION
-  name: Smoke Test Plugin
-  description: Minimal plugin for E2E smoke testing
-YAML
+MANIFEST="$WORKDIR/MANIFEST.MF"
+cat > "$MANIFEST" <<MF
+Manifest-Version: 1.0
+Plugin-Id: $PLUGIN_ID
+Plugin-Version: $PLUGIN_VERSION
+Plugin-Name: Smoke Test Plugin
+Plugin-Description: Minimal plugin for E2E smoke testing
+MF
 
 JAR_FILE="$WORKDIR/$PLUGIN_ID-$PLUGIN_VERSION.jar"
-(cd "$WORKDIR" && jar cf "$JAR_FILE" plugwerk.yml)
+(cd "$WORKDIR" && jar cfm "$JAR_FILE" MANIFEST.MF)
 
 EXPECTED_SHA=$(sha256sum "$JAR_FILE" | awk '{print $1}')
 echo "JAR built: $JAR_FILE (SHA-256: $EXPECTED_SHA)"

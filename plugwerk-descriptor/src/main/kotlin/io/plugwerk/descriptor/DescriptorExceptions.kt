@@ -23,3 +23,9 @@ class DescriptorNotFoundException(message: String) : RuntimeException(message)
 
 class DescriptorValidationException(val violations: List<String>) :
     RuntimeException("Descriptor validation failed: ${violations.joinToString("; ")}")
+
+internal fun validateEntryName(name: String) {
+    require(!name.contains("..") && !name.contains('\u0000')) {
+        "Suspicious JAR entry name: $name"
+    }
+}
