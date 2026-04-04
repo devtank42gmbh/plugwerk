@@ -7,9 +7,11 @@
  */
 export async function downloadArtifact(url: string, filename: string): Promise<void> {
   const token = localStorage.getItem('pw-access-token')
-  const response = await fetch(url, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
+  const headers: Record<string, string> = { Accept: 'application/octet-stream' }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  const response = await fetch(url, { headers })
   if (!response.ok) {
     throw new Error(`Download failed: ${response.status}`)
   }
