@@ -162,23 +162,27 @@ describe('VersionsTab', () => {
     expect(onDeleted).not.toHaveBeenCalled()
   })
 
-  it('renders download button with correct href and fileFormat', () => {
+  it('renders download icon button with correct href', () => {
     renderWithRouter(<VersionsTab {...defaultProps} />)
 
-    const downloadLink = screen.getByRole('link', { name: /\.jar/i })
+    const downloadLink = screen.getByRole('link', { name: /download release 1\.0\.0/i })
     expect(downloadLink).toHaveAttribute('href', '/api/v1/namespaces/acme/plugins/my-plugin/releases/1.0.0/download')
   })
 
-  it('shows .zip for zip fileFormat releases', () => {
-    const zipRelease: PluginReleaseDto = {
-      ...publishedRelease,
-      id: '00000000-0000-0000-0000-000000000003',
-      version: '3.0.0',
-      fileFormat: 'zip',
-    }
-    renderWithRouter(<VersionsTab releases={[zipRelease]} namespace="acme" pluginId="my-plugin" />)
+  it('shows Format column with file format', () => {
+    renderWithRouter(<VersionsTab {...defaultProps} />)
 
+    expect(screen.getByText('Format')).toBeInTheDocument()
+    expect(screen.getByText('.jar')).toBeInTheDocument()
     expect(screen.getByText('.zip')).toBeInTheDocument()
+  })
+
+  it('shows SHA-256 column with truncated hash', () => {
+    renderWithRouter(<VersionsTab {...defaultProps} />)
+
+    expect(screen.getByText('SHA-256')).toBeInTheDocument()
+    expect(screen.getByText('abc…')).toBeInTheDocument()
+    expect(screen.getByText('def…')).toBeInTheDocument()
   })
 
   it('shows Downloads column with download count', () => {

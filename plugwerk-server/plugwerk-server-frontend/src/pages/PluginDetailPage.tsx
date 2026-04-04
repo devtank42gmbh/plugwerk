@@ -16,7 +16,6 @@ import {
 import { ChevronRight, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PluginHeader } from '../components/plugin-detail/PluginHeader'
-import { DetailSidebar } from '../components/plugin-detail/DetailSidebar'
 import { OverviewTab } from '../components/plugin-detail/OverviewTab'
 import { VersionsTab } from '../components/plugin-detail/VersionsTab'
 import { ChangelogTab } from '../components/plugin-detail/ChangelogTab'
@@ -156,46 +155,29 @@ export function PluginDetailPage() {
             <Tab label="Dependencies"  id="tab-dependencies" aria-controls="panel-dependencies" />
           </Tabs>
 
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 280px' },
-              gap: 4,
-              alignItems: 'start',
-            }}
-          >
-            {/* Main content */}
-            <Box>
-              {TAB_IDS.map((id, i) => (
-                <Box
-                  key={id}
-                  role="tabpanel"
-                  id={`panel-${id}`}
-                  aria-labelledby={`tab-${id}`}
-                  hidden={tab !== i}
-                >
-                  {tab === 0 && i === 0 && <OverviewTab plugin={plugin} />}
-                  {tab === 1 && i === 1 && (
-                    <VersionsTab
-                      releases={releases}
-                      namespace={namespace}
-                      pluginId={pluginId}
-                      currentVersion={latestRelease?.version}
-                      canApprove={isAdmin}
-                      onReleaseDeleted={handleReleaseDeleted}
-                    />
-                  )}
-                  {tab === 2 && i === 2 && <ChangelogTab releases={releases} />}
-                  {tab === 3 && i === 3 && <DependenciesTab release={latestRelease} namespace={namespace} />}
-                </Box>
-              ))}
+          {TAB_IDS.map((id, i) => (
+            <Box
+              key={id}
+              role="tabpanel"
+              id={`panel-${id}`}
+              aria-labelledby={`tab-${id}`}
+              hidden={tab !== i}
+            >
+              {tab === 0 && i === 0 && <OverviewTab plugin={plugin} />}
+              {tab === 1 && i === 1 && (
+                <VersionsTab
+                  releases={releases}
+                  namespace={namespace}
+                  pluginId={pluginId}
+                  currentVersion={latestRelease?.version}
+                  canApprove={isAdmin}
+                  onReleaseDeleted={handleReleaseDeleted}
+                />
+              )}
+              {tab === 2 && i === 2 && <ChangelogTab releases={releases} />}
+              {tab === 3 && i === 3 && <DependenciesTab release={latestRelease} namespace={namespace} />}
             </Box>
-
-            {/* Sidebar — hidden on mobile */}
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-              <DetailSidebar plugin={plugin} release={latestRelease} />
-            </Box>
-          </Box>
+          ))}
         </Box>
       </Container>
 

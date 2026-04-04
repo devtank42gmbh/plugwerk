@@ -5,7 +5,6 @@ import { Download, Calendar, Scale, Puzzle } from 'lucide-react'
 import { Badge } from '../common/Badge'
 import type { PluginDto, PluginReleaseDto } from '../../api/generated/model'
 import { tokens } from '../../theme/tokens'
-import { formatFileSize } from '../../utils/formatFileSize'
 import { formatDateTime } from '../../utils/formatDateTime'
 
 interface PluginHeaderProps {
@@ -96,6 +95,14 @@ export function PluginHeader({ plugin, latestRelease, namespace }: PluginHeaderP
             </Box>
           )}
         </Box>
+
+        {plugin.tags && plugin.tags.length > 0 && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', mt: 1.5 }}>
+            {plugin.tags.map((tag) => (
+              <Badge key={tag} variant="tag">{tag}</Badge>
+            ))}
+          </Box>
+        )}
       </Box>
 
       {/* Actions */}
@@ -111,11 +118,6 @@ export function PluginHeader({ plugin, latestRelease, namespace }: PluginHeaderP
           >
             Download v{latestRelease.version}
           </Button>
-          {latestRelease.artifactSize && (
-            <Typography variant="caption" color="text.disabled">
-              {formatFileSize(latestRelease.artifactSize)} · .{latestRelease.fileFormat ?? 'jar'}
-            </Typography>
-          )}
         </Box>
       )}
     </Box>
