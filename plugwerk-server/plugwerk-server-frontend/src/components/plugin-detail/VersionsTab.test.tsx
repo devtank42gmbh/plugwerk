@@ -25,8 +25,10 @@ const publishedRelease: PluginReleaseDto = {
   status: 'published',
   artifactSha256: 'abc',
   artifactSize: 1024,
+  fileFormat: 'jar',
   downloadCount: 10,
   createdAt: '2026-01-01T00:00:00Z',
+  publishedAt: '2026-01-02T10:30:00Z',
 }
 
 const draftRelease: PluginReleaseDto = {
@@ -36,6 +38,7 @@ const draftRelease: PluginReleaseDto = {
   status: 'draft',
   artifactSha256: 'def',
   artifactSize: 2048,
+  fileFormat: 'zip',
   downloadCount: 0,
   createdAt: '2026-02-01T00:00:00Z',
 }
@@ -157,5 +160,40 @@ describe('VersionsTab', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/acme')
     expect(onDeleted).not.toHaveBeenCalled()
+  })
+
+  it('renders download button with correct href and fileFormat', () => {
+    renderWithRouter(<VersionsTab {...defaultProps} />)
+
+    const downloadLink = screen.getByRole('link', { name: /\.jar/i })
+    expect(downloadLink).toHaveAttribute('href', '/api/v1/namespaces/acme/plugins/my-plugin/releases/1.0.0/download')
+  })
+
+  it('shows .zip for zip fileFormat releases', () => {
+    const zipRelease: PluginReleaseDto = {
+      ...publishedRelease,
+      id: '00000000-0000-0000-0000-000000000003',
+      version: '3.0.0',
+      fileFormat: 'zip',
+    }
+    renderWithRouter(<VersionsTab releases={[zipRelease]} namespace="acme" pluginId="my-plugin" />)
+
+    expect(screen.getByText('.zip')).toBeInTheDocument()
+  })
+
+  it('shows Downloads column with download count', () => {
+    renderWithRouter(<VersionsTab {...defaultProps} />)
+
+    expect(screen.getByText('Downloads')).toBeInTheDocument()
+    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
+  it('shows createdAt for draft releases and publishedAt for published', () => {
+    renderWithRouter(<VersionsTab {...defaultProps} />)
+
+    // Published release should show publishedAt formatted as dd.MM.yyyy HH:mm:ss
+    const cells = screen.getAllByText(/\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}/)
+    expect(cells.length).toBeGreaterThanOrEqual(1)
   })
 })

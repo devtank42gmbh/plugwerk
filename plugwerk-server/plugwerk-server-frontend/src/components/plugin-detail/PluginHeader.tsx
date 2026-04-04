@@ -6,6 +6,7 @@ import { Badge } from '../common/Badge'
 import type { PluginDto, PluginReleaseDto } from '../../api/generated/model'
 import { tokens } from '../../theme/tokens'
 import { formatFileSize } from '../../utils/formatFileSize'
+import { formatDateTime } from '../../utils/formatDateTime'
 
 interface PluginHeaderProps {
   plugin: PluginDto
@@ -84,7 +85,7 @@ export function PluginHeader({ plugin, latestRelease, namespace }: PluginHeaderP
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.disabled' }}>
               <Calendar size={14} aria-hidden="true" />
               <Typography variant="caption">
-                Updated {new Date(plugin.updatedAt).toLocaleDateString()}
+                Updated {formatDateTime(plugin.updatedAt)}
               </Typography>
             </Box>
           )}
@@ -112,7 +113,7 @@ export function PluginHeader({ plugin, latestRelease, namespace }: PluginHeaderP
           </Button>
           {latestRelease.artifactSize && (
             <Typography variant="caption" color="text.disabled">
-              {formatFileSize(latestRelease.artifactSize)} · .jar
+              {formatFileSize(latestRelease.artifactSize)} · .{latestRelease.fileFormat ?? 'jar'}
             </Typography>
           )}
         </Box>

@@ -23,6 +23,7 @@ import { tokens } from '../../theme/tokens'
 import type { BadgeVariant } from '../common/Badge'
 import { managementApi, reviewsApi } from '../../api/config'
 import { formatFileSize } from '../../utils/formatFileSize'
+import { formatDateTime } from '../../utils/formatDateTime'
 
 interface VersionsTabProps {
   releases: PluginReleaseDto[]
@@ -92,8 +93,8 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
             <TableCell>Released</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Size</TableCell>
-            <TableCell>Changelog</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell>Downloads</TableCell>
+            <TableCell sx={{ width: 160 }}>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -125,7 +126,7 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                 </TableCell>
                 <TableCell>
                   <Typography variant="caption" color="text.disabled">
-                    {rel.publishedAt ? new Date(rel.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                    {formatDateTime(rel.status === 'draft' ? rel.createdAt : rel.publishedAt)}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -139,8 +140,8 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" color="text.secondary">
-                    {rel.changelog ? rel.changelog.slice(0, 60) + (rel.changelog.length > 60 ? '…' : '') : '—'}
+                  <Typography variant="caption" color="text.disabled">
+                    {rel.downloadCount ?? 0}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -153,6 +154,7 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                         startIcon={<CheckCircle size={14} />}
                         loading={approvingId === rel.id}
                         onClick={() => handleApprove(rel)}
+                        sx={{ borderRadius: tokens.radius.btn }}
                       >
                         Approve
                       </Button>
@@ -169,8 +171,9 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                         startIcon={<Download size={14} />}
                         href={`/api/v1/namespaces/${namespace}/plugins/${pluginId}/releases/${rel.version}/download`}
                         download
+                        sx={{ borderRadius: tokens.radius.btn }}
                       >
-                        .jar
+                        .{rel.fileFormat ?? 'jar'}
                       </Button>
                     )}
                     {canApprove && (
@@ -181,7 +184,7 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                           color="error"
                           aria-label={`delete release ${rel.version}`}
                           onClick={() => setDeleteTarget(rel)}
-                          sx={{ minWidth: 'auto', p: 0.5 }}
+                          sx={{ minWidth: 'auto', p: 0.5, borderRadius: tokens.radius.btn }}
                         >
                           <Trash2 size={14} />
                         </Button>
