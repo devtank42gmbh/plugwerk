@@ -161,11 +161,11 @@ describe('VersionsTab', () => {
     expect(onDeleted).not.toHaveBeenCalled()
   })
 
-  it('renders download icon button with correct href', () => {
+  it('renders download icon button for published releases', () => {
     renderWithRouter(<VersionsTab {...defaultProps} />)
 
-    const downloadLink = screen.getByRole('link', { name: /download release 1\.0\.0/i })
-    expect(downloadLink).toHaveAttribute('href', '/api/v1/namespaces/acme/plugins/my-plugin/releases/1.0.0/download')
+    const downloadButton = screen.getByRole('button', { name: /download release 1\.0\.0/i })
+    expect(downloadButton).toBeInTheDocument()
   })
 
   it('shows Format column with file format', () => {

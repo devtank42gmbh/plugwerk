@@ -6,6 +6,7 @@ import { Badge } from '../common/Badge'
 import type { PluginDto, PluginReleaseDto } from '../../api/generated/model'
 import { tokens } from '../../theme/tokens'
 import { formatDateTime } from '../../utils/formatDateTime'
+import { downloadArtifact } from '../../utils/downloadArtifact'
 
 interface PluginHeaderProps {
   plugin: PluginDto
@@ -115,11 +116,12 @@ export function PluginHeader({ plugin, latestRelease, namespace, isAdmin, onDele
             size="medium"
             color="primary"
             startIcon={<Download size={15} />}
-            component="a"
-            href={downloadUrl}
-            download={`${plugin.pluginId}-${latestRelease.version}.${latestRelease.fileFormat ?? 'jar'}`}
             aria-label={`Download v${latestRelease.version}`}
             sx={{ borderRadius: tokens.radius.btn }}
+            onClick={() => downloadArtifact(
+              downloadUrl,
+              `${plugin.pluginId}-${latestRelease.version}.${latestRelease.fileFormat ?? 'jar'}`,
+            )}
           >
             Download
           </Button>

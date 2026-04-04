@@ -24,6 +24,7 @@ import type { BadgeVariant } from '../common/Badge'
 import { managementApi, reviewsApi } from '../../api/config'
 import { formatFileSize } from '../../utils/formatFileSize'
 import { formatDateTime } from '../../utils/formatDateTime'
+import { downloadArtifact } from '../../utils/downloadArtifact'
 
 interface VersionsTabProps {
   releases: PluginReleaseDto[]
@@ -183,11 +184,12 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                         <Button
                           variant="text"
                           size="small"
-                          component="a"
-                          href={`/api/v1/namespaces/${namespace}/plugins/${pluginId}/releases/${rel.version}/download`}
-                          download={`${pluginId}-${rel.version}.${rel.fileFormat ?? 'jar'}`}
                           aria-label={`download release ${rel.version}`}
                           sx={{ minWidth: 'auto', p: 0.5, borderRadius: tokens.radius.btn }}
+                          onClick={() => downloadArtifact(
+                            `/api/v1/namespaces/${namespace}/plugins/${pluginId}/releases/${rel.version}/download`,
+                            `${pluginId}-${rel.version}.${rel.fileFormat ?? 'jar'}`,
+                          )}
                         >
                           <Download size={14} />
                         </Button>
