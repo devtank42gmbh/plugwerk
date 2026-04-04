@@ -183,8 +183,9 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
                         <Button
                           variant="text"
                           size="small"
+                          component="a"
                           href={`/api/v1/namespaces/${namespace}/plugins/${pluginId}/releases/${rel.version}/download`}
-                          download
+                          download={`${pluginId}-${rel.version}.${rel.fileFormat ?? 'jar'}`}
                           aria-label={`download release ${rel.version}`}
                           sx={{ minWidth: 'auto', p: 0.5, borderRadius: tokens.radius.btn }}
                         >

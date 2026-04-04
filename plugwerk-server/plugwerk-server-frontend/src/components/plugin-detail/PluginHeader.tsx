@@ -115,8 +115,9 @@ export function PluginHeader({ plugin, latestRelease, namespace, isAdmin, onDele
             size="medium"
             color="primary"
             startIcon={<Download size={15} />}
+            component="a"
             href={downloadUrl}
-            download
+            download={`${plugin.pluginId}-${latestRelease.version}.${latestRelease.fileFormat ?? 'jar'}`}
             aria-label={`Download v${latestRelease.version}`}
             sx={{ borderRadius: tokens.radius.btn }}
           >
