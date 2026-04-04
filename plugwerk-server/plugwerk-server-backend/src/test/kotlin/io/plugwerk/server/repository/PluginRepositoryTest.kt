@@ -101,21 +101,19 @@ open class PluginRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    fun `save persists categories and tags as arrays`() {
+    fun `save persists tags as arrays`() {
         val plugin =
             pluginRepository.save(
                 PluginEntity(
                     namespace = namespace,
-                    pluginId = "categorized",
-                    name = "Categorized Plugin",
-                    categories = arrayOf("ui", "reporting"),
+                    pluginId = "tagged",
+                    name = "Tagged Plugin",
                     tags = arrayOf("beta", "v2"),
                 ),
             )
 
         val found = pluginRepository.findById(plugin.id!!).orElseThrow()
 
-        assertThat(found.categories).containsExactlyInAnyOrder("ui", "reporting")
         assertThat(found.tags).containsExactlyInAnyOrder("beta", "v2")
     }
 

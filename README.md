@@ -171,7 +171,6 @@ Plugwerk reads plugin metadata directly from the standard Java `MANIFEST.MF` ins
 | `Plugin-Requires` | SemVer range for host | No | Yes |
 | `Plugin-License` | SPDX license | No | Yes |
 | `Plugin-Name` | Display name | No | No (custom) |
-| `Plugin-Categories` | Comma-separated categories | No | No (custom) |
 | `Plugin-Tags` | Comma-separated tags | No | No (custom) |
 | `Plugin-Icon` | Icon URL/path | No | No (custom) |
 | `Plugin-Screenshots` | Comma-separated URLs | No | No (custom) |
@@ -189,8 +188,7 @@ Plugin-Description: Exports reports as PDF with configurable templates
 Plugin-License: Apache-2.0
 Plugin-Requires: >=2.0.0 & <4.0.0
 Plugin-Dependencies: com.example.template-engine@>=1.0.0
-Plugin-Categories: export,reporting
-Plugin-Tags: pdf,report
+Plugin-Tags: pdf,report,export
 ```
 
 If `MANIFEST.MF` is absent, the server falls back to `plugin.properties`.

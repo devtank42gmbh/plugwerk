@@ -95,12 +95,6 @@ databaseChangeLog:
                   name: icon
                   type: varchar(2048)
               - column:
-                  name: categories
-                  type: text[]
-                  defaultValue: '{}'
-                  constraints:
-                    nullable: false
-              - column:
                   name: tags
                   type: text[]
                   defaultValue: '{}'

@@ -54,7 +54,7 @@ class PluginService(
     /**
      * Returns a paginated, filtered list of plugins for the given namespace.
      *
-     * Category, tag, full-text (q), and published-only filters are applied in-memory after
+     * Tag, full-text (q), and published-only filters are applied in-memory after
      * the DB query, which is acceptable for MVP catalog sizes. A DB-level filter can
      * replace this when catalog size demands it.
      *
@@ -64,7 +64,6 @@ class PluginService(
     fun findPagedByNamespace(
         namespaceSlug: String,
         status: PluginStatus?,
-        category: String?,
         tag: String?,
         q: String?,
         pageable: Pageable,
@@ -94,7 +93,6 @@ class PluginService(
             .filter { it.status != PluginStatus.SUSPENDED }
             .filter { plugin ->
                 (!publishedOnly || plugin.id in pluginIdsWithPublishedRelease) &&
-                    (category == null || plugin.categories.contains(category)) &&
                     (tag == null || plugin.tags.contains(tag)) &&
                     (
                         q == null || plugin.name.contains(q, ignoreCase = true) ||
@@ -117,7 +115,6 @@ class PluginService(
         homepage: String? = null,
         repository: String? = null,
         icon: String? = null,
-        categories: Array<String> = emptyArray(),
         tags: Array<String> = emptyArray(),
     ): PluginEntity {
         val namespace = namespaceService.findBySlug(namespaceSlug)
@@ -135,7 +132,6 @@ class PluginService(
                 homepage = homepage,
                 repository = repository,
                 icon = icon,
-                categories = categories,
                 tags = tags,
             ),
         )
@@ -152,7 +148,6 @@ class PluginService(
         homepage: String? = null,
         repository: String? = null,
         icon: String? = null,
-        categories: Array<String>? = null,
         tags: Array<String>? = null,
         status: PluginStatus? = null,
     ): PluginEntity {
@@ -164,10 +159,17 @@ class PluginService(
         homepage?.let { entity.homepage = it }
         repository?.let { entity.repository = it }
         icon?.let { entity.icon = it }
-        categories?.let { entity.categories = it }
         tags?.let { entity.tags = it }
         status?.let { entity.status = it }
         return pluginRepository.save(entity)
+    }
+
+    fun findDistinctTags(namespaceSlug: String): List<String> {
+        val namespace = namespaceService.findBySlug(namespaceSlug)
+        return pluginRepository.findAllByNamespaceAndStatus(namespace, PluginStatus.ACTIVE)
+            .flatMap { it.tags.toList() }
+            .distinct()
+            .sorted()
     }
 
     @Transactional

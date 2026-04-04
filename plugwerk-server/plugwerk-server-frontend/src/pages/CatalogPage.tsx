@@ -18,7 +18,7 @@ import { useNamespaceStore } from '../stores/namespaceStore'
 export function CatalogPage() {
   const { namespace = 'default' } = useParams<{ namespace: string }>()
   const { setNamespace, namespaceRole, fetchNamespaceRole, isAuthenticated } = useAuthStore()
-  const { plugins, loading, error, totalElements, pendingReviewPluginCount, resetFilters, fetchPlugins } = usePluginStore()
+  const { plugins, loading, error, totalElements, pendingReviewPluginCount, resetFilters, fetchPlugins, fetchTags } = usePluginStore()
   const { searchQuery } = useUiStore()
   const { fetchNamespaces } = useNamespaceStore()
   const [view, setView] = useState<'card' | 'list'>('card')
@@ -34,6 +34,7 @@ export function CatalogPage() {
 
   useEffect(() => {
     fetchPlugins(namespace)
+    fetchTags(namespace)
   }, [namespace])
 
   useEffect(() => {

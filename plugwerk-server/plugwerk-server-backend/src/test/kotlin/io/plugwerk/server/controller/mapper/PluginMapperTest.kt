@@ -52,7 +52,6 @@ class PluginMapperTest {
         name = "My Plugin",
         description = "A great plugin",
         provider = "ACME",
-        categories = arrayOf("tools", "productivity"),
         tags = arrayOf("kotlin", "pf4j"),
         status = PluginStatus.ACTIVE,
     )
@@ -84,7 +83,6 @@ class PluginMapperTest {
         assertThat(dto.provider).isEqualTo("ACME")
         assertThat(dto.namespace).isEqualTo("acme")
         assertThat(dto.status).isEqualTo(PluginDto.Status.ACTIVE)
-        assertThat(dto.categories).containsExactly("tools", "productivity")
         assertThat(dto.tags).containsExactly("kotlin", "pf4j")
         assertThat(dto.latestRelease).isNotNull
         assertThat(dto.latestRelease?.version).isEqualTo("2.0.0")
@@ -121,7 +119,7 @@ class PluginMapperTest {
     }
 
     @Test
-    fun `toDto returns null for empty categories and tags`() {
+    fun `toDto returns null for empty tags`() {
         val minimal = PluginEntity(
             id = UUID.randomUUID(),
             namespace = namespace,
@@ -129,7 +127,6 @@ class PluginMapperTest {
             name = "Minimal",
         )
         val dto = mapper.toDto(minimal, "acme")
-        assertThat(dto.categories).isNull()
         assertThat(dto.tags).isNull()
     }
 }

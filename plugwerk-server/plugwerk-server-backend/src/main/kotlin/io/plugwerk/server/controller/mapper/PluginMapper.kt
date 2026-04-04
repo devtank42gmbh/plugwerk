@@ -44,7 +44,6 @@ class PluginMapper(private val releaseMapper: PluginReleaseMapper) {
             provider = entity.provider,
             license = entity.license,
             namespace = namespaceSlug,
-            categories = entity.categories.toList().takeIf { it.isNotEmpty() },
             tags = entity.tags.toList().takeIf { it.isNotEmpty() },
             latestRelease = latestRelease?.let { releaseMapper.toDto(it, entity.pluginId) },
             icon = entity.icon?.let { URI(it) },

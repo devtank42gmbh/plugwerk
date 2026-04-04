@@ -17,8 +17,7 @@ tasks.jar {
             // Plugwerk custom attributes (read by the server during upload)
             "Plugin-Name"        to "Hello CLI Plugin",
             "Plugin-License"     to "Apache-2.0",
-            "Plugin-Categories"  to "utilities, examples",
-            "Plugin-Tags"        to "hello, demo, cli, greeting",
+            "Plugin-Tags"        to "hello, demo, cli, greeting, utilities",
         )
     }
 }

@@ -16,14 +16,13 @@ import java.util.List;
  * <p>Usage:
  * <pre>
  *   plugwerk-cli search analytics
- *   plugwerk-cli search --category=reporting
  *   plugwerk-cli search --tag=experimental --compatible-with=2.0.0
- *   plugwerk-cli search "data tool" --category=analytics
+ *   plugwerk-cli search "data tool" --tag=reporting
  * </pre>
  */
 @Command(
         name = "search",
-        description = "Search for plugins by keyword, category, tag, or system version compatibility.",
+        description = "Search for plugins by keyword, tag, or system version compatibility.",
         mixinStandardHelpOptions = true)
 public class SearchCommand implements Runnable {
 
@@ -33,9 +32,6 @@ public class SearchCommand implements Runnable {
     @Parameters(index = "0", arity = "0..1", description = "Free-text search query (plugin ID, name, description, tags)")
     private String query;
 
-    @Option(names = {"--category", "-c"}, description = "Filter by category (exact match)")
-    private String category;
-
     @Option(names = {"--tag", "-t"}, description = "Filter by tag (exact match)")
     private String tag;
 
@@ -44,7 +40,7 @@ public class SearchCommand implements Runnable {
 
     @Override
     public void run() {
-        SearchCriteria criteria = new SearchCriteria(query, category, tag, compatibleWith);
+        SearchCriteria criteria = new SearchCriteria(query, tag, compatibleWith);
         List<PluginInfo> results = parent.getMarketplace().catalog().searchPlugins(criteria);
 
         if (results.isEmpty()) {
@@ -53,13 +49,13 @@ public class SearchCommand implements Runnable {
         }
 
         String fmt = "%-40s %-12s %-20s %s%n";
-        System.out.printf(fmt, "PLUGIN ID", "VERSION", "CATEGORIES", "NAME");
+        System.out.printf(fmt, "PLUGIN ID", "VERSION", "TAGS", "NAME");
         System.out.println("-".repeat(95));
         for (PluginInfo p : results) {
             System.out.printf(fmt,
                     truncate(p.getPluginId(), 40),
                     orDash(p.getLatestVersion()),
-                    truncate(String.join(", ", p.getCategories()), 20),
+                    truncate(String.join(", ", p.getTags()), 20),
                     truncate(p.getName(), 25));
         }
         System.out.println();

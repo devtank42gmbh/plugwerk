@@ -167,7 +167,6 @@ class Pf4jManifestParserTest {
             mainAttributes.putValue("Plugin-Version", "2.0.0")
             mainAttributes.putValue("Plugin-Name", "ACME Export")
             mainAttributes.putValue("Plugin-Description", "Export plugin")
-            mainAttributes.putValue("Plugin-Categories", "export, reporting")
             mainAttributes.putValue("Plugin-Tags", "pdf, report, template")
             mainAttributes.putValue("Plugin-Icon", "icon.png")
             mainAttributes.putValue("Plugin-Screenshots", "screenshot-1.png, screenshot-2.png")
@@ -179,7 +178,6 @@ class Pf4jManifestParserTest {
 
         assertEquals("ACME Export", descriptor.name)
         assertEquals("Export plugin", descriptor.description)
-        assertEquals(listOf("export", "reporting"), descriptor.categories)
         assertEquals(listOf("pdf", "report", "template"), descriptor.tags)
         assertEquals("icon.png", descriptor.icon)
         assertEquals(listOf("screenshot-1.png", "screenshot-2.png"), descriptor.screenshots)
@@ -250,7 +248,6 @@ class Pf4jManifestParserTest {
             setProperty("plugin.id", "props-plugin")
             setProperty("plugin.version", "1.0.0")
             setProperty("plugin.name", "Props Display Name")
-            setProperty("plugin.categories", "tools, utility")
             setProperty("plugin.tags", "cli")
             setProperty("plugin.icon", "icon.svg")
             setProperty("plugin.screenshots", "s1.png")
@@ -261,7 +258,6 @@ class Pf4jManifestParserTest {
         val descriptor = parser.parseProperties(props)
 
         assertEquals("Props Display Name", descriptor.name)
-        assertEquals(listOf("tools", "utility"), descriptor.categories)
         assertEquals(listOf("cli"), descriptor.tags)
         assertEquals("icon.svg", descriptor.icon)
         assertEquals(listOf("s1.png"), descriptor.screenshots)

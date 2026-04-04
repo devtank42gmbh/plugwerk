@@ -40,7 +40,6 @@ const mockPlugin: PluginDto = {
 
 const defaultFilters = {
   search: '',
-  category: '',
   tag: '',
   status: '',
   sort: 'name,asc',

@@ -36,7 +36,6 @@ class DescriptorValidatorTest {
         homepage: String? = null,
         repository: String? = null,
         icon: String? = null,
-        categories: List<String> = emptyList(),
         tags: List<String> = emptyList(),
         screenshots: List<String> = emptyList(),
         requiresSystemVersion: String? = null,
@@ -51,7 +50,6 @@ class DescriptorValidatorTest {
         homepage = homepage,
         repository = repository,
         icon = icon,
-        categories = categories,
         tags = tags,
         screenshots = screenshots,
         requiresSystemVersion = requiresSystemVersion,
@@ -278,7 +276,7 @@ class DescriptorValidatorTest {
         assertTrue(ex.violations.any { it.contains("icon") })
     }
 
-    // ---- categories / tags ----
+    // ---- tags ----
 
     @Test
     fun `tag at max length of 64 passes`() {
@@ -293,23 +291,6 @@ class DescriptorValidatorTest {
             DescriptorValidator.validate(minimalDescriptor(tags = listOf("a".repeat(65))))
         }
         assertTrue(ex.violations.any { it.contains("tags") })
-    }
-
-    @Test
-    fun `category exceeding max length throws`() {
-        val ex = assertThrows<DescriptorValidationException> {
-            DescriptorValidator.validate(minimalDescriptor(categories = listOf("a".repeat(65))))
-        }
-        assertTrue(ex.violations.any { it.contains("categories") })
-    }
-
-    @Test
-    fun `categories exceeding max count throws`() {
-        val tooMany = (1..DescriptorValidator.MAX_CATEGORIES + 1).map { "cat-$it" }
-        val ex = assertThrows<DescriptorValidationException> {
-            DescriptorValidator.validate(minimalDescriptor(categories = tooMany))
-        }
-        assertTrue(ex.violations.any { it.contains("categories") && it.contains("exceed") })
     }
 
     @Test

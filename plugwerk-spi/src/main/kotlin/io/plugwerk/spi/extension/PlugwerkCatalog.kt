@@ -34,7 +34,7 @@ import org.pf4j.ExtensionPoint
  * Kotlin:
  * ```kotlin
  * val catalog = pluginManager.getExtensions(PlugwerkCatalog::class.java).first()
- * val plugins = catalog.searchPlugins(SearchCriteria(category = "analytics"))
+ * val plugins = catalog.searchPlugins(SearchCriteria(tag = "analytics"))
  * ```
  *
  * Java:

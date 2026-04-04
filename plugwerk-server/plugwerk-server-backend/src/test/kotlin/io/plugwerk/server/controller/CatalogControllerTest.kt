@@ -98,7 +98,6 @@ class CatalogControllerTest {
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
                 any<Pageable>(),
                 any(),
             ),
@@ -122,7 +121,6 @@ class CatalogControllerTest {
         whenever(
             pluginService.findPagedByNamespace(
                 eq("unknown"),
-                anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),

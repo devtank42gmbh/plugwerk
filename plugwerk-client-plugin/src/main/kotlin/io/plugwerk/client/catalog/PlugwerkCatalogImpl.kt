@@ -40,7 +40,6 @@ internal class PlugwerkCatalogImpl(private val client: PlugwerkClient) : Plugwer
     override fun searchPlugins(criteria: SearchCriteria): List<PluginInfo> {
         val query = buildString {
             criteria.query?.let { append("q=${it.urlEncode()}&") }
-            criteria.category?.let { append("category=${it.urlEncode()}&") }
             criteria.tag?.let { append("tag=${it.urlEncode()}&") }
             criteria.compatibleWith?.let { append("compatibleWith=${it.urlEncode()}&") }
         }.trimEnd('&')
@@ -66,7 +65,6 @@ private fun PluginDto.toPluginInfo(): PluginInfo = PluginInfo(
     provider = provider,
     license = license,
     namespace = namespace,
-    categories = categories ?: emptyList(),
     tags = tags ?: emptyList(),
     latestVersion = latestRelease?.version,
     status = status.toPluginStatus(),
