@@ -40,7 +40,7 @@ import java.util.UUID
  * JPA entity representing a plugin entry in a namespace catalogue.
  *
  * A plugin is a registered PF4J plugin within a [NamespaceEntity]. It holds all metadata
- * relevant for discoverability in the catalogue (name, description, categories, tags, etc.)
+ * relevant for discoverability in the catalogue (name, description, tags, etc.)
  * but contains no executable code itself — that lives in the associated [PluginReleaseEntity]
  * records as versioned artefacts.
  *
@@ -69,7 +69,6 @@ import java.util.UUID
  * @property homepage URL to the project homepage (optional).
  * @property repository URL to the source-code repository (optional).
  * @property icon URL to an icon image for catalogue display (optional).
- * @property categories Free-text list of categories for catalogue filtering.
  * @property tags Free-text list of keywords for catalogue search.
  * @property status Lifecycle status of the plugin ([io.plugwerk.spi.model.PluginStatus]):
  *   `ACTIVE` (published), `SUSPENDED` (blocked), or `ARCHIVED` (retired).
@@ -114,10 +113,6 @@ class PluginEntity(
 
     @Column(name = "icon", length = 2048)
     var icon: String? = null,
-
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "categories", nullable = false)
-    var categories: Array<String> = emptyArray(),
 
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "tags", nullable = false)

@@ -124,11 +124,10 @@ class PlugwerkCatalogImplTest {
                 .setResponseCode(200),
         )
 
-        catalog.searchPlugins(SearchCriteria(query = "hello", category = "tools"))
+        catalog.searchPlugins(SearchCriteria(query = "hello"))
 
         val request = server.takeRequest()
         assert(request.path!!.contains("q=hello")) { "Expected q= in path: ${request.path}" }
-        assert(request.path!!.contains("category=tools")) { "Expected category= in path: ${request.path}" }
     }
 
     @Test

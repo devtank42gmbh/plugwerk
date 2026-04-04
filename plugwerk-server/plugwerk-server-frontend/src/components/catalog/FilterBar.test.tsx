@@ -16,7 +16,6 @@ vi.mock('../../api/config', () => ({
 
 const defaultFilters = {
   search: '',
-  category: '',
   tag: '',
   status: '',
   sort: 'name,asc',
@@ -36,16 +35,15 @@ describe('FilterBar', () => {
     })
   })
 
-  it('renders category, tag, status, compatibility and sort selects', () => {
+  it('renders tag, status, compatibility and sort selects', () => {
     renderWithRouter(
       <FilterBar view="card" onViewChange={vi.fn()} namespace="acme" />,
     )
-    expect(screen.getByRole('combobox', { name: /filter by category/i })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /filter by tag/i })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /filter by status/i })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /filter by compatibility/i })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /sort order/i })).toBeInTheDocument()
-    expect(screen.getAllByRole('combobox')).toHaveLength(5)
+    expect(screen.getAllByRole('combobox')).toHaveLength(4)
   })
 
   it('does not show reset button when no active filters', () => {
@@ -55,8 +53,8 @@ describe('FilterBar', () => {
     expect(screen.queryByRole('button', { name: /reset filters/i })).not.toBeInTheDocument()
   })
 
-  it('shows reset button when category filter is active', () => {
-    usePluginStore.setState({ filters: { ...defaultFilters, category: 'Security' } })
+  it('shows reset button when tag filter is active', () => {
+    usePluginStore.setState({ filters: { ...defaultFilters, tag: 'auth' } })
     renderWithRouter(
       <FilterBar view="card" onViewChange={vi.fn()} namespace="acme" />,
     )
@@ -102,7 +100,7 @@ describe('FilterBar', () => {
     const user = userEvent.setup()
     const resetFiltersMock = vi.fn()
     usePluginStore.setState({
-      filters: { ...defaultFilters, category: 'Security' },
+      filters: { ...defaultFilters, tag: 'auth' },
       setFilters: vi.fn(),
       fetchPlugins: vi.fn().mockResolvedValue(undefined),
       resetFilters: resetFiltersMock,

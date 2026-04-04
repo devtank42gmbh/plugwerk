@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 Namespace (slug, owner_org, settings JSON)
-  └── Plugin (plugin_id unique per ns, categories[], tags[], status)
+  └── Plugin (plugin_id unique per ns, tags[], status)
         └── PluginRelease (SemVer version, artifact_sha256, requires_system_version,
                           plugin_dependencies JSON, status: draft/published/deprecated/yanked)
 
@@ -72,7 +72,6 @@ Plugin metadata is read from the standard Java `MANIFEST.MF` inside the plugin J
 | `Plugin-Requires` | SemVer range for host | No | Yes |
 | `Plugin-License` | SPDX license | No | Yes |
 | `Plugin-Name` | Display name | No | No (custom) |
-| `Plugin-Categories` | Comma-separated categories | No | No (custom) |
 | `Plugin-Tags` | Comma-separated tags | No | No (custom) |
 | `Plugin-Icon` | Icon URL/path | No | No (custom) |
 | `Plugin-Screenshots` | Comma-separated URLs | No | No (custom) |

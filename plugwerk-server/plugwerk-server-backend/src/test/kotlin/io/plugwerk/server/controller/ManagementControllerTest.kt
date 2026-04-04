@@ -91,13 +91,13 @@ class ManagementControllerTest {
 
     @Test
     fun `PATCH plugin returns 200 with updated plugin`() {
-        // update() has 12 params: namespaceSlug, pluginId, name?, description?, author?, license?,
-        // homepage?, repository?, icon?, categories?, tags?, status?
+        // update() has 11 params: namespaceSlug, pluginId, name?, description?, author?, license?,
+        // homepage?, repository?, icon?, tags?, status?
         whenever(
             pluginService.update(
                 any(), any(),
                 anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
-                anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+                anyOrNull(), anyOrNull(), anyOrNull(),
             ),
         ).thenReturn(plugin)
         whenever(pluginMapper.toDto(any(), any(), anyOrNull())).thenReturn(buildPluginDto())
@@ -116,7 +116,7 @@ class ManagementControllerTest {
             pluginService.update(
                 any(), any(),
                 anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
-                anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+                anyOrNull(), anyOrNull(), anyOrNull(),
             ),
         ).thenThrow(PluginNotFoundException("acme", "missing"))
 

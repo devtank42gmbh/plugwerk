@@ -8,19 +8,22 @@ vi.mock('../api/config', () => ({
   catalogApi: {
     listPlugins: vi.fn(),
   },
+  axiosInstance: {
+    get: vi.fn(),
+  },
   managementApi: {},
   reviewsApi: {},
   updatesApi: {},
 }))
 
 import { usePluginStore } from './pluginStore'
-import { catalogApi } from '../api/config'
+import { catalogApi, axiosInstance } from '../api/config'
 
 const mockCatalogApi = catalogApi as unknown as { listPlugins: ReturnType<typeof vi.fn> }
+const mockAxiosInstance = axiosInstance as unknown as { get: ReturnType<typeof vi.fn> }
 
 const defaultFilters = {
   search: '',
-  category: '',
   tag: '',
   status: '',
   sort: 'name,asc',
@@ -61,8 +64,8 @@ describe('usePluginStore', () => {
 
   describe('setFilters', () => {
     it('merges partial filters', () => {
-      act(() => { usePluginStore.getState().setFilters({ category: 'analytics' }) })
-      expect(usePluginStore.getState().filters.category).toBe('analytics')
+      act(() => { usePluginStore.getState().setFilters({ tag: 'analytics' }) })
+      expect(usePluginStore.getState().filters.tag).toBe('analytics')
       expect(usePluginStore.getState().filters.sort).toBe('name,asc')
     })
 
@@ -79,10 +82,10 @@ describe('usePluginStore', () => {
 
     it('can update multiple filters at once', () => {
       act(() => {
-        usePluginStore.getState().setFilters({ category: 'auth', sort: 'downloads,desc' })
+        usePluginStore.getState().setFilters({ tag: 'auth', sort: 'downloads,desc' })
       })
       const { filters } = usePluginStore.getState()
-      expect(filters.category).toBe('auth')
+      expect(filters.tag).toBe('auth')
       expect(filters.sort).toBe('downloads,desc')
     })
   })
@@ -90,7 +93,7 @@ describe('usePluginStore', () => {
   describe('resetFilters', () => {
     it('resets all filters to defaults', () => {
       usePluginStore.setState({
-        filters: { search: 'foo', category: 'bar', tag: 'baz', status: 'active', sort: 'downloads,desc', page: 5, size: 12 },
+        filters: { search: 'foo', tag: 'baz', status: 'active', sort: 'downloads,desc', page: 5, size: 12 },
       })
       act(() => { usePluginStore.getState().resetFilters() })
       expect(usePluginStore.getState().filters).toEqual(defaultFilters)
@@ -138,7 +141,7 @@ describe('usePluginStore', () => {
         data: { content: [], totalElements: 0, totalPages: 0 },
       })
       usePluginStore.setState({
-        filters: { ...defaultFilters, search: 'cache', category: 'storage', page: 1, size: 12 },
+        filters: { ...defaultFilters, search: 'cache', tag: 'storage', page: 1, size: 12 },
       })
 
       await act(async () => {
@@ -149,7 +152,7 @@ describe('usePluginStore', () => {
         expect.objectContaining({
           ns: 'acme',
           q: 'cache',
-          category: 'storage',
+          tag: 'storage',
           page: 1,
           size: 12,
         }),
@@ -167,7 +170,6 @@ describe('usePluginStore', () => {
 
       const callArgs = mockCatalogApi.listPlugins.mock.calls[0][0]
       expect(callArgs.q).toBeUndefined()
-      expect(callArgs.category).toBeUndefined()
       expect(callArgs.tag).toBeUndefined()
       expect(callArgs.status).toBeUndefined()
     })
@@ -193,6 +195,29 @@ describe('usePluginStore', () => {
       })
 
       expect(usePluginStore.getState().error).toBe('Failed to load plugins')
+    })
+  })
+
+  describe('fetchTags', () => {
+    it('populates availableTags on success', async () => {
+      mockAxiosInstance.get.mockResolvedValue({ data: ['auth', 'cache', 'security'] })
+
+      await act(async () => {
+        await usePluginStore.getState().fetchTags('acme')
+      })
+
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/namespaces/acme/tags')
+      expect(usePluginStore.getState().availableTags).toEqual(['auth', 'cache', 'security'])
+    })
+
+    it('sets empty array on failure', async () => {
+      mockAxiosInstance.get.mockRejectedValue(new Error('Network error'))
+
+      await act(async () => {
+        await usePluginStore.getState().fetchTags('acme')
+      })
+
+      expect(usePluginStore.getState().availableTags).toEqual([])
     })
   })
 })

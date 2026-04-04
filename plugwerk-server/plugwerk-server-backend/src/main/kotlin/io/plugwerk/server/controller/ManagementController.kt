@@ -65,7 +65,6 @@ class ManagementController(
             homepage = pluginUpdateRequest.homepage?.toString(),
             repository = pluginUpdateRequest.repository?.toString(),
             icon = pluginUpdateRequest.icon?.toString(),
-            categories = pluginUpdateRequest.categories?.toTypedArray(),
             tags = pluginUpdateRequest.tags?.toTypedArray(),
         )
         return ResponseEntity.ok(pluginMapper.toDto(plugin, ns, latestRelease = null))

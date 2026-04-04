@@ -3,11 +3,10 @@
 import { create } from 'zustand'
 import type { PluginDto, PluginPagedResponse } from '../api/generated/model'
 import type { ListPluginsStatusEnum } from '../api/generated/api/catalog-api'
-import { catalogApi } from '../api/config'
+import { catalogApi, axiosInstance } from '../api/config'
 
 interface PluginFilters {
   search: string
-  category: string
   tag: string
   status: string
   sort: string
@@ -20,6 +19,7 @@ interface PluginState {
   totalElements: number
   totalPages: number
   pendingReviewPluginCount: number | null
+  availableTags: string[]
   loading: boolean
   error: string | null
   filters: PluginFilters
@@ -27,11 +27,11 @@ interface PluginState {
   setFilters: (partial: Partial<PluginFilters>) => void
   resetFilters: () => void
   fetchPlugins: (namespace: string) => Promise<void>
+  fetchTags: (namespace: string) => Promise<void>
 }
 
 const defaultFilters: PluginFilters = {
   search: '',
-  category: '',
   tag: '',
   status: '',
   sort: 'name,asc',
@@ -44,6 +44,7 @@ export const usePluginStore = create<PluginState>((set, get) => ({
   totalElements: 0,
   totalPages: 0,
   pendingReviewPluginCount: null,
+  availableTags: [],
   loading: false,
   error: null,
   filters: { ...defaultFilters },
@@ -68,7 +69,6 @@ export const usePluginStore = create<PluginState>((set, get) => ({
         size: filters.size,
         sort: filters.sort,
         q: filters.search || undefined,
-        category: filters.category || undefined,
         tag: filters.tag || undefined,
         status: (filters.status || undefined) as ListPluginsStatusEnum | undefined,
       })
@@ -83,6 +83,15 @@ export const usePluginStore = create<PluginState>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load plugins'
       set({ loading: false, error: message })
+    }
+  },
+
+  async fetchTags(namespace: string) {
+    try {
+      const response = await axiosInstance.get<string[]>(`/namespaces/${namespace}/tags`)
+      set({ availableTags: response.data })
+    } catch {
+      set({ availableTags: [] })
     }
   },
 }))

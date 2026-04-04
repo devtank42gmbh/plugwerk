@@ -192,7 +192,6 @@ class PluginReleaseService(
                         homepage = descriptor.homepage,
                         repository = descriptor.repository,
                         icon = descriptor.icon,
-                        categories = descriptor.categories.toTypedArray(),
                         tags = descriptor.tags.toTypedArray(),
                     ),
                 )

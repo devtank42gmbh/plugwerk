@@ -25,33 +25,26 @@ package io.plugwerk.spi.model
  * An instance with all fields `null` is equivalent to calling
  * [io.plugwerk.spi.extension.PlugwerkCatalog.listPlugins].
  *
- * Example — find analytics plugins compatible with host version 3.1.0:
+ * Example — find plugins tagged "experimental" compatible with host version 3.1.0:
  *
  * Kotlin:
  * ```kotlin
- * val criteria = SearchCriteria(category = "analytics", compatibleWith = "3.1.0")
+ * val criteria = SearchCriteria(tag = "experimental", compatibleWith = "3.1.0")
  * val results = catalog.searchPlugins(criteria)
  * ```
  *
  * Java:
  * ```java
- * SearchCriteria criteria = new SearchCriteria(null, "analytics", null, "3.1.0");
+ * SearchCriteria criteria = new SearchCriteria(null, "experimental", "3.1.0");
  * List<PluginInfo> results = catalog.searchPlugins(criteria);
  * ```
  *
  * @property query          free-text search string matched against plugin ID, name, description,
  *   and tags; `null` disables full-text filtering
- * @property category       exact category name to filter by (e.g. `"analytics"`);
- *   `null` disables category filtering
  * @property tag            exact tag to filter by (e.g. `"experimental"`);
  *   `null` disables tag filtering
  * @property compatibleWith SemVer version string of the host application; when set, only releases
  *   whose `requiresSystemVersion` range includes this version are returned;
  *   `null` disables compatibility filtering
  */
-data class SearchCriteria(
-    val query: String? = null,
-    val category: String? = null,
-    val tag: String? = null,
-    val compatibleWith: String? = null,
-)
+data class SearchCriteria(val query: String? = null, val tag: String? = null, val compatibleWith: String? = null)

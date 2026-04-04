@@ -376,8 +376,7 @@ java -jar $JAR --plugins-dir=/absolute/path/to/plugins --server=http://localhost
                // Plugwerk custom attributes (optional, but recommended)
                "Plugin-Name"        to "My Plugin",
                "Plugin-License"     to "MIT",
-               "Plugin-Categories"  to "utilities, examples",
-               "Plugin-Tags"        to "my-tag, demo",
+               "Plugin-Tags"        to "my-tag, demo, utilities",
            )
        }
    }

@@ -39,7 +39,6 @@ info:
     | `Plugin-License` | No | SPDX license identifier |
     | `Plugin-Requires` | No | SemVer range for host system |
     | `Plugin-Dependencies` | No | Comma-separated `pluginId@version` |
-    | `Plugin-Categories` | No | Comma-separated category slugs |
     | `Plugin-Tags` | No | Comma-separated tags |
     | `Plugin-Icon` | No | Icon URL or relative path |
     | `Plugin-Screenshots` | No | Comma-separated screenshot URLs |
@@ -139,7 +138,7 @@ tags:
 
       Use these endpoints from your CI/CD pipeline or release tooling:
       - **Upload** a release artifact (JAR/ZIP); the plugin is created automatically from the embedded MANIFEST.MF descriptor
-      - **Update** plugin metadata (description, categories, tags, links)
+      - **Update** plugin metadata (description, tags, links)
       - **Change release status** to publish, deprecate, or yank a release
 
       All management endpoints require an API key (`X-Api-Key` header) or Bearer token.
@@ -325,7 +324,7 @@ paths:
       description: |
         Returns a paginated list of plugins in the given namespace.
 
-        Results can be filtered by category, tag, and status, and searched by a full-text
+        Results can be filtered by tag and status, and searched by a full-text
         query across plugin name, description, and tags.
 
         **Visibility rules:**
@@ -345,7 +344,6 @@ paths:
         - $ref: '#/components/parameters/SizeQuery'
         - $ref: '#/components/parameters/SortQuery'
         - $ref: '#/components/parameters/SearchQuery'
-        - $ref: '#/components/parameters/CategoryFilter'
         - $ref: '#/components/parameters/TagFilter'
         - $ref: '#/components/parameters/StatusFilter'
       responses:
@@ -478,7 +476,6 @@ paths:
         - `Plugin-Provider`: max 255 characters
         - `Plugin-License`: max 100 characters
         - URL fields (`homepage`, `repository`, `icon`): max 2,048 characters, must be valid http/https
-        - `categories`: max 20 entries, each max 64 characters
         - `tags`: max 50 entries, each max 64 characters
         - `pluginDependencies`: max 100 entries, each ID must match the plugin ID format
         - Plain-text fields must not contain HTML/script tags
@@ -662,6 +659,29 @@ paths:
               schema:
                 type: string
                 format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /namespaces/{ns}/tags:
+    get:
+      tags:
+        - Catalog
+      summary: List all tags used in this namespace
+      description: |
+        Returns a sorted, deduplicated list of all tags currently assigned to
+        plugins in the given namespace. Useful for populating filter dropdowns.
+      operationId: listTags
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      responses:
+        '200':
+          description: Sorted list of distinct tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -1315,15 +1335,6 @@ components:
         Full-text search query. Matched against plugin name, description, and tags.
         Example: `reporting export`
 
-    CategoryFilter:
-      name: category
-      in: query
-      schema:
-        type: string
-      description: |
-        Filter by category slug. Only plugins that have this category assigned are returned.
-        Example: `analytics`
-
     TagFilter:
       name: tag
       in: query
@@ -1494,11 +1505,6 @@ components:
             - `active` — has at least one published release, visible in catalog
             - `suspended` — temporarily unavailable (e.g. security review in progress)
             - `archived` — no longer maintained, kept for historical download access
-        categories:
-          type: array
-          items:
-            type: string
-          description: List of category slugs assigned to this plugin (for catalog filtering)
         tags:
           type: array
           items:
@@ -1643,11 +1649,6 @@ components:
         description:
           type: string
           description: New description
-        categories:
-          type: array
-          items:
-            type: string
-          description: Replaces the full list of categories (not merged)
         tags:
           type: array
           items:

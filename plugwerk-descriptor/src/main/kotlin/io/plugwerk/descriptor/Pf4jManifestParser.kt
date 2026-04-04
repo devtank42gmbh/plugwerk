@@ -36,7 +36,6 @@ class Pf4jManifestParser {
         val license = attrs.getValue("Plugin-License")
         val dependencies = parseDependencyString(attrs.getValue("Plugin-Dependencies"))
         val name = attrs.getValue("Plugin-Name") ?: description ?: id
-        val categories = parseCommaSeparatedList(attrs.getValue("Plugin-Categories"))
         val tags = parseCommaSeparatedList(attrs.getValue("Plugin-Tags"))
         val icon = attrs.getValue("Plugin-Icon")
         val screenshots = parseCommaSeparatedList(attrs.getValue("Plugin-Screenshots"))
@@ -50,7 +49,6 @@ class Pf4jManifestParser {
             description = description,
             provider = provider,
             license = license,
-            categories = categories,
             tags = tags,
             requiresSystemVersion = requires,
             pluginDependencies = dependencies,
@@ -74,7 +72,6 @@ class Pf4jManifestParser {
         val license = properties.getProperty("plugin.license")
         val dependencies = parseDependencyString(properties.getProperty("plugin.dependencies"))
         val name = properties.getProperty("plugin.name") ?: description ?: id
-        val categories = parseCommaSeparatedList(properties.getProperty("plugin.categories"))
         val tags = parseCommaSeparatedList(properties.getProperty("plugin.tags"))
         val icon = properties.getProperty("plugin.icon")
         val screenshots = parseCommaSeparatedList(properties.getProperty("plugin.screenshots"))
@@ -88,7 +85,6 @@ class Pf4jManifestParser {
             description = description,
             provider = provider,
             license = license,
-            categories = categories,
             tags = tags,
             requiresSystemVersion = requires,
             pluginDependencies = dependencies,

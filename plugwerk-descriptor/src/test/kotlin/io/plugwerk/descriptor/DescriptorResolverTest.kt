@@ -184,7 +184,6 @@ class DescriptorResolverTest {
             mainAttributes.putValue("Plugin-Version", "1.0.0")
             mainAttributes.putValue("Plugin-Name", "Full Plugin")
             mainAttributes.putValue("Plugin-Provider", "ACME")
-            mainAttributes.putValue("Plugin-Categories", "tools, export")
             mainAttributes.putValue("Plugin-Tags", "pdf, csv")
             mainAttributes.putValue("Plugin-Homepage", "https://example.com")
         }
@@ -194,7 +193,6 @@ class DescriptorResolverTest {
 
         assertEquals("Full Plugin", descriptor.name)
         assertEquals("ACME", descriptor.provider)
-        assertEquals(listOf("tools", "export"), descriptor.categories)
         assertEquals(listOf("pdf", "csv"), descriptor.tags)
         assertEquals("https://example.com", descriptor.homepage)
     }

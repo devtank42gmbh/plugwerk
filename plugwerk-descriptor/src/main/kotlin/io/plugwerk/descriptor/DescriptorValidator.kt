@@ -51,7 +51,6 @@ object DescriptorValidator {
     const val REQUIRES_SYSTEM_VERSION_MAX_LENGTH = 255
     const val TAG_MAX_LENGTH = 64
     const val DEPENDENCY_VERSION_MAX_LENGTH = 255
-    const val MAX_CATEGORIES = 20
     const val MAX_TAGS = 50
     const val MAX_SCREENSHOTS = 20
     const val MAX_DEPENDENCIES = 100
@@ -118,16 +117,6 @@ object DescriptorValidator {
             }
             if (url.startsWith("http://") || url.startsWith("https://")) {
                 if (!isValidHttpUrl(url)) violations += "icon must be a valid http/https URL or a relative path: '$url'"
-            }
-        }
-
-        // --- categories ---
-        if (descriptor.categories.size > MAX_CATEGORIES) {
-            violations += "categories must not exceed $MAX_CATEGORIES entries (got ${descriptor.categories.size})"
-        }
-        descriptor.categories.forEachIndexed { i, cat ->
-            if (cat.length > TAG_MAX_LENGTH) {
-                violations += "categories[$i] must not exceed $TAG_MAX_LENGTH characters: '${cat.take(100)}'"
             }
         }
 

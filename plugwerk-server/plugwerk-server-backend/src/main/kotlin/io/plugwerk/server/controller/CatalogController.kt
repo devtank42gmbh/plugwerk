@@ -62,7 +62,6 @@ class CatalogController(
         size: Int,
         sort: String,
         q: String?,
-        category: String?,
         tag: String?,
         status: String?,
     ): ResponseEntity<PluginPagedResponse> {
@@ -71,7 +70,6 @@ class CatalogController(
         val resultPage = pluginService.findPagedByNamespace(
             ns,
             pluginStatus,
-            category,
             tag,
             q,
             pageable,
@@ -145,6 +143,9 @@ class CatalogController(
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .body(InputStreamResource(stream))
     }
+
+    override fun listTags(ns: String): ResponseEntity<List<String>> =
+        ResponseEntity.ok(pluginService.findDistinctTags(ns))
 
     override fun getPluginsJson(ns: String): ResponseEntity<Pf4jPluginsJson> =
         ResponseEntity.ok(pf4jService.buildPluginsJson(ns))

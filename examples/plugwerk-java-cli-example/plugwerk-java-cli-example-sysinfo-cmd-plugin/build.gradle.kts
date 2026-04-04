@@ -17,8 +17,7 @@ tasks.jar {
             // Plugwerk custom attributes (read by the server during upload)
             "Plugin-Name"        to "Sysinfo CLI Plugin",
             "Plugin-License"     to "Apache-2.0",
-            "Plugin-Categories"  to "utilities, examples",
-            "Plugin-Tags"        to "sysinfo, demo, cli, system",
+            "Plugin-Tags"        to "sysinfo, demo, cli, system, utilities",
         )
     }
 }

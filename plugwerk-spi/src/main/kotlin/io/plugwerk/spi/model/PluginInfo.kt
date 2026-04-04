@@ -32,7 +32,6 @@ package io.plugwerk.spi.model
  * @property license        SPDX license identifier (e.g. `"Apache-2.0"`); `null` if not provided
  * @property namespace      slug of the namespace this plugin belongs to;
  *   `null` when the namespace is implicit from the request context
- * @property categories     broad groupings the plugin belongs to (e.g. `["analytics", "reporting"]`)
  * @property tags           free-form keywords for search and filtering
  * @property latestVersion  SemVer string of the newest published release;
  *   `null` if the plugin has no published releases yet
@@ -48,7 +47,6 @@ data class PluginInfo(
     val provider: String? = null,
     val license: String? = null,
     val namespace: String? = null,
-    val categories: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val latestVersion: String? = null,
     val status: PluginStatus,
