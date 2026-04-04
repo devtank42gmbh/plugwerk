@@ -28,7 +28,6 @@ const publishedRelease: PluginReleaseDto = {
   fileFormat: 'jar',
   downloadCount: 10,
   createdAt: '2026-01-01T00:00:00Z',
-  publishedAt: '2026-01-02T10:30:00Z',
 }
 
 const draftRelease: PluginReleaseDto = {
