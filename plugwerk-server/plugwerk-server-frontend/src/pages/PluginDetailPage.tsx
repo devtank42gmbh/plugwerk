@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   Box,
-  Button,
   Container,
   Tabs,
   Tab,
@@ -13,7 +12,7 @@ import {
   Link as MuiLink,
   Snackbar,
 } from '@mui/material'
-import { ChevronRight, Trash2 } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PluginHeader } from '../components/plugin-detail/PluginHeader'
 import { OverviewTab } from '../components/plugin-detail/OverviewTab'
@@ -124,22 +123,13 @@ export function PluginDetailPage() {
         </Box>
 
         {/* Plugin Header */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <PluginHeader plugin={plugin} latestRelease={latestRelease} namespace={namespace} />
-          {isAdmin && (
-            <Button
-              variant="outlined"
-              color="error"
-              size="small"
-              startIcon={<Trash2 size={14} />}
-              aria-label="delete plugin"
-              onClick={() => setShowDeletePlugin(true)}
-              sx={{ mt: 1, flexShrink: 0 }}
-            >
-              Delete
-            </Button>
-          )}
-        </Box>
+        <PluginHeader
+          plugin={plugin}
+          latestRelease={latestRelease}
+          namespace={namespace}
+          isAdmin={isAdmin}
+          onDeletePlugin={() => setShowDeletePlugin(true)}
+        />
 
         {/* Tabs + Content */}
         <Box sx={{ mt: 2 }}>
