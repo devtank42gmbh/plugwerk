@@ -91,7 +91,7 @@ export function PluginDetailPage() {
     try {
       await managementApi.deletePlugin({ ns: namespace, pluginId })
       setToast({ message: `Plugin ${pluginId} deleted.`, severity: 'success' })
-      setTimeout(() => navigate(`/${namespace}`), 1000)
+      setTimeout(() => navigate(`/namespaces/${namespace}/plugins`), 1000)
     } catch {
       setToast({ message: `Failed to delete plugin ${pluginId}.`, severity: 'error' })
     } finally {

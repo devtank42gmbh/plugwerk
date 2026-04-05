@@ -88,7 +88,7 @@ export function VersionsTab({ releases, namespace, pluginId, currentVersion, can
       const pluginDeleted = response.headers?.['x-plugin-deleted'] === 'true'
       if (pluginDeleted) {
         setToast({ message: 'Plugin and release deleted.', severity: 'success' })
-        navigate(`/${namespace}`)
+        navigate(`/namespaces/${namespace}/plugins`)
       } else {
         setToast({ message: `v${deleteTarget.version} deleted.`, severity: 'success' })
         onReleaseDeleted?.(deleteTarget.version)
