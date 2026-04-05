@@ -39,9 +39,15 @@ class NamespaceService(private val namespaceRepository: NamespaceRepository) {
     }
 
     @Transactional
-    fun update(slug: String, ownerOrg: String? = null, settings: String? = null): NamespaceEntity {
+    fun update(
+        slug: String,
+        ownerOrg: String? = null,
+        publicCatalog: Boolean? = null,
+        settings: String? = null,
+    ): NamespaceEntity {
         val entity = findBySlug(slug)
         ownerOrg?.let { entity.ownerOrg = it }
+        publicCatalog?.let { entity.publicCatalog = it }
         settings?.let { entity.settings = it }
         return namespaceRepository.save(entity)
     }
