@@ -43,9 +43,10 @@ import {
   InputLabel,
   Tabs,
   Tab,
+  Autocomplete,
 } from '@mui/material'
 import { ArrowLeft, Plus, Trash2, Copy, Check } from 'lucide-react'
-import { accessKeysApi, namespaceMembersApi, namespacesApi } from '../../api/config'
+import { accessKeysApi, adminUsersApi, namespaceMembersApi, namespacesApi } from '../../api/config'
 import type { AccessKeyDto, NamespaceMemberDto, NamespaceRole } from '../../api/generated/model'
 import { NamespaceRole as NamespaceRoleEnum } from '../../api/generated/model'
 import { tokens } from '../../theme/tokens'
@@ -209,6 +210,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   const [newSubject, setNewSubject] = useState('')
   const [newRole, setNewRole] = useState<NamespaceRole>(NamespaceRoleEnum.Member)
   const [addSaving, setAddSaving] = useState(false)
+  const [userOptions, setUserOptions] = useState<string[]>([])
 
   const loadMembers = useCallback(async () => {
     setLoading(true)
@@ -225,6 +227,20 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   useEffect(() => {
     loadMembers()
   }, [loadMembers])
+
+  useEffect(() => {
+    if (!addOpen) return
+    async function loadUsers() {
+      try {
+        const res = await adminUsersApi.listUsers()
+        const existing = new Set(members.map((m) => m.userSubject))
+        setUserOptions(res.data.map((u) => u.username).filter((u) => !existing.has(u)))
+      } catch {
+        setUserOptions([])
+      }
+    }
+    loadUsers()
+  }, [addOpen, members])
 
   async function handleRoleChange(member: NamespaceMemberDto, role: NamespaceRole) {
     try {
@@ -340,14 +356,21 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
         <DialogTitle>Add Member</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <TextField
-              label="Subject"
-              value={newSubject}
-              onChange={(e) => setNewSubject(e.target.value)}
-              required
-              size="small"
-              autoFocus
-              helperText="Username or OIDC subject claim."
+            <Autocomplete
+              freeSolo
+              options={userOptions}
+              inputValue={newSubject}
+              onInputChange={(_, value) => setNewSubject(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="User"
+                  required
+                  size="small"
+                  autoFocus
+                  helperText="Username or OIDC subject claim."
+                />
+              )}
             />
             <FormControl size="small" required>
               <InputLabel>Role</InputLabel>
