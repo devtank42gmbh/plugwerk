@@ -303,17 +303,14 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
                   <Select
                     value={member.role}
                     size="small"
+                    variant="standard"
                     onChange={(e) => handleRoleChange(member, e.target.value as NamespaceRole)}
-                    sx={{ minWidth: 120 }}
+                    sx={{ fontSize: '0.875rem' }}
+                    disableUnderline
                   >
                     {Object.values(NamespaceRoleEnum).map((role) => (
                       <MenuItem key={role} value={role}>
-                        <Chip
-                          label={ROLE_LABELS[role] ?? role}
-                          size="small"
-                          color={ROLE_COLORS[role] ?? 'default'}
-                          sx={{ cursor: 'pointer' }}
-                        />
+                        {ROLE_LABELS[role] ?? role}
                       </MenuItem>
                     ))}
                   </Select>
