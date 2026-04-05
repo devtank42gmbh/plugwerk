@@ -57,6 +57,12 @@ interface NamespaceDetailViewProps {
   onToast: (toast: { message: string; severity: 'success' | 'error' }) => void
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  ADMIN: 'Admin',
+  MEMBER: 'Member',
+  READ_ONLY: 'Read Only',
+}
+
 const ROLE_COLORS: Record<string, 'primary' | 'default' | 'secondary'> = {
   ADMIN: 'primary',
   MEMBER: 'secondary',
@@ -303,7 +309,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
                     {Object.values(NamespaceRoleEnum).map((role) => (
                       <MenuItem key={role} value={role}>
                         <Chip
-                          label={role}
+                          label={ROLE_LABELS[role] ?? role}
                           size="small"
                           color={ROLE_COLORS[role] ?? 'default'}
                           sx={{ cursor: 'pointer' }}
@@ -354,7 +360,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
                 onChange={(e) => setNewRole(e.target.value as NamespaceRole)}
               >
                 {Object.values(NamespaceRoleEnum).map((role) => (
-                  <MenuItem key={role} value={role}>{role}</MenuItem>
+                  <MenuItem key={role} value={role}>{ROLE_LABELS[role] ?? role}</MenuItem>
                 ))}
               </Select>
             </FormControl>
