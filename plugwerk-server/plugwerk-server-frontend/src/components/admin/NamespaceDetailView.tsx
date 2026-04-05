@@ -157,7 +157,6 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">Settings</Typography>
       <TextField
         label="Owner Organisation"
         value={ownerOrg}
@@ -266,8 +265,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6">Members</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mb: 2 }}>
         <Button variant="outlined" size="small" startIcon={<Plus size={14} />} onClick={() => setAddOpen(true)}>
           Add Member
         </Button>
@@ -439,8 +437,7 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6">API Keys</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mb: 2 }}>
         <Button variant="outlined" size="small" startIcon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>
           Generate Key
         </Button>
