@@ -234,7 +234,11 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
       try {
         const res = await adminUsersApi.listUsers()
         const existing = new Set(members.map((m) => m.userSubject))
-        setUserOptions(res.data.map((u) => u.username).filter((u) => !existing.has(u)))
+        setUserOptions(
+          res.data
+            .filter((u) => !u.isSuperadmin && !existing.has(u.username))
+            .map((u) => u.username),
+        )
       } catch {
         setUserOptions([])
       }
