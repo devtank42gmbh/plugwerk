@@ -21,6 +21,9 @@ package io.plugwerk.server.controller
 import io.plugwerk.api.NamespacesApi
 import io.plugwerk.api.model.NamespaceCreateRequest
 import io.plugwerk.api.model.NamespaceSummary
+import io.plugwerk.api.model.NamespaceUpdateRequest
+import io.plugwerk.server.domain.NamespaceEntity
+import io.plugwerk.server.domain.NamespaceRole
 import io.plugwerk.server.security.NamespaceAuthorizationService
 import io.plugwerk.server.service.NamespaceAlreadyExistsException
 import io.plugwerk.server.service.NamespaceService
@@ -29,6 +32,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import tools.jackson.databind.ObjectMapper
 import java.net.URI
 
 @RestController
@@ -36,13 +40,14 @@ import java.net.URI
 class NamespaceController(
     private val namespaceService: NamespaceService,
     private val namespaceAuthorizationService: NamespaceAuthorizationService,
+    private val objectMapper: ObjectMapper,
 ) : NamespacesApi {
 
     override fun listNamespaces(): ResponseEntity<List<NamespaceSummary>> {
         val auth = SecurityContextHolder.getContext().authentication
             ?: throw UnauthorizedException("Not authenticated")
         val namespaces = namespaceAuthorizationService.listVisibleNamespaces(auth)
-            .map { NamespaceSummary(slug = it.slug, ownerOrg = it.ownerOrg) }
+            .map { it.toSummary() }
         return ResponseEntity.ok(namespaces)
     }
 
@@ -55,10 +60,43 @@ class NamespaceController(
                 slug = namespaceCreateRequest.slug,
                 ownerOrg = namespaceCreateRequest.ownerOrg ?: "default",
             )
-            val summary = NamespaceSummary(slug = entity.slug, ownerOrg = entity.ownerOrg)
-            ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(summary)
+            ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(entity.toSummary())
         } catch (_: NamespaceAlreadyExistsException) {
             ResponseEntity.status(409).build()
         }
     }
+
+    override fun updateNamespace(
+        ns: String,
+        namespaceUpdateRequest: NamespaceUpdateRequest,
+    ): ResponseEntity<NamespaceSummary> {
+        val auth = SecurityContextHolder.getContext().authentication
+            ?: throw UnauthorizedException("Not authenticated")
+        namespaceAuthorizationService.requireRole(ns, auth, NamespaceRole.ADMIN)
+        val settingsJson = namespaceUpdateRequest.settings?.let { objectMapper.writeValueAsString(it) }
+        val entity = namespaceService.update(
+            slug = ns,
+            ownerOrg = namespaceUpdateRequest.ownerOrg,
+            publicCatalog = namespaceUpdateRequest.publicCatalog,
+            settings = settingsJson,
+        )
+        return ResponseEntity.ok(entity.toSummary())
+    }
+
+    override fun deleteNamespace(ns: String): ResponseEntity<Unit> {
+        val auth = SecurityContextHolder.getContext().authentication
+            ?: throw UnauthorizedException("Not authenticated")
+        namespaceAuthorizationService.requireSuperadmin(auth)
+        namespaceService.delete(ns)
+        return ResponseEntity.noContent().build()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun NamespaceEntity.toSummary(): NamespaceSummary = NamespaceSummary(
+        slug = slug,
+        ownerOrg = ownerOrg,
+        publicCatalog = publicCatalog,
+        settings = settings?.let { objectMapper.readValue(it, Map::class.java) as Map<String, Any> },
+        createdAt = createdAt,
+    )
 }
