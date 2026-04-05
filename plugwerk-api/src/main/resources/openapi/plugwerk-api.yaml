@@ -324,6 +324,63 @@ paths:
         '409':
           description: A namespace with this slug already exists
 
+  /namespaces/{ns}:
+    patch:
+      tags:
+        - Namespaces
+      summary: Update a namespace
+      description: |
+        Updates namespace properties such as owner organisation, public catalog flag, or settings.
+
+        Requires superadmin privileges or ADMIN role in the namespace.
+      operationId: updateNamespace
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NamespaceUpdateRequest'
+      responses:
+        '200':
+          description: Namespace updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamespaceSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Namespaces
+      summary: Delete a namespace
+      description: |
+        Permanently deletes a namespace and all its plugins, releases, artifacts, members,
+        and access keys. This action cannot be undone.
+
+        Requires superadmin privileges.
+      operationId: deleteNamespace
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/NamespaceSlug'
+      responses:
+        '204':
+          description: Namespace deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /namespaces/{ns}/plugins:
     get:
       tags:
@@ -1496,6 +1553,17 @@ components:
           type: string
           description: Human-readable name of the organisation that owns this namespace
           example: ACME Corporation
+        publicCatalog:
+          type: boolean
+          description: Whether the catalog is publicly browsable without authentication
+        settings:
+          type: object
+          additionalProperties: true
+          description: Namespace-specific settings (e.g. auto-approve)
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the namespace was created
       required:
         - slug
         - ownerOrg
@@ -1517,6 +1585,21 @@ components:
           example: ACME Corporation
       required:
         - slug
+
+    NamespaceUpdateRequest:
+      type: object
+      description: Request body for updating namespace properties
+      properties:
+        ownerOrg:
+          type: string
+          description: Human-readable organisation name
+        publicCatalog:
+          type: boolean
+          description: Whether the catalog is publicly browsable without authentication
+        settings:
+          type: object
+          additionalProperties: true
+          description: Namespace-specific settings (e.g. auto-approve)
 
     ErrorResponse:
       type: object
