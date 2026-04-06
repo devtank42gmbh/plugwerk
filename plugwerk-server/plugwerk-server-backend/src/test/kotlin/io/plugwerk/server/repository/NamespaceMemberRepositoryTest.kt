@@ -42,7 +42,7 @@ class NamespaceMemberRepositoryTest : AbstractRepositoryTest() {
 
     @BeforeEach
     fun setup() {
-        namespace = namespaceRepository.save(NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp"))
+        namespace = namespaceRepository.save(NamespaceEntity(slug = "acme", name = "ACME Corp"))
     }
 
     private fun member(subject: String, role: NamespaceRole = NamespaceRole.MEMBER) =
@@ -125,7 +125,7 @@ class NamespaceMemberRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `same subject may be member in different namespaces`() {
-        val other = namespaceRepository.save(NamespaceEntity(slug = "other", ownerOrg = "Other"))
+        val other = namespaceRepository.save(NamespaceEntity(slug = "other", name = "Other"))
         memberRepository.save(member("alice", NamespaceRole.ADMIN))
         memberRepository.flush()
 

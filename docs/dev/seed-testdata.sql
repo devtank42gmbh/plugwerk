@@ -30,10 +30,10 @@ ON CONFLICT (username) DO NOTHING;
 -- ============================================================
 -- Namespaces
 -- ============================================================
-INSERT INTO namespace (id, slug, owner_org, public_catalog) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'default',    'Plugwerk',               true),
-  ('00000000-0000-0000-0000-000000000002', 'acme-corp',  'ACME Corporation',       false),
-  ('00000000-0000-0000-0000-000000000003', 'community',  'Community Contributors', true)
+INSERT INTO namespace (id, slug, name, description, public_catalog) VALUES
+  ('00000000-0000-0000-0000-000000000001', 'default',    'Plugwerk',               'Default namespace',              true),
+  ('00000000-0000-0000-0000-000000000002', 'acme-corp',  'ACME Corporation',       'ACME Corp plugin namespace',     false),
+  ('00000000-0000-0000-0000-000000000003', 'community',  'Community Contributors', 'Community contributed plugins',  true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================

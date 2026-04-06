@@ -108,7 +108,8 @@ export function NamespaceDetailView({ slug, onBack, onToast }: NamespaceDetailVi
 }
 
 function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDetailViewProps['onToast'] }) {
-  const [ownerOrg, setOwnerOrg] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [publicCatalog, setPublicCatalog] = useState(false)
   const [autoApprove, setAutoApprove] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -120,7 +121,8 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
         const res = await namespacesApi.listNamespaces()
         const ns = res.data.find((n) => n.slug === slug)
         if (ns) {
-          setOwnerOrg(ns.ownerOrg ?? '')
+          setName(ns.name ?? '')
+          setDescription(ns.description ?? '')
           setPublicCatalog(ns.publicCatalog ?? false)
           setAutoApprove(ns.autoApproveReleases ?? false)
         }
@@ -131,12 +133,14 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
   }, [slug])
 
   async function handleSave() {
+    if (!name.trim()) return
     setSaving(true)
     try {
       await namespacesApi.updateNamespace({
         ns: slug,
         namespaceUpdateRequest: {
-          ownerOrg: ownerOrg.trim() || undefined,
+          name: name.trim(),
+          description: description.trim() || undefined,
           publicCatalog,
           autoApproveReleases: autoApprove,
         },
@@ -154,10 +158,20 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <TextField
-        label="Owner Organisation"
-        value={ownerOrg}
-        onChange={(e) => setOwnerOrg(e.target.value)}
+        label="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
         size="small"
+        sx={{ maxWidth: 400 }}
+      />
+      <TextField
+        label="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        size="small"
+        multiline
+        minRows={2}
         sx={{ maxWidth: 400 }}
       />
       <FormControlLabel
@@ -183,7 +197,7 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
       <Button
         variant="contained"
         onClick={handleSave}
-        disabled={saving}
+        disabled={saving || !name.trim()}
         sx={{ alignSelf: 'flex-start' }}
       >
         {saving ? 'Saving\u2026' : 'Save'}

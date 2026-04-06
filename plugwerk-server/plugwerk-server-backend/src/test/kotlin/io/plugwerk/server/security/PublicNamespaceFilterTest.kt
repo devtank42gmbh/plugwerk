@@ -55,7 +55,7 @@ class PublicNamespaceFilterTest {
     }
 
     private fun namespaceEntity(slug: String, publicCatalog: Boolean) =
-        NamespaceEntity(slug = slug, ownerOrg = "test-org", publicCatalog = publicCatalog)
+        NamespaceEntity(slug = slug, name = "test-org", publicCatalog = publicCatalog)
 
     @Test
     fun `GET on public namespace sets AnonymousAuthenticationToken`() {

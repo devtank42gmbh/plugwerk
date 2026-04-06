@@ -85,7 +85,7 @@ class ManagementControllerTest {
 
     @Autowired private lateinit var mockMvc: MockMvc
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
     private val plugin = PluginEntity(
         id = UUID.randomUUID(),
         namespace = namespace,

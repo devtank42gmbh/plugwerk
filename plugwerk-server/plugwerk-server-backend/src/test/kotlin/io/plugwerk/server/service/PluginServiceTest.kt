@@ -56,7 +56,7 @@ class PluginServiceTest {
     @InjectMocks
     lateinit var pluginService: PluginService
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
 
     @Test
     fun `findByNamespaceAndPluginId returns plugin when it exists`() {

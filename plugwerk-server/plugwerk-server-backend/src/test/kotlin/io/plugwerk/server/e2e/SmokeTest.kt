@@ -101,7 +101,7 @@ class SmokeTest {
         mockMvc.post("/api/v1/namespaces") {
             header("Authorization", authHeader)
             contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(mapOf("slug" to namespace, "ownerOrg" to "Smoke Test"))
+            content = objectMapper.writeValueAsString(mapOf("slug" to namespace, "name" to "Smoke Test"))
         }.andExpect {
             status { isCreated() }
         }

@@ -77,9 +77,9 @@ export function NamespacesSection() {
       render: (ns) => <Typography variant="body2" fontWeight={500}>{ns.slug}</Typography>,
     },
     {
-      key: 'owner',
-      header: 'Owner',
-      render: (ns) => <Typography variant="caption" color="text.secondary">{ns.ownerOrg || '\u2014'}</Typography>,
+      key: 'name',
+      header: 'Name',
+      render: (ns) => <Typography variant="caption" color="text.secondary">{ns.name || '\u2014'}</Typography>,
     },
     {
       key: 'actions',
@@ -98,13 +98,24 @@ export function NamespacesSection() {
     },
   ]
 
+  const snackbar = (
+    <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+      <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
+        {toast?.message}
+      </Alert>
+    </Snackbar>
+  )
+
   if (editingSlug) {
     return (
-      <NamespaceDetailView
-        slug={editingSlug}
-        onBack={() => setEditingSlug(null)}
-        onToast={setToast}
-      />
+      <>
+        <NamespaceDetailView
+          slug={editingSlug}
+          onBack={() => setEditingSlug(null)}
+          onToast={setToast}
+        />
+        {snackbar}
+      </>
     )
   }
 
@@ -149,11 +160,7 @@ export function NamespacesSection() {
         onError={(msg) => setToast({ message: msg, severity: 'error' })}
       />
 
-      <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
+      {snackbar}
     </Box>
   )
 }

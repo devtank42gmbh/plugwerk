@@ -39,7 +39,7 @@ open class NamespaceAccessKeyRepositoryTest : AbstractRepositoryTest() {
 
     @BeforeEach
     fun setup() {
-        namespace = namespaceRepository.save(NamespaceEntity(slug = "apikey-ns", ownerOrg = "Org"))
+        namespace = namespaceRepository.save(NamespaceEntity(slug = "apikey-ns", name = "Org"))
     }
 
     @Test

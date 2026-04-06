@@ -101,7 +101,7 @@ class NamespaceServiceIntegrationTest {
         val found = namespaceService.findBySlug("int-ns")
 
         assertThat(found.id).isEqualTo(created.id)
-        assertThat(found.ownerOrg).isEqualTo("Integration Org")
+        assertThat(found.name).isEqualTo("Integration Org")
     }
 
     @Test
@@ -114,13 +114,13 @@ class NamespaceServiceIntegrationTest {
     }
 
     @Test
-    fun `update changes ownerOrg in database`() {
+    fun `update changes name in database`() {
         namespaceService.create("upd-ns", "Old Org")
 
-        namespaceService.update("upd-ns", ownerOrg = "New Org")
+        namespaceService.update("upd-ns", name = "New Org")
 
         val found = namespaceService.findBySlug("upd-ns")
-        assertThat(found.ownerOrg).isEqualTo("New Org")
+        assertThat(found.name).isEqualTo("New Org")
     }
 
     @Test

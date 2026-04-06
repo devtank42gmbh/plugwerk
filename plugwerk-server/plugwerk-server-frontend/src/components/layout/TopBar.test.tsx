@@ -45,7 +45,7 @@ describe('TopBar', () => {
     vi.clearAllMocks()
     useAuthStore.setState({ accessToken: 'tok', username: 'alice', isAuthenticated: true, namespace: 'acme' })
     useNamespaceStore.setState({
-      namespaces: [{ slug: 'acme', ownerOrg: 'ACME' }, { slug: 'beta', ownerOrg: 'Beta Inc' }],
+      namespaces: [{ slug: 'acme', name: 'ACME' }, { slug: 'beta', name: 'Beta Inc' }],
       loading: false,
       error: null,
     })

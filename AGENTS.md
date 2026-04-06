@@ -173,7 +173,7 @@ plugwerk/
 ### Core Data Model
 
 ```
-Namespace (slug, owner_org, settings JSON)
+Namespace (slug, name, description, settings JSON)
   └── Plugin (plugin_id unique per ns, tags[], status)
         └── PluginRelease (SemVer version, artifact_sha256, requires_system_version,
         │                   plugin_dependencies JSON, status: draft/published/deprecated/yanked)

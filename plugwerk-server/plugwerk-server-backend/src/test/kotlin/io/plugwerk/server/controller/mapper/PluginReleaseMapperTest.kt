@@ -34,7 +34,7 @@ class PluginReleaseMapperTest {
     private val objectMapper = ObjectMapper()
     private val mapper = PluginReleaseMapper(objectMapper)
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
     private val plugin = PluginEntity(
         id = UUID.randomUUID(),
         namespace = namespace,

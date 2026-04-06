@@ -41,7 +41,7 @@ open class PluginRepositoryTest : AbstractRepositoryTest() {
 
     @BeforeEach
     fun setup() {
-        namespace = namespaceRepository.save(NamespaceEntity(slug = "test-ns", ownerOrg = "Test Org"))
+        namespace = namespaceRepository.save(NamespaceEntity(slug = "test-ns", name = "Test Org"))
     }
 
     @Test
@@ -66,7 +66,7 @@ open class PluginRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `findAllByNamespace returns only plugins of that namespace`() {
-        val otherNamespace = namespaceRepository.save(NamespaceEntity(slug = "other-ns", ownerOrg = "Other Org"))
+        val otherNamespace = namespaceRepository.save(NamespaceEntity(slug = "other-ns", name = "Other Org"))
         pluginRepository.save(PluginEntity(namespace = namespace, pluginId = "plugin-a", name = "Plugin A"))
         pluginRepository.save(PluginEntity(namespace = namespace, pluginId = "plugin-b", name = "Plugin B"))
         pluginRepository.save(PluginEntity(namespace = otherNamespace, pluginId = "plugin-c", name = "Plugin C"))
@@ -132,7 +132,7 @@ open class PluginRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `same pluginId is allowed in different namespaces`() {
-        val otherNamespace = namespaceRepository.save(NamespaceEntity(slug = "ns-two", ownerOrg = "Org Two"))
+        val otherNamespace = namespaceRepository.save(NamespaceEntity(slug = "ns-two", name = "Org Two"))
 
         pluginRepository.save(PluginEntity(namespace = namespace, pluginId = "shared-id", name = "Plugin in NS1"))
         pluginRepository.saveAndFlush(
