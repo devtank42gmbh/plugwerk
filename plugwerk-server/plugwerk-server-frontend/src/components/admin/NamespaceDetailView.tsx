@@ -433,11 +433,12 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   async function handleCreate() {
     setCreating(true)
     try {
+      const parsedExpiry = expiresAt ? new Date(expiresAt).toISOString() : undefined
       const res = await accessKeysApi.createAccessKey({
         ns: slug,
         accessKeyCreateRequest: {
           name: keyName.trim() || undefined,
-          expiresAt: expiresAt || undefined,
+          expiresAt: parsedExpiry,
         },
       })
       setNewKey(res.data.key)
