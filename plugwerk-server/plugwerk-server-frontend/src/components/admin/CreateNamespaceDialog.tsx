@@ -41,7 +41,8 @@ interface CreateNamespaceDialogProps {
 
 export function CreateNamespaceDialog({ open, onClose, onCreated, onError }: CreateNamespaceDialogProps) {
   const [slug, setSlug] = useState('')
-  const [ownerOrg, setOwnerOrg] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [saving, setSaving] = useState(false)
   const [slugError, setSlugError] = useState<string | null>(null)
 
@@ -56,19 +57,21 @@ export function CreateNamespaceDialog({ open, onClose, onCreated, onError }: Cre
 
   function handleClose() {
     setSlug('')
-    setOwnerOrg('')
+    setName('')
+    setDescription('')
     setSlugError(null)
     onClose()
   }
 
   async function handleCreate() {
-    if (!slug.trim() || !SLUG_PATTERN.test(slug)) return
+    if (!slug.trim() || !SLUG_PATTERN.test(slug) || !name.trim()) return
     setSaving(true)
     try {
       const res = await namespacesApi.createNamespace({
         namespaceCreateRequest: {
           slug: slug.trim(),
-          ownerOrg: ownerOrg.trim() || undefined,
+          name: name.trim(),
+          description: description.trim() || undefined,
         },
       })
       onCreated(res.data)
@@ -100,10 +103,20 @@ export function CreateNamespaceDialog({ open, onClose, onCreated, onError }: Cre
             helperText={slugError ?? 'Lowercase alphanumeric with hyphens, 2\u201364 characters.'}
           />
           <TextField
-            label="Owner Organisation"
-            value={ownerOrg}
-            onChange={(e) => setOwnerOrg(e.target.value)}
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
             size="small"
+            helperText="Human-readable display name for this namespace."
+          />
+          <TextField
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            size="small"
+            multiline
+            minRows={2}
           />
         </Box>
       </DialogContent>
@@ -112,7 +125,7 @@ export function CreateNamespaceDialog({ open, onClose, onCreated, onError }: Cre
         <Button
           variant="contained"
           onClick={handleCreate}
-          disabled={saving || !slug.trim() || !!slugError}
+          disabled={saving || !slug.trim() || !name.trim() || !!slugError}
         >
           {saving ? 'Creating\u2026' : 'Create'}
         </Button>

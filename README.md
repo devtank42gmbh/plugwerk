@@ -88,7 +88,7 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
 curl -s -X POST http://localhost:8080/api/v1/namespaces \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"slug":"myproduct","ownerOrg":"My Company"}'
+  -d '{"slug":"myproduct","name":"My Company","description":"My Company plugin namespace"}'
 ```
 
 ### Upload and publish a plugin

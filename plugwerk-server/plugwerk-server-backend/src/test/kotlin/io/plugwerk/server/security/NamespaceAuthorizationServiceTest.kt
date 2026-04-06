@@ -56,7 +56,7 @@ class NamespaceAuthorizationServiceTest {
     private lateinit var service: NamespaceAuthorizationService
 
     private val nsId = UUID.randomUUID()
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME").also { it.id = nsId }
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME").also { it.id = nsId }
 
     private fun auth(subject: String) = TestingAuthenticationToken(subject, "")
 

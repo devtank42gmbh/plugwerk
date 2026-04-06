@@ -48,7 +48,7 @@ class Pf4jCompatibilityServiceTest {
 
     lateinit var pf4jCompatibilityService: Pf4jCompatibilityService
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
     private val plugin =
         PluginEntity(namespace = namespace, pluginId = "my-plugin", name = "My Plugin", description = "A plugin")
 

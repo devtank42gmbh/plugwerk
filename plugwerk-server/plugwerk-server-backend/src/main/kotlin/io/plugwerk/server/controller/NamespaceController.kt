@@ -56,7 +56,8 @@ class NamespaceController(
         return try {
             val entity = namespaceService.create(
                 slug = namespaceCreateRequest.slug,
-                ownerOrg = namespaceCreateRequest.ownerOrg ?: "default",
+                name = namespaceCreateRequest.name,
+                description = namespaceCreateRequest.description,
             )
             ResponseEntity.created(URI("/api/v1/namespaces/${entity.slug}")).body(entity.toSummary())
         } catch (_: NamespaceAlreadyExistsException) {
@@ -73,7 +74,8 @@ class NamespaceController(
         namespaceAuthorizationService.requireRole(ns, auth, NamespaceRole.ADMIN)
         val entity = namespaceService.update(
             slug = ns,
-            ownerOrg = namespaceUpdateRequest.ownerOrg,
+            name = namespaceUpdateRequest.name,
+            description = namespaceUpdateRequest.description,
             publicCatalog = namespaceUpdateRequest.publicCatalog,
             autoApproveReleases = namespaceUpdateRequest.autoApproveReleases,
         )
@@ -90,7 +92,8 @@ class NamespaceController(
 
     private fun NamespaceEntity.toSummary(): NamespaceSummary = NamespaceSummary(
         slug = slug,
-        ownerOrg = ownerOrg,
+        name = name,
+        description = description,
         publicCatalog = publicCatalog,
         autoApproveReleases = autoApproveReleases,
         createdAt = createdAt,

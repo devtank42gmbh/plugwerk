@@ -83,7 +83,7 @@ echo "--- Creating namespace: $NAMESPACE ---"
 curl -sf -X POST "$BASE_URL/api/v1/namespaces" \
   -H "$AUTH_HEADER" \
   -H "Content-Type: application/json" \
-  -d "{\"slug\":\"$NAMESPACE\",\"ownerOrg\":\"Smoke Test\"}" > /dev/null
+  -d "{\"slug\":\"$NAMESPACE\",\"name\":\"Smoke Test\"}" > /dev/null
 echo "Namespace created"
 
 # --------------------------------------------------------------------------- #

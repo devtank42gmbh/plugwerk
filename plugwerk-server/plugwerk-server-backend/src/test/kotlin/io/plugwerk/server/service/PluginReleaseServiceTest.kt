@@ -65,7 +65,7 @@ class PluginReleaseServiceTest {
     lateinit var releaseService: PluginReleaseService
 
     private val namespaceId = UUID.fromString("00000000-0000-0000-0000-000000000001")
-    private val namespace = NamespaceEntity(id = namespaceId, slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(id = namespaceId, slug = "acme", name = "ACME Corp")
     private val plugin = PluginEntity(namespace = namespace, pluginId = "my-plugin", name = "My Plugin")
 
     private val properties = PlugwerkProperties(

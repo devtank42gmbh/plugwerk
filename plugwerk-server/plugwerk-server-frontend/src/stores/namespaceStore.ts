@@ -21,7 +21,8 @@ import { axiosInstance } from '../api/config'
 
 interface NamespaceSummary {
   slug: string
-  ownerOrg: string
+  name: string
+  description?: string
 }
 
 interface NamespaceState {

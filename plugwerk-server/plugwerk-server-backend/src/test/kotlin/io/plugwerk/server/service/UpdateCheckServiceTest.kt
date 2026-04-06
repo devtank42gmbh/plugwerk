@@ -49,7 +49,7 @@ class UpdateCheckServiceTest {
     @InjectMocks
     lateinit var updateCheckService: UpdateCheckService
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
     private val plugin = PluginEntity(namespace = namespace, pluginId = "my-plugin", name = "My Plugin")
 
     private fun release(version: String, status: ReleaseStatus = ReleaseStatus.PUBLISHED) = PluginReleaseEntity(

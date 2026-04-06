@@ -35,14 +35,14 @@ open class NamespaceRepositoryTest : AbstractRepositoryTest() {
     fun `findBySlug returns namespace when slug exists`() {
         val namespace =
             namespaceRepository.save(
-                NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp"),
+                NamespaceEntity(slug = "acme", name = "ACME Corp"),
             )
 
         val found = namespaceRepository.findBySlug("acme")
 
         assertThat(found).isPresent
         assertThat(found.get().id).isEqualTo(namespace.id!!)
-        assertThat(found.get().ownerOrg).isEqualTo("ACME Corp")
+        assertThat(found.get().name).isEqualTo("ACME Corp")
     }
 
     @Test
@@ -54,7 +54,7 @@ open class NamespaceRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `existsBySlug returns true when slug exists`() {
-        namespaceRepository.save(NamespaceEntity(slug = "exists-ns", ownerOrg = "Org"))
+        namespaceRepository.save(NamespaceEntity(slug = "exists-ns", name = "Org"))
 
         assertThat(namespaceRepository.existsBySlug("exists-ns")).isTrue()
         assertThat(namespaceRepository.existsBySlug("missing-ns")).isFalse()
@@ -66,7 +66,7 @@ open class NamespaceRepositoryTest : AbstractRepositoryTest() {
             namespaceRepository.save(
                 NamespaceEntity(
                     slug = "ns-with-auto-approve",
-                    ownerOrg = "Org",
+                    name = "Org",
                     autoApproveReleases = true,
                 ),
             )
@@ -78,17 +78,17 @@ open class NamespaceRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `save fails on duplicate slug`() {
-        namespaceRepository.save(NamespaceEntity(slug = "duplicate", ownerOrg = "Org A"))
+        namespaceRepository.save(NamespaceEntity(slug = "duplicate", name = "Org A"))
         namespaceRepository.flush()
 
         assertFailsWith<DataIntegrityViolationException> {
-            namespaceRepository.saveAndFlush(NamespaceEntity(slug = "duplicate", ownerOrg = "Org B"))
+            namespaceRepository.saveAndFlush(NamespaceEntity(slug = "duplicate", name = "Org B"))
         }
     }
 
     @Test
     fun `delete removes namespace`() {
-        val namespace = namespaceRepository.save(NamespaceEntity(slug = "to-delete", ownerOrg = "Org"))
+        val namespace = namespaceRepository.save(NamespaceEntity(slug = "to-delete", name = "Org"))
 
         namespaceRepository.delete(namespace)
 

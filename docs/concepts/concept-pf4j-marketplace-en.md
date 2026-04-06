@@ -296,7 +296,8 @@ Namespace
 ├── slug (unique, e.g. "acme-crm")
 ├── display_name
 ├── description
-├── owner_organization_id
+├── name
+├── description
 ├── settings (JSON: review_required, auto_approve, etc.)
 └── api_keys[]
 

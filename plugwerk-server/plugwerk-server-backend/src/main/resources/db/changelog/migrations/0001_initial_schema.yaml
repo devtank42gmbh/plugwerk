@@ -20,10 +20,13 @@ databaseChangeLog:
                     unique: true
                     uniqueConstraintName: uq_namespace_slug
               - column:
-                  name: owner_org
+                  name: name
                   type: varchar(255)
                   constraints:
                     nullable: false
+              - column:
+                  name: description
+                  type: text
               - column:
                   name: auto_approve_releases
                   type: boolean

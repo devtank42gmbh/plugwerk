@@ -61,13 +61,13 @@ class NamespaceServiceTest {
 
     @Test
     fun `findBySlug returns namespace when it exists`() {
-        val entity = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+        val entity = NamespaceEntity(slug = "acme", name = "ACME Corp")
         whenever(namespaceRepository.findBySlug("acme")).thenReturn(Optional.of(entity))
 
         val result = namespaceService.findBySlug("acme")
 
         assertThat(result.slug).isEqualTo("acme")
-        assertThat(result.ownerOrg).isEqualTo("ACME Corp")
+        assertThat(result.name).isEqualTo("ACME Corp")
     }
 
     @Test
@@ -82,7 +82,7 @@ class NamespaceServiceTest {
     @Test
     fun `create saves and returns new namespace`() {
         whenever(namespaceRepository.existsBySlug("new-ns")).thenReturn(false)
-        val saved = NamespaceEntity(slug = "new-ns", ownerOrg = "Org")
+        val saved = NamespaceEntity(slug = "new-ns", name = "Org")
         whenever(namespaceRepository.save(any<NamespaceEntity>())).thenReturn(saved)
 
         val result = namespaceService.create("new-ns", "Org")
@@ -103,20 +103,20 @@ class NamespaceServiceTest {
     }
 
     @Test
-    fun `update changes ownerOrg and autoApproveReleases`() {
-        val entity = NamespaceEntity(slug = "acme", ownerOrg = "Old Org")
+    fun `update changes name and autoApproveReleases`() {
+        val entity = NamespaceEntity(slug = "acme", name = "Old Org")
         whenever(namespaceRepository.findBySlug("acme")).thenReturn(Optional.of(entity))
         whenever(namespaceRepository.save(any<NamespaceEntity>())).thenReturn(entity)
 
-        namespaceService.update("acme", ownerOrg = "New Org", autoApproveReleases = true)
+        namespaceService.update("acme", name = "New Org", autoApproveReleases = true)
 
-        assertThat(entity.ownerOrg).isEqualTo("New Org")
+        assertThat(entity.name).isEqualTo("New Org")
         assertThat(entity.autoApproveReleases).isTrue()
     }
 
     @Test
     fun `delete removes storage artifacts and namespace`() {
-        val namespace = NamespaceEntity(slug = "to-delete", ownerOrg = "Org")
+        val namespace = NamespaceEntity(slug = "to-delete", name = "Org")
         whenever(namespaceRepository.findBySlug("to-delete")).thenReturn(Optional.of(namespace))
 
         val plugin1 = PluginEntity(namespace = namespace, pluginId = "p1", name = "P1")
@@ -151,7 +151,7 @@ class NamespaceServiceTest {
 
     @Test
     fun `delete continues when storage deletion fails for individual artifacts`() {
-        val namespace = NamespaceEntity(slug = "ns", ownerOrg = "Org")
+        val namespace = NamespaceEntity(slug = "ns", name = "Org")
         whenever(namespaceRepository.findBySlug("ns")).thenReturn(Optional.of(namespace))
 
         val plugin = PluginEntity(namespace = namespace, pluginId = "p1", name = "P1")
@@ -184,7 +184,7 @@ class NamespaceServiceTest {
 
     @Test
     fun `delete works for namespace with no plugins`() {
-        val namespace = NamespaceEntity(slug = "empty", ownerOrg = "Org")
+        val namespace = NamespaceEntity(slug = "empty", name = "Org")
         whenever(namespaceRepository.findBySlug("empty")).thenReturn(Optional.of(namespace))
         whenever(pluginRepository.findAllByNamespace(namespace)).thenReturn(emptyList())
 

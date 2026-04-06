@@ -43,7 +43,7 @@ class DownloadEventServiceTest {
 
     private lateinit var service: DownloadEventService
 
-    private val namespace = NamespaceEntity(slug = "acme", ownerOrg = "ACME Corp")
+    private val namespace = NamespaceEntity(slug = "acme", name = "ACME Corp")
     private val plugin = PluginEntity(namespace = namespace, pluginId = "my-plugin", name = "My Plugin")
     private val release = PluginReleaseEntity(
         plugin = plugin,

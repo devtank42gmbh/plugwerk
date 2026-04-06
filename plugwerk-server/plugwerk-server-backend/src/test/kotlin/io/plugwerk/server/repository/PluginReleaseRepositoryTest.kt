@@ -45,7 +45,7 @@ open class PluginReleaseRepositoryTest : AbstractRepositoryTest() {
 
     @BeforeEach
     fun setup() {
-        val namespace = namespaceRepository.save(NamespaceEntity(slug = "release-ns", ownerOrg = "Org"))
+        val namespace = namespaceRepository.save(NamespaceEntity(slug = "release-ns", name = "Org"))
         plugin = pluginRepository.save(PluginEntity(namespace = namespace, pluginId = "my-plugin", name = "My Plugin"))
     }
 

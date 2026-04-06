@@ -227,7 +227,7 @@ not an API key:
 curl -s -X POST http://localhost:8080/api/v1/namespaces \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"slug":"default","ownerOrg":"default"}'
+  -d '{"slug":"default","name":"default","description":"Default namespace"}'
 ```
 
 If the namespace already exists the server returns HTTP 409 — that is fine.
