@@ -183,6 +183,25 @@ java -jar *-fat.jar --server=http://localhost:8080 list
 
 ---
 
+### API key vs. JWT scope
+
+| Operation | API Key (`X-Api-Key`) | JWT (`Authorization: Bearer`) |
+|-----------|:---:|:---:|
+| List / search / download plugins | ✅ | ✅ |
+| Upload plugin releases | ✅ | ✅ |
+| Approve / reject releases | ✅ | ✅ |
+| Delete plugins / releases | ✅ | ✅ |
+| Manage namespace members | ✅ | ✅ |
+| Manage access keys | ✅ | ✅ |
+| **Create / delete namespaces** | ❌ (requires superadmin) | ✅ (if superadmin) |
+| **Manage users / OIDC** | ❌ (requires superadmin) | ✅ (if superadmin) |
+
+> API keys are scoped to **one namespace** and grant implicit ADMIN within that
+> namespace. Server-level administration (namespaces, users, OIDC) always requires
+> a JWT from a superadmin account.
+
+---
+
 ## Uploading Example Plugins to the Server
 
 ### 1. Build the plugin ZIPs
@@ -199,9 +218,12 @@ Artifacts are written to each module's `build/pf4j/` directory:
 
 ### 2. Create a namespace (if it does not exist yet)
 
+Creating a namespace requires **superadmin** privileges — use a JWT Bearer token,
+not an API key:
+
 ```bash
 curl -s -X POST http://localhost:8080/api/v1/namespaces \
-  -H "X-Api-Key: $API_KEY" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"slug":"default","ownerOrg":"default"}'
 ```
@@ -210,6 +232,7 @@ If the namespace already exists the server returns HTTP 409 — that is fine.
 
 ### 3. Upload the plugin releases
 
+Upload and all subsequent namespace-scoped operations can use the API key.
 The server reads the `MANIFEST.MF` metadata embedded inside the JAR
 (within the ZIP) automatically. No manual metadata entry is required.
 
@@ -232,7 +255,7 @@ A successful upload returns HTTP 201 with the release details in JSON.
 ### 4. Publish the releases (DRAFT → PUBLISHED)
 
 Newly uploaded releases have status `DRAFT` and are not visible in the catalog
-until explicitly published. Use the management API to approve them:
+until explicitly published:
 
 ```bash
 # Get the release ID from the upload response, or look it up:
@@ -251,13 +274,13 @@ are installable via the CLI.
 ### 5. Verify uploads via the catalog API
 
 ```bash
-# List all plugins in the namespace (latestVersion is only set once PUBLISHED)
+# List all plugins (public namespace — no auth needed)
 curl -s "http://localhost:8080/api/v1/namespaces/default/plugins" | jq .
 
 # Show a specific plugin with its releases
 curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/io.plugwerk.example.cli.hello" | jq .
 
-# Show the release detail (includes the release ID needed for approval)
+# Show release detail (draft releases require auth)
 curl -s "http://localhost:8080/api/v1/namespaces/default/plugins/io.plugwerk.example.cli.hello/releases/0.1.0-SNAPSHOT" \
   -H "X-Api-Key: $API_KEY" | jq .
 ```
