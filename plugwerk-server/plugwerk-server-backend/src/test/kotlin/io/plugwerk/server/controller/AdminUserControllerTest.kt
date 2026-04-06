@@ -112,6 +112,43 @@ class AdminUserControllerTest {
     }
 
     @Test
+    fun `GET admin users with enabled=true returns only enabled users`() {
+        val enabledUser = stubUser("alice", enabled = true)
+        whenever(userService.findAllByEnabled(true)).thenReturn(listOf(enabledUser))
+
+        mockMvc.get("/api/v1/admin/users?enabled=true").andExpect {
+            status { isOk() }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[0].username") { value("alice") }
+            jsonPath("$[0].enabled") { value(true) }
+        }
+    }
+
+    @Test
+    fun `GET admin users with enabled=false returns only disabled users`() {
+        val disabledUser = stubUser("bob", enabled = false)
+        whenever(userService.findAllByEnabled(false)).thenReturn(listOf(disabledUser))
+
+        mockMvc.get("/api/v1/admin/users?enabled=false").andExpect {
+            status { isOk() }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[0].username") { value("bob") }
+            jsonPath("$[0].enabled") { value(false) }
+        }
+    }
+
+    @Test
+    fun `GET admin users without enabled param returns all users`() {
+        val users = listOf(stubUser("alice", enabled = true), stubUser("bob", enabled = false))
+        whenever(userService.findAll()).thenReturn(users)
+
+        mockMvc.get("/api/v1/admin/users").andExpect {
+            status { isOk() }
+            jsonPath("$.length()") { value(2) }
+        }
+    }
+
+    @Test
     fun `GET admin users returns empty list when no users`() {
         whenever(userService.findAll()).thenReturn(emptyList())
 

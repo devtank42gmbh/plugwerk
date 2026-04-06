@@ -1010,6 +1010,13 @@ paths:
       operationId: listUsers
       security:
         - BearerAuth: []
+      parameters:
+        - name: enabled
+          in: query
+          required: false
+          description: Filter by enabled state. When omitted, all users are returned.
+          schema:
+            type: boolean
       responses:
         '200':
           description: List of all local users

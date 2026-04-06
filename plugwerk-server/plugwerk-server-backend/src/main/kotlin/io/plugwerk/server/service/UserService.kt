@@ -33,6 +33,9 @@ class UserService(private val userRepository: UserRepository, private val passwo
     fun findAll(): List<UserEntity> = userRepository.findAll()
 
     @Transactional(readOnly = true)
+    fun findAllByEnabled(enabled: Boolean): List<UserEntity> = userRepository.findAllByEnabled(enabled)
+
+    @Transactional(readOnly = true)
     fun findById(id: UUID): UserEntity =
         userRepository.findById(id).orElseThrow { EntityNotFoundException("User", id.toString()) }
 
