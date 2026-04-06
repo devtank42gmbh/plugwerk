@@ -54,11 +54,11 @@ public class PluginManagerFactory {
    * @param pluginsDir directory containing the {@code plugwerk-client-plugin-*.zip}
    * @param serverUrl Plugwerk server base URL (e.g. {@code http://localhost:8080})
    * @param namespace namespace slug (e.g. {@code default})
-   * @param accessToken optional Bearer token for authenticated servers (may be null or blank)
+   * @param apiKey optional namespace-scoped API key (may be null or blank)
    * @return started plugin manager ready for marketplace queries
    */
   public static PluginManager create(
-      Path pluginsDir, String serverUrl, String namespace, String accessToken) {
+      Path pluginsDir, String serverUrl, String namespace, String apiKey) {
     log.debug(
         "Starting PF4J plugin manager with plugins directory: {}", pluginsDir.toAbsolutePath());
 
@@ -77,8 +77,8 @@ public class PluginManagerFactory {
     PlugwerkConfig.Builder configBuilder =
         new PlugwerkConfig.Builder(serverUrl, namespace)
             .pluginDirectory(pluginsDir.toAbsolutePath());
-    if (accessToken != null && !accessToken.isBlank()) {
-      configBuilder.accessToken(accessToken);
+    if (apiKey != null && !apiKey.isBlank()) {
+      configBuilder.apiKey(apiKey);
     }
 
     PluginWrapper wrapper = manager.getPlugin(PLUGIN_ID);

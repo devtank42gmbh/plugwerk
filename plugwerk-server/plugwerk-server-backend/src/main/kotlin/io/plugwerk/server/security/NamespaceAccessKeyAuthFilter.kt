@@ -23,6 +23,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Lazy
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -48,8 +49,9 @@ class NamespaceAccessKeyAuthFilter(
         filterChain: FilterChain,
     ) {
         val apiKey = request.getHeader(HEADER_NAME)
+        val existingAuth = SecurityContextHolder.getContext().authentication
         if (apiKey != null && apiKey.length >= PREFIX_LENGTH &&
-            SecurityContextHolder.getContext().authentication == null
+            (existingAuth == null || existingAuth is AnonymousAuthenticationToken)
         ) {
             val prefix = apiKey.take(PREFIX_LENGTH)
             val candidates = apiKeyRepository.findByKeyPrefixAndRevokedFalse(prefix)
