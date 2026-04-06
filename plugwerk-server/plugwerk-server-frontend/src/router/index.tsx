@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
         path: 'admin',
         element: <ProtectedRoute><AdminSettingsPage /></ProtectedRoute>,
         children: [
-          { index: true,              element: <Navigate to="namespaces" replace /> },
+          { index: true,              element: <Navigate to="global-settings" replace /> },
           { path: 'global-settings',  element: <GeneralSection /> },
           { path: 'namespaces',       element: <NamespacesSection /> },
           { path: 'users',            element: <UsersSection /> },
