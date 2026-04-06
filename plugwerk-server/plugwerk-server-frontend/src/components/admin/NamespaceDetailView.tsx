@@ -445,8 +445,9 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
       setExpiresAt('')
       setCreateOpen(false)
       loadKeys()
-    } catch {
-      onToast({ message: 'Failed to create API key.', severity: 'error' })
+    } catch (error: unknown) {
+      const msg = isAxiosError(error) ? (error.response?.data?.message ?? error.message) : 'Failed to create API key.'
+      onToast({ message: msg, severity: 'error' })
     } finally {
       setCreating(false)
     }
