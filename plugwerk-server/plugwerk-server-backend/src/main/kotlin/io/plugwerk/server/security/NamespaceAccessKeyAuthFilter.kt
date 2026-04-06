@@ -22,6 +22,7 @@ import io.plugwerk.server.repository.NamespaceAccessKeyRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -44,7 +45,8 @@ class NamespaceAccessKeyAuthFilter(private val apiKeyRepository: NamespaceAccess
         filterChain: FilterChain,
     ) {
         val apiKey = request.getHeader(HEADER_NAME)
-        if (apiKey != null && SecurityContextHolder.getContext().authentication == null) {
+        val existingAuth = SecurityContextHolder.getContext().authentication
+        if (apiKey != null && (existingAuth == null || existingAuth is AnonymousAuthenticationToken)) {
             val keyHash = hashApiKey(apiKey)
             apiKeyRepository.findByKeyHash(keyHash)
                 .filter { !it.revoked && (it.expiresAt == null || it.expiresAt!!.isAfter(OffsetDateTime.now())) }
