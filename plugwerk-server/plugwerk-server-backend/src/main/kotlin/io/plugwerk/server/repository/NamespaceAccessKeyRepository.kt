@@ -23,13 +23,14 @@ import io.plugwerk.server.domain.NamespaceEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.util.Optional
 import java.util.UUID
 
 interface NamespaceAccessKeyRepository : JpaRepository<NamespaceAccessKeyEntity, UUID> {
 
-    @Query("SELECT k FROM NamespaceAccessKeyEntity k JOIN FETCH k.namespace WHERE k.keyHash = :keyHash")
-    fun findByKeyHash(@Param("keyHash") keyHash: String): Optional<NamespaceAccessKeyEntity>
+    @Query(
+        "SELECT k FROM NamespaceAccessKeyEntity k JOIN FETCH k.namespace WHERE k.keyPrefix = :keyPrefix AND k.revoked = false",
+    )
+    fun findByKeyPrefixAndRevokedFalse(@Param("keyPrefix") keyPrefix: String): List<NamespaceAccessKeyEntity>
 
     fun findAllByNamespace(namespace: NamespaceEntity): List<NamespaceAccessKeyEntity>
 
