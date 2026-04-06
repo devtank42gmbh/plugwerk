@@ -123,16 +123,32 @@ runs. Only re-copy if you update the SDK version (and delete the extracted direc
 
 ## Authentication
 
-The Plugwerk server requires authentication for write operations (upload,
-approve) and for namespaces configured as non-public.
+Authentication depends on the namespace's visibility setting:
 
-The recommended authentication method for the CLI is a **namespace-scoped API key**.
-API keys are long-lived, do not expire (unless configured), and are scoped to a
-single namespace. See [ADR-0011](../../docs/adrs/0011-client-auth-api-key-strategy.md).
+### Public namespaces (no API key required for read operations)
+
+If the namespace has **public catalog** enabled (`publicCatalog = true`), read-only
+operations (list, search, download) work without authentication:
+
+```bash
+# No --api-key needed for listing plugins in a public namespace
+java -jar *-fat.jar --server=http://localhost:8080 list
+```
+
+> The `default` namespace is public by default (created by the initial migration).
+
+Write operations (upload, approve, delete) **always** require an API key,
+even on public namespaces.
+
+### Private namespaces (API key required for all operations)
+
+For namespaces with `publicCatalog = false`, **all** operations require a
+namespace-scoped API key. See [ADR-0011](../../docs/adrs/0011-client-auth-api-key-strategy.md).
 
 ### Generating an API key
 
-Generate a key via the Plugwerk Web UI (Admin → Namespaces → select namespace → API Keys → Generate Key) or via the API:
+Generate a key via the Plugwerk Web UI (Admin → Namespaces → select namespace →
+API Keys → Generate Key) or via the API:
 
 ```bash
 # Log in to get a JWT (one-time, for key generation only)
@@ -159,6 +175,9 @@ java -jar *-fat.jar --server=http://localhost:8080 --api-key=$API_KEY list
 
 # Option B: environment variable (persists in the shell session)
 export PLUGWERK_API_KEY=$API_KEY
+java -jar *-fat.jar --server=http://localhost:8080 list
+
+# Option C: no key (works for read operations on public namespaces)
 java -jar *-fat.jar --server=http://localhost:8080 list
 ```
 
