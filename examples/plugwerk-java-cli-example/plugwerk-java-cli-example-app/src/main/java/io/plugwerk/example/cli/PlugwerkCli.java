@@ -83,8 +83,16 @@ public class PlugwerkCli implements Runnable {
   public Path pluginsDir;
 
   @Option(
+      names = {"--api-key", "-k"},
+      description =
+          "Namespace-scoped API key for authentication (recommended, env: PLUGWERK_API_KEY)",
+      defaultValue = "${PLUGWERK_API_KEY:}")
+  public String apiKey;
+
+  @Option(
       names = {"--access-token", "-t"},
-      description = "Bearer token for server authentication (env: PLUGWERK_ACCESS_TOKEN)",
+      description =
+          "Bearer token for authentication, e.g. OIDC (fallback, env: PLUGWERK_ACCESS_TOKEN)",
       defaultValue = "${PLUGWERK_ACCESS_TOKEN:}")
   public String accessToken;
 
@@ -105,7 +113,8 @@ public class PlugwerkCli implements Runnable {
   public synchronized PlugwerkMarketplace getMarketplace() {
     if (marketplace == null) {
       if (pluginManager == null) {
-        pluginManager = PluginManagerFactory.create(pluginsDir, serverUrl, namespace, accessToken);
+        pluginManager =
+            PluginManagerFactory.create(pluginsDir, serverUrl, namespace, apiKey, accessToken);
         registerShutdownHook();
       }
       marketplace = PluginManagerFactory.getMarketplace(pluginManager);
