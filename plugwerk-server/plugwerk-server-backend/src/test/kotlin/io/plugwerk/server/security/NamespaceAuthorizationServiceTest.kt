@@ -67,18 +67,30 @@ class NamespaceAuthorizationServiceTest {
     )
 
     @Test
-    fun `access key passes for its own namespace without member table check`() {
+    fun `access key passes READ_ONLY for its own namespace`() {
         val auth = auth("key:acme")
 
-        // No repository interaction expected — should pass without throwing
-        assertThatCode { service.requireRole("acme", auth, NamespaceRole.ADMIN) }.doesNotThrowAnyException()
+        assertThatCode { service.requireRole("acme", auth, NamespaceRole.READ_ONLY) }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `access key is rejected for write operations on its own namespace`() {
+        val auth = auth("key:acme")
+
+        assertThatThrownBy { service.requireRole("acme", auth, NamespaceRole.MEMBER) }
+            .isInstanceOf(ForbiddenException::class.java)
+            .hasMessageContaining("read-only")
+
+        assertThatThrownBy { service.requireRole("acme", auth, NamespaceRole.ADMIN) }
+            .isInstanceOf(ForbiddenException::class.java)
+            .hasMessageContaining("read-only")
     }
 
     @Test
     fun `access key is rejected for a different namespace`() {
         val auth = auth("key:acme-production")
 
-        assertThatThrownBy { service.requireRole("acme-staging", auth, NamespaceRole.ADMIN) }
+        assertThatThrownBy { service.requireRole("acme-staging", auth, NamespaceRole.READ_ONLY) }
             .isInstanceOf(ForbiddenException::class.java)
             .hasMessageContaining("acme-staging")
     }
