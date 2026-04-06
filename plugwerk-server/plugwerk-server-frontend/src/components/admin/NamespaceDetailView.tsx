@@ -411,6 +411,7 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   const [keyName, setKeyName] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
   const [newKey, setNewKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -431,13 +432,16 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   }, [loadKeys])
 
   async function handleCreate() {
+    if (!keyName.trim()) return
     setCreating(true)
+    setCreateError(null)
     try {
+      const parsedExpiry = expiresAt ? new Date(expiresAt).toISOString() : undefined
       const res = await accessKeysApi.createAccessKey({
         ns: slug,
         accessKeyCreateRequest: {
-          name: keyName.trim() || undefined,
-          expiresAt: expiresAt || undefined,
+          name: keyName.trim(),
+          expiresAt: parsedExpiry,
         },
       })
       setNewKey(res.data.key)
@@ -445,8 +449,15 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
       setExpiresAt('')
       setCreateOpen(false)
       loadKeys()
-    } catch {
-      onToast({ message: 'Failed to create API key.', severity: 'error' })
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        setCreateError(`An API key named "${keyName.trim()}" already exists in this namespace.`)
+      } else {
+        const msg = isAxiosError(error)
+          ? (error.response?.data?.message ?? error.message)
+          : 'Failed to create API key.'
+        setCreateError(msg)
+      }
     } finally {
       setCreating(false)
     }
@@ -560,17 +571,19 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
         </Table>
       )}
 
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog open={createOpen} onClose={() => { setCreateOpen(false); setCreateError(null) }} maxWidth="xs" fullWidth>
         <DialogTitle>Generate API Key</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            {createError && <Alert severity="error">{createError}</Alert>}
             <TextField
-              label="Name (optional)"
+              label="Name"
               value={keyName}
-              onChange={(e) => setKeyName(e.target.value)}
+              onChange={(e) => { setKeyName(e.target.value); setCreateError(null) }}
               size="small"
+              required
               autoFocus
-              helperText="A label to identify this key (e.g. 'CI pipeline')."
+              helperText="Unique name to identify this key (e.g. 'CI pipeline')."
             />
             <TextField
               label="Expires (optional)"
@@ -585,7 +598,7 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={creating}>
+          <Button variant="contained" onClick={handleCreate} disabled={creating || !keyName.trim()}>
             {creating ? 'Generating\u2026' : 'Generate'}
           </Button>
         </DialogActions>
