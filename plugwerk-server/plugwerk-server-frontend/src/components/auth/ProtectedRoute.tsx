@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation()
 
   useEffect(() => {
-    if (isAuthenticated && namespace === null) {
+    if (isAuthenticated && namespace === undefined) {
       initNamespace()
     }
   }, [isAuthenticated, namespace, initNamespace])

@@ -23,7 +23,7 @@ import type { NamespaceRole } from '../api/generated/model'
 interface AuthState {
   accessToken: string | null
   username: string | null
-  namespace: string | null
+  namespace: string | null | undefined
   isAuthenticated: boolean
   passwordChangeRequired: boolean
   namespaceRole: NamespaceRole | null
@@ -42,7 +42,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: localStorage.getItem('pw-access-token'),
   username: localStorage.getItem('pw-username'),
-  namespace: localStorage.getItem('pw-namespace'),
+  namespace: undefined,
   isAuthenticated: !!localStorage.getItem('pw-access-token'),
   passwordChangeRequired: localStorage.getItem('pw-password-change-required') === 'true',
   namespaceRole: null,
@@ -81,7 +81,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('pw-access-token')
     localStorage.removeItem('pw-username')
     localStorage.removeItem('pw-password-change-required')
-    set({ accessToken: null, username: null, isAuthenticated: false, passwordChangeRequired: false, namespaceRole: null })
+    localStorage.removeItem('pw-namespace')
+    set({ accessToken: null, username: null, namespace: undefined, isAuthenticated: false, passwordChangeRequired: false, namespaceRole: null })
   },
 
   setNamespace(ns) {
@@ -90,21 +91,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   async initNamespace() {
-    const stored = localStorage.getItem('pw-namespace')
-    if (stored) {
-      set({ namespace: stored })
-      return
-    }
     try {
       const res = await namespacesApi.listNamespaces()
-      if (res.data.length > 0) {
-        const first = res.data[0].slug
-        localStorage.setItem('pw-namespace', first)
-        set({ namespace: first })
+      const slugs = res.data.map((ns) => ns.slug)
+      const stored = localStorage.getItem('pw-namespace')
+      if (stored && slugs.includes(stored)) {
+        set({ namespace: stored })
+      } else if (slugs.length > 0) {
+        localStorage.setItem('pw-namespace', slugs[0])
+        set({ namespace: slugs[0] })
       } else {
+        localStorage.removeItem('pw-namespace')
         set({ namespace: null })
       }
     } catch {
+      localStorage.removeItem('pw-namespace')
       set({ namespace: null })
     }
   },

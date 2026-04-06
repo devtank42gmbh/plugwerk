@@ -39,7 +39,9 @@ import { OnboardingPage } from '../pages/OnboardingPage'
 
 function CatalogRedirect() {
   const namespace = useAuthStore((s) => s.namespace)
-  if (!namespace) return <Navigate to="/onboarding" replace />
+  // undefined = still loading, null = no namespaces, string = ready
+  if (namespace === undefined) return null
+  if (namespace === null) return <Navigate to="/onboarding" replace />
   return <Navigate to={`/namespaces/${namespace}/plugins`} replace />
 }
 

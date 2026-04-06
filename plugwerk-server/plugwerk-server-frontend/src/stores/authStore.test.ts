@@ -26,7 +26,7 @@ describe('useAuthStore', () => {
     useAuthStore.setState({
       accessToken: null,
       username: null,
-      namespace: null,
+      namespace: undefined,
       isAuthenticated: false,
     })
   })
@@ -40,8 +40,8 @@ describe('useAuthStore', () => {
       expect(useAuthStore.getState().accessToken).toBeNull()
     })
 
-    it('has null namespace when nothing in localStorage', () => {
-      expect(useAuthStore.getState().namespace).toBeNull()
+    it('has undefined namespace before initialization', () => {
+      expect(useAuthStore.getState().namespace).toBeUndefined()
     })
   })
 
