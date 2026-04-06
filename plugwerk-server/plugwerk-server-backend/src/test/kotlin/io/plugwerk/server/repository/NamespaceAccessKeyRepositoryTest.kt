@@ -46,7 +46,13 @@ open class NamespaceAccessKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `findByKeyHash returns key when hash exists`() {
+<<<<<<< Updated upstream
         apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "deadbeef01234567", name = "test-key"))
+=======
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "deadbeef01234567", name = "test-key"),
+        )
+>>>>>>> Stashed changes
 
         val found = apiKeyRepository.findByKeyHash("deadbeef01234567")
 
@@ -65,11 +71,21 @@ open class NamespaceAccessKeyRepositoryTest : AbstractRepositoryTest() {
     fun `findAllByNamespaceAndRevokedFalse returns only active keys`() {
         apiKeyRepository.save(
             NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-active-1", name = "key-1", revoked = false),
+<<<<<<< Updated upstream
         )
         apiKeyRepository.save(
             NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-active-2", name = "key-2", revoked = false),
         )
         apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-revoked", name = "key-3", revoked = true))
+=======
+        )
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-active-2", name = "key-2", revoked = false),
+        )
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "hash-revoked", name = "key-3", revoked = true),
+        )
+>>>>>>> Stashed changes
 
         val activeKeys = apiKeyRepository.findAllByNamespaceAndRevokedFalse(namespace)
 
@@ -99,11 +115,23 @@ open class NamespaceAccessKeyRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun `save fails on duplicate key_hash`() {
+<<<<<<< Updated upstream
         apiKeyRepository.save(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash", name = "dup-key"))
         apiKeyRepository.flush()
 
         assertFailsWith<DataIntegrityViolationException> {
             apiKeyRepository.saveAndFlush(NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash", name = "dup-key-2"))
+=======
+        apiKeyRepository.save(
+            NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash", name = "test-key"),
+        )
+        apiKeyRepository.flush()
+
+        assertFailsWith<DataIntegrityViolationException> {
+            apiKeyRepository.saveAndFlush(
+                NamespaceAccessKeyEntity(namespace = namespace, keyHash = "duplicate-hash", name = "test-key"),
+            )
+>>>>>>> Stashed changes
         }
     }
 }
