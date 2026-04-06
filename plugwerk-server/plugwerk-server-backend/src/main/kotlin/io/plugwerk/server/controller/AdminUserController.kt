@@ -39,11 +39,12 @@ class AdminUserController(
     private val namespaceAuthorizationService: NamespaceAuthorizationService,
 ) : AdminUsersApi {
 
-    override fun listUsers(): ResponseEntity<List<UserDto>> {
+    override fun listUsers(enabled: Boolean?): ResponseEntity<List<UserDto>> {
         val auth = SecurityContextHolder.getContext().authentication
             ?: throw UnauthorizedException("Not authenticated")
         namespaceAuthorizationService.requireSuperadmin(auth)
-        return ResponseEntity.ok(userService.findAll().map { it.toDto() })
+        val users = if (enabled != null) userService.findAllByEnabled(enabled) else userService.findAll()
+        return ResponseEntity.ok(users.map { it.toDto() })
     }
 
     override fun createUser(userCreateRequest: UserCreateRequest): ResponseEntity<UserDto> {

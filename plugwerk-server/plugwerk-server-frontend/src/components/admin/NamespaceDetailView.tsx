@@ -225,7 +225,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
     if (!addOpen) return
     async function loadUsers() {
       try {
-        const res = await adminUsersApi.listUsers()
+        const res = await adminUsersApi.listUsers({ enabled: true })
         const existing = new Set(members.map((m) => m.userSubject))
         setUserOptions(
           res.data
