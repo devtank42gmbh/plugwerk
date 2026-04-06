@@ -17,13 +17,13 @@
  * along with Plugwerk. If not, see <https://www.gnu.org/licenses/>.
  */
 import { create } from 'zustand'
-import { namespaceMembersApi } from '../api/config'
+import { namespaceMembersApi, namespacesApi } from '../api/config'
 import type { NamespaceRole } from '../api/generated/model'
 
 interface AuthState {
   accessToken: string | null
   username: string | null
-  namespace: string
+  namespace: string | null | undefined
   isAuthenticated: boolean
   passwordChangeRequired: boolean
   namespaceRole: NamespaceRole | null
@@ -31,6 +31,7 @@ interface AuthState {
   login: (username: string, password: string) => Promise<void>
   logout: () => void
   setNamespace: (ns: string) => void
+  initNamespace: () => Promise<void>
   clearPasswordChangeRequired: () => void
   fetchNamespaceRole: (ns: string) => Promise<void>
 
@@ -41,7 +42,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: localStorage.getItem('pw-access-token'),
   username: localStorage.getItem('pw-username'),
-  namespace: localStorage.getItem('pw-namespace') ?? 'default',
+  namespace: undefined,
   isAuthenticated: !!localStorage.getItem('pw-access-token'),
   passwordChangeRequired: localStorage.getItem('pw-password-change-required') === 'true',
   namespaceRole: null,
@@ -80,12 +81,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('pw-access-token')
     localStorage.removeItem('pw-username')
     localStorage.removeItem('pw-password-change-required')
-    set({ accessToken: null, username: null, isAuthenticated: false, passwordChangeRequired: false, namespaceRole: null })
+    localStorage.removeItem('pw-namespace')
+    set({ accessToken: null, username: null, namespace: undefined, isAuthenticated: false, passwordChangeRequired: false, namespaceRole: null })
   },
 
   setNamespace(ns) {
     localStorage.setItem('pw-namespace', ns)
     set({ namespace: ns, namespaceRole: null })
+  },
+
+  async initNamespace() {
+    try {
+      const res = await namespacesApi.listNamespaces()
+      const slugs = res.data.map((ns) => ns.slug)
+      const stored = localStorage.getItem('pw-namespace')
+      if (stored && slugs.includes(stored)) {
+        set({ namespace: stored })
+      } else if (slugs.length > 0) {
+        localStorage.setItem('pw-namespace', slugs[0])
+        set({ namespace: slugs[0] })
+      } else {
+        localStorage.removeItem('pw-namespace')
+        set({ namespace: null })
+      }
+    } catch {
+      localStorage.removeItem('pw-namespace')
+      set({ namespace: null })
+    }
   },
 
   clearPasswordChangeRequired() {

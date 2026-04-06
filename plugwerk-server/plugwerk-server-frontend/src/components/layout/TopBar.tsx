@@ -112,39 +112,43 @@ export function TopBar() {
             aria-label="Main navigation"
             sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5 }}
           >
-            {/* Namespace dropdown — left of Catalog */}
-            <Typography sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
-              Namespace:
-            </Typography>
-            <FilterSelect
-              value={namespace}
-              onChange={handleNamespaceChange}
-              aria-label="Select namespace"
-              minWidth={130}
-            >
-              {namespaces.length > 0
-                ? namespaces.map((ns) => (
-                    <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
-                  ))
-                : <MenuItem value={namespace}>{namespace}</MenuItem>
-              }
-            </FilterSelect>
+            {/* Namespace dropdown, Catalog, Upload — only when a namespace is selected */}
+            {namespace && (
+              <>
+                <Typography sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+                  Namespace:
+                </Typography>
+                <FilterSelect
+                  value={namespace}
+                  onChange={handleNamespaceChange}
+                  aria-label="Select namespace"
+                  minWidth={130}
+                >
+                  {namespaces.length > 0
+                    ? namespaces.map((ns) => (
+                        <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
+                      ))
+                    : <MenuItem value={namespace}>{namespace}</MenuItem>
+                  }
+                </FilterSelect>
 
-            <Button
-              component={Link}
-              to="/"
-              startIcon={<LayoutGrid size={15} color={isActive('/') ? tokens.color.primary : undefined} />}
-              sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
-            >
-              Catalog
-            </Button>
-            <Button
-              onClick={openUploadModal}
-              startIcon={<Upload size={15} />}
-              sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
-            >
-              Upload
-            </Button>
+                <Button
+                  component={Link}
+                  to="/"
+                  startIcon={<LayoutGrid size={15} color={isActive('/') ? tokens.color.primary : undefined} />}
+                  sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
+                >
+                  Catalog
+                </Button>
+                <Button
+                  onClick={openUploadModal}
+                  startIcon={<Upload size={15} />}
+                  sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.875rem' }}
+                >
+                  Upload
+                </Button>
+              </>
+            )}
             <Button
               component={Link}
               to="/admin"
