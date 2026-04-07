@@ -18,6 +18,7 @@
  */
 package io.plugwerk.server.e2e
 
+import io.plugwerk.server.e2e.auth.AbstractAuthorizationTest
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -35,16 +36,12 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.multipart
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import tools.jackson.databind.ObjectMapper
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import kotlin.test.assertNotNull
 
 @Tag("integration")
-@Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("integration")
@@ -52,13 +49,10 @@ import kotlin.test.assertNotNull
 class SmokeTest {
 
     companion object {
-        @Container
-        @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:18-alpine")
-
         @DynamicPropertySource
         @JvmStatic
         fun overrideDataSource(registry: DynamicPropertyRegistry) {
+            val postgres = AbstractAuthorizationTest.postgres
             registry.add("spring.datasource.url", postgres::getJdbcUrl)
             registry.add("spring.datasource.username", postgres::getUsername)
             registry.add("spring.datasource.password", postgres::getPassword)
@@ -121,7 +115,7 @@ class SmokeTest {
             "application/java-archive",
             jarBytes,
         )
-        val uploadResult = mockMvc.multipart("/api/v1/namespaces/$namespace/releases") {
+        val uploadResult = mockMvc.multipart("/api/v1/namespaces/$namespace/plugin-releases") {
             file(artifact)
             header("Authorization", authHeader)
         }.andExpect {
