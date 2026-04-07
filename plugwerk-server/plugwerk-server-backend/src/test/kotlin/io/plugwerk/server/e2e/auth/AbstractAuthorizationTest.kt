@@ -78,9 +78,9 @@ abstract class AbstractAuthorizationTest {
         const val NS2 = "ns2"
         const val TEST_PASSWORD = "test-password-12!"
 
-        /** Singleton container — started once, reused across all test classes. */
+        /** Singleton container — shared with all integration tests via [SharedPostgresContainer]. */
         @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:18-alpine").apply { start() }
+        val postgres: PostgreSQLContainer<*> = io.plugwerk.server.SharedPostgresContainer.instance
 
         @DynamicPropertySource
         @JvmStatic

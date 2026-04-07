@@ -18,7 +18,6 @@
  */
 package io.plugwerk.server.e2e
 
-import io.plugwerk.server.e2e.auth.AbstractAuthorizationTest
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -52,7 +51,7 @@ class SmokeTest {
         @DynamicPropertySource
         @JvmStatic
         fun overrideDataSource(registry: DynamicPropertyRegistry) {
-            val postgres = AbstractAuthorizationTest.postgres
+            val postgres = io.plugwerk.server.SharedPostgresContainer.instance
             registry.add("spring.datasource.url", postgres::getJdbcUrl)
             registry.add("spring.datasource.username", postgres::getUsername)
             registry.add("spring.datasource.password", postgres::getPassword)
