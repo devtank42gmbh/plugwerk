@@ -410,8 +410,9 @@ paths:
         Plugins that have only draft releases are marked with `hasDraftOnly: true` in the response.
 
         For authenticated users with namespace access, the response includes
-        `pendingReviewPluginCount` — the number of active plugins that have draft releases
-        but no published release yet.
+        `pendingReviewPluginCount` — the number of active plugins that have at least one
+        draft release pending review — and `pendingReviewReleaseCount` — the total number
+        of draft releases pending review across all plugins.
 
         This endpoint is publicly accessible unless the namespace has access control enabled.
       operationId: listPlugins
@@ -2242,8 +2243,16 @@ components:
           format: int64
           nullable: true
           description: |
-            Number of active plugins that have draft releases pending review but no
-            published release yet (i.e. plugins not shown in the catalog).
+            Number of active plugins that have at least one draft release pending review.
+            Only populated for authenticated users with namespace access; `null` for
+            anonymous requests.
+        pendingReviewReleaseCount:
+          type: integer
+          format: int64
+          nullable: true
+          description: |
+            Total number of draft releases pending review across all plugins in the
+            namespace. This reflects the actual size of the review queue.
             Only populated for authenticated users with namespace access; `null` for
             anonymous requests.
       required:

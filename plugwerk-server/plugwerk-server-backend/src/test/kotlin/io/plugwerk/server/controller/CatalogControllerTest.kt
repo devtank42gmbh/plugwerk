@@ -120,6 +120,8 @@ class CatalogControllerTest {
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.content") { isArray() }
                 jsonPath("$.totalElements") { value(1) }
+                jsonPath("$.pendingReviewPluginCount") { doesNotExist() }
+                jsonPath("$.pendingReviewReleaseCount") { doesNotExist() }
             }
     }
 

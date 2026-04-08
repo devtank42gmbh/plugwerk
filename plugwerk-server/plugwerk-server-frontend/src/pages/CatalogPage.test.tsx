@@ -83,6 +83,7 @@ describe('CatalogPage', () => {
       totalElements: 0,
       totalPages: 0,
       pendingReviewPluginCount: null,
+      pendingReviewReleaseCount: null,
       loading: false,
       error: null,
       filters: { ...defaultFilters },
@@ -157,6 +158,27 @@ describe('CatalogPage', () => {
     renderCatalog()
     await user.click(screen.getByRole('button', { name: /list view/i }))
     expect(screen.getByRole('list', { name: /plugin list/i })).toBeInTheDocument()
+  })
+
+  it('shows pending review banner with plugin and release counts', () => {
+    useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, namespaceRole: null, fetchNamespaceRole: vi.fn() })
+    usePluginStore.setState({
+      plugins: [mockPlugin],
+      totalElements: 1,
+      totalPages: 1,
+      pendingReviewPluginCount: 2,
+      pendingReviewReleaseCount: 5,
+      fetchPlugins: noOpFetch,
+    })
+    renderCatalog()
+    expect(screen.getByText(/2 plugins \(5 releases\) pending review/)).toBeInTheDocument()
+  })
+
+  it('does not show pending review banner when count is null', () => {
+    useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, fetchNamespaceRole: vi.fn() })
+    usePluginStore.setState({ pendingReviewPluginCount: null, pendingReviewReleaseCount: null, fetchPlugins: noOpFetch })
+    renderCatalog()
+    expect(screen.queryByText(/pending review/)).not.toBeInTheDocument()
   })
 
   it('syncs namespace from URL param into the auth store', async () => {
