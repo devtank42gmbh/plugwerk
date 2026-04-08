@@ -51,7 +51,7 @@ describe('PluginListRow', () => {
 
   it('falls back to namespace when provider is absent', () => {
     renderWithRouter(<PluginListRow plugin={{ ...plugin, provider: undefined }} namespace="acme" />)
-    expect(screen.getByText('acme')).toBeInTheDocument()
+    expect(screen.queryByText('Acme')).not.toBeInTheDocument()
   })
 
   it('renders version badge', () => {

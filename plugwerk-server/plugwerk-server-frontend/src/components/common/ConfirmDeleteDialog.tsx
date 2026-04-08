@@ -16,14 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Plugwerk. If not, see <https://www.gnu.org/licenses/>.
  */
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from '@mui/material'
+import { AppDialog } from './AppDialog'
 
 interface ConfirmDeleteDialogProps {
   open: boolean
@@ -32,6 +25,8 @@ interface ConfirmDeleteDialogProps {
   onConfirm: () => void
   onCancel: () => void
   loading?: boolean
+  /** Specific action label, e.g. "Delete Release". Defaults to "Delete". */
+  actionLabel?: string
 }
 
 export function ConfirmDeleteDialog({
@@ -41,27 +36,18 @@ export function ConfirmDeleteDialog({
   onConfirm,
   onCancel,
   loading = false,
+  actionLabel = 'Delete',
 }: ConfirmDeleteDialogProps) {
   return (
-    <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel} disabled={loading}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={onConfirm}
-          disabled={loading}
-          aria-label="confirm-delete"
-        >
-          {loading ? 'Deleting\u2026' : 'Delete'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <AppDialog
+      open={open}
+      onClose={onCancel}
+      title={title}
+      description={message}
+      actionLabel={actionLabel}
+      onAction={onConfirm}
+      actionColor="error"
+      actionLoading={loading}
+    />
   )
 }

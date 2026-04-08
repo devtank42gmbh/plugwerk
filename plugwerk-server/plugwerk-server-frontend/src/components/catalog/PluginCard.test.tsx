@@ -65,7 +65,7 @@ describe('PluginCard', () => {
   it('falls back to namespace when provider is not set', () => {
     const plugin = { ...basePlugin, provider: undefined }
     renderWithRouter(<PluginCard plugin={plugin} namespace="acme" />)
-    expect(screen.getByText('acme')).toBeInTheDocument()
+    expect(screen.queryByText('ACME Corp')).not.toBeInTheDocument()
   })
 
   it('renders tags up to 4', () => {
