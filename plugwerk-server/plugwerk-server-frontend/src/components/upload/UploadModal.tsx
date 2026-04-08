@@ -21,27 +21,26 @@ import {
   Box,
   Typography,
   Alert,
-  LinearProgress,
+  IconButton,
 } from '@mui/material'
-import { UploadCloud, FileBox } from 'lucide-react'
+import { UploadCloud, FileBox, X } from 'lucide-react'
 import { AppDialog } from '../common/AppDialog'
 import { useDropzone } from 'react-dropzone'
-import axios from 'axios'
 import { axiosInstance } from '../../api/config'
 import { useUiStore } from '../../stores/uiStore'
 import { useAuthStore } from '../../stores/authStore'
-import { usePluginStore } from '../../stores/pluginStore'
+import { useUploadFiles } from '../../hooks/useUploadFiles'
 import { tokens } from '../../theme/tokens'
 
 const DEFAULT_MAX_FILE_SIZE_MB = 100
 
 export function UploadModal() {
-  const { uploadModalOpen, closeUploadModal, addToast } = useUiStore()
+  const { uploadModalOpen, closeUploadModal } = useUiStore()
   const { namespace } = useAuthStore()
+  const { uploadFiles } = useUploadFiles()
 
-  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<readonly File[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [progress, setProgress] = useState<number | null>(null)
   const [maxFileSizeMb, setMaxFileSizeMb] = useState(DEFAULT_MAX_FILE_SIZE_MB)
 
   useEffect(() => {
@@ -54,74 +53,68 @@ export function UploadModal() {
       .catch(() => { /* use default */ })
   }, [uploadModalOpen])
 
-  const maxFileSizeBytes = maxFileSizeMb * 1024 * 1024
-
   const onDrop = useCallback((accepted: File[]) => {
-    if (accepted[0]) {
-      if (accepted[0].size > maxFileSizeBytes) {
-        setError(`File is too large (${(accepted[0].size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is ${maxFileSizeMb} MB.`)
-        setFile(null)
-        return
-      }
-      setFile(accepted[0])
-      setError(null)
-    }
-  }, [maxFileSizeBytes, maxFileSizeMb])
+    if (accepted.length === 0) return
+    setFiles((prev) => {
+      const existingNames = new Set(prev.map((f) => f.name))
+      const newFiles = accepted.filter((f) => !existingNames.has(f.name))
+      return [...prev, ...newFiles]
+    })
+    setError(null)
+  }, [])
+
+  const removeFile = useCallback((name: string) => {
+    setFiles((prev) => prev.filter((f) => f.name !== name))
+  }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/java-archive': ['.jar'], 'application/zip': ['.jar'] },
-    multiple: false,
+    accept: { 'application/java-archive': ['.jar'], 'application/zip': ['.jar', '.zip'] },
+    multiple: true,
   })
 
   function handleClose() {
-    if (progress !== null) return
-    setFile(null)
+    setFiles([])
     setError(null)
-    setProgress(null)
     closeUploadModal()
   }
 
   async function handleUpload() {
-    if (!file) {
-      setError('Please select a .jar file.')
+    if (files.length === 0) {
+      setError('Please select at least one .jar or .zip file.')
       return
     }
+
+    const oversized = files.filter((f) => f.size > maxFileSizeMb * 1024 * 1024)
+    if (oversized.length > 0) {
+      const names = oversized.map((f) => f.name).join(', ')
+      setError(`Files too large (max ${maxFileSizeMb} MB): ${names}`)
+      return
+    }
+
     setError(null)
-    setProgress(0)
+    // Close the dialog immediately — progress tracked via UploadProgressPanel
+    const filesToUpload = [...files]
+    handleClose()
 
-    const formData = new FormData()
-    formData.append('artifact', file)
-
-    try {
-      await axiosInstance.post(`/namespaces/${namespace}/plugin-releases`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (evt) => {
-          if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100))
-        },
-      })
-      addToast({ type: 'success', title: 'Release uploaded', message: 'Your release is pending review.' })
-      if (namespace) usePluginStore.getState().fetchPlugins(namespace)
-      handleClose()
-    } catch (err: unknown) {
-      const message = axios.isAxiosError(err)
-        ? (err.response?.data?.message ?? err.message)
-        : err instanceof Error ? err.message : 'Upload failed.'
-      setError(message)
-      setProgress(null)
+    if (namespace) {
+      await uploadFiles(filesToUpload, namespace)
     }
   }
+
+  const actionLabel = files.length <= 1
+    ? 'Upload Release'
+    : `Upload ${files.length} Releases`
 
   return (
     <AppDialog
       open={uploadModalOpen}
       onClose={handleClose}
       title="Upload Plugin Release"
-      description="Drop a plugin .jar or .zip file. All metadata (plugin ID, version, dependencies) is read from the descriptor inside the archive."
-      actionLabel="Upload Release"
+      description="Drop plugin .jar or .zip files. All metadata (plugin ID, version, dependencies) is read from the descriptor inside the archive."
+      actionLabel={actionLabel}
       onAction={handleUpload}
-      actionDisabled={!file}
-      actionLoading={progress !== null}
+      actionDisabled={files.length === 0}
       maxWidth={600}
     >
       {error && (
@@ -137,40 +130,64 @@ export function UploadModal() {
           borderRadius: tokens.radius.card,
           p: 4,
           textAlign: 'center',
-          cursor: progress !== null ? 'not-allowed' : 'pointer',
+          cursor: 'pointer',
           background: isDragActive ? tokens.color.primaryLight + '22' : 'background.default',
           transition: 'border-color 0.15s, background 0.15s',
-          '&:hover': { borderColor: progress === null ? tokens.color.primary : undefined },
+          '&:hover': { borderColor: tokens.color.primary },
         }}
       >
-        <input {...getInputProps()} aria-label="Select plugin JAR or ZIP file" disabled={progress !== null} />
+        <input {...getInputProps()} aria-label="Select plugin JAR or ZIP files" />
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-          {file ? (
-            <>
-              <FileBox size={36} color={tokens.color.primary} />
-              <Typography variant="body2" fontWeight={600}>{file.name}</Typography>
-              <Typography variant="caption" color="text.disabled">
-                {(file.size / 1024 / 1024).toFixed(2)} MB · Click to replace
-              </Typography>
-            </>
-          ) : (
-            <>
-              <UploadCloud size={36} color={tokens.color.gray40} />
-              <Typography variant="body2" fontWeight={600}>
-                {isDragActive ? 'Drop the file here…' : 'Drag & drop a .jar or .zip file here'}
-              </Typography>
-              <Typography variant="caption" color="text.disabled">
-                or click to browse · Max. {maxFileSizeMb} MB
-              </Typography>
-            </>
-          )}
+          <UploadCloud size={36} color={tokens.color.gray40} />
+          <Typography variant="body2" fontWeight={600}>
+            {isDragActive ? 'Drop the files here…' : 'Drag & drop .jar or .zip files here'}
+          </Typography>
+          <Typography variant="caption" color="text.disabled">
+            or click to browse · Max. {maxFileSizeMb} MB per file
+          </Typography>
         </Box>
       </Box>
 
-      {progress !== null && (
-        <Box>
-          <Typography variant="caption" color="text.secondary">Uploading… {progress}%</Typography>
-          <LinearProgress variant="determinate" value={progress} sx={{ mt: 0.5 }} />
+      {/* Selected file list */}
+      {files.length > 0 && (
+        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          {files.map((file) => (
+            <Box
+              key={file.name}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                px: 1.5,
+                py: 1,
+                borderRadius: tokens.radius.input,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <FileBox size={16} color={tokens.color.primary} />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                >
+                  {file.name}
+                </Typography>
+              </Box>
+              <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); removeFile(file.name) }}
+                aria-label={`Remove ${file.name}`}
+                sx={{ p: 0.25, color: 'text.disabled' }}
+              >
+                <X size={14} />
+              </IconButton>
+            </Box>
+          ))}
         </Box>
       )}
     </AppDialog>

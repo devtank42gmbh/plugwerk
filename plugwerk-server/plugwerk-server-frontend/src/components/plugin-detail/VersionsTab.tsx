@@ -20,8 +20,6 @@ import {
   Box,
   Typography,
   Tooltip,
-  Snackbar,
-  Alert,
   Menu,
   MenuItem,
 } from '@mui/material'
@@ -42,6 +40,7 @@ import { formatFileSize } from '../../utils/formatFileSize'
 import { formatDateTime } from '../../utils/formatDateTime'
 import { downloadArtifact } from '../../utils/downloadArtifact'
 import { formatCount, formatCountFull } from '../../utils/formatCount'
+import { useUiStore } from '../../stores/uiStore'
 
 function CopyableSha256({ value }: { value?: string }) {
   const [copied, setCopied] = useState(false)
@@ -120,7 +119,7 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
   }
   const [deleteTarget, setDeleteTarget] = useState<PluginReleaseDto | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<HTMLElement | null>(null)
   const [statusMenuRelease, setStatusMenuRelease] = useState<PluginReleaseDto | null>(null)
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null)
@@ -130,10 +129,10 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
     setApprovingId(rel.id)
     try {
       await reviewsApi.approveRelease({ ns: namespace, releaseId: rel.id })
-      setToast({ message: `v${rel.version} approved and published.`, severity: 'success' })
+      addToast({ message: `v${rel.version} approved and published.`, type: 'success' })
       updateReleaseLocally(rel.id!, 'published')
     } catch {
-      setToast({ message: `Failed to approve v${rel.version}.`, severity: 'error' })
+      addToast({ message: `Failed to approve v${rel.version}.`, type: 'error' })
     } finally {
       setApprovingId(null)
     }
@@ -146,14 +145,14 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
       const response = await managementApi.deleteRelease({ ns: namespace, pluginId, version: deleteTarget.version })
       const pluginDeleted = response.headers?.['x-plugin-deleted'] === 'true'
       if (pluginDeleted) {
-        setToast({ message: 'Plugin and release deleted.', severity: 'success' })
+        addToast({ message: 'Plugin and release deleted.', type: 'success' })
         navigate(`/namespaces/${namespace}/plugins`)
       } else {
-        setToast({ message: `v${deleteTarget.version} deleted.`, severity: 'success' })
+        addToast({ message: `v${deleteTarget.version} deleted.`, type: 'success' })
         onReleaseDeleted?.(deleteTarget.version)
       }
     } catch {
-      setToast({ message: `Failed to delete v${deleteTarget.version}.`, severity: 'error' })
+      addToast({ message: `Failed to delete v${deleteTarget.version}.`, type: 'error' })
     } finally {
       setIsDeleting(false)
       setDeleteTarget(null)
@@ -172,9 +171,9 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
         releaseStatusUpdateRequest: { status: newStatus },
       })
       updateReleaseLocally(rel.id!, newStatus)
-      setToast({ message: `v${rel.version} status changed to ${newStatus}.`, severity: 'success' })
+      addToast({ message: `v${rel.version} status changed to ${newStatus}.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to change status of v${rel.version}.`, severity: 'error' })
+      addToast({ message: `Failed to change status of v${rel.version}.`, type: 'error' })
     } finally {
       setUpdatingStatusId(null)
     }
@@ -265,7 +264,7 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
                 downloadArtifact(
                   `/api/v1/namespaces/${namespace}/plugins/${pluginId}/releases/${rel.version}/download`,
                   `${pluginId}-${rel.version}.${rel.fileFormat ?? 'jar'}`,
-                ).catch(() => setToast({ message: 'Download failed.', severity: 'error' }))
+                ).catch(() => addToast({ message: 'Download failed.', type: 'error' }))
               }}
             />
             {isDraft && canApprove && (
@@ -320,16 +319,6 @@ export function VersionsTab({ releases, namespace, pluginId, canApprove, onRelea
         loading={isDeleting}
       />
 
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

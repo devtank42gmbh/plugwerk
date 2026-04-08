@@ -30,6 +30,7 @@ import { Sun, Moon, Menu, User, LogOut, Upload, LayoutGrid, Settings } from 'luc
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useUiStore } from '../../stores/uiStore'
 import { UploadModal } from '../upload/UploadModal'
+import { UploadProgressPanel } from '../upload/UploadProgressPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useNamespaceStore } from '../../stores/namespaceStore'
 import { FilterSelect } from '../common/FilterSelect'
@@ -221,6 +222,7 @@ export function TopBar() {
       </Toolbar>
     </AppBar>
     <UploadModal />
+    <UploadProgressPanel />
   </>
   )
 }
