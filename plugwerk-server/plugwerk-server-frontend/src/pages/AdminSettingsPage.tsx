@@ -46,6 +46,13 @@ import { useAuthStore } from '../stores/authStore'
 import type { OidcProviderDto, OidcProviderType, ReviewItemDto, UserDto } from '../api/generated/model'
 
 function GeneralSection() {
+  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+
+  function handleSave() {
+    // TODO: persist settings via API once backend endpoint exists
+    setToast({ message: 'Settings saved.', severity: 'success' })
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Box>
@@ -60,7 +67,19 @@ function GeneralSection() {
           <MenuItem value="de">Deutsch</MenuItem>
         </Select>
       </FormControl>
-      <Button variant="contained" sx={{ alignSelf: 'flex-start' }}>Save Changes</Button>
+      <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={handleSave}>
+        Save Changes
+      </Button>
+      <Snackbar
+        open={!!toast}
+        autoHideDuration={4000}
+        onClose={() => setToast(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
+          {toast?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
