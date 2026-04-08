@@ -22,8 +22,6 @@ import {
   Typography,
   Button,
   Divider,
-  Snackbar,
-  Alert,
   CircularProgress,
 } from '@mui/material'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
@@ -37,6 +35,7 @@ import { DeleteNamespaceDialog } from './DeleteNamespaceDialog'
 import { NamespaceDetailView } from './NamespaceDetailView'
 import { useNamespaceStore } from '../../stores/namespaceStore'
 import { useAuthStore } from '../../stores/authStore'
+import { useUiStore } from '../../stores/uiStore'
 
 export function NamespacesSection() {
   const [namespaces, setNamespaces] = useState<NamespaceSummary[]>([])
@@ -44,7 +43,7 @@ export function NamespacesSection() {
   const [createOpen, setCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<NamespaceSummary | null>(null)
   const [editingSlug, setEditingSlug] = useState<string | null>(null)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
 
   const loadNamespaces = useCallback(async () => {
     setLoading(true)
@@ -64,7 +63,7 @@ export function NamespacesSection() {
 
   function handleCreated(ns: NamespaceSummary) {
     setNamespaces((prev) => [...prev, ns])
-    setToast({ message: `Namespace "${ns.slug}" created.`, severity: 'success' })
+    addToast({ message: `Namespace "${ns.slug}" created.`, type: 'success' })
 
     // Refresh the global namespace dropdown in the header
     useNamespaceStore.getState().fetchNamespaces()
@@ -74,7 +73,7 @@ export function NamespacesSection() {
     const remaining = namespaces.filter((n) => n.slug !== slug)
     setNamespaces(remaining)
     setDeleteTarget(null)
-    setToast({ message: `Namespace "${slug}" deleted.`, severity: 'success' })
+    addToast({ message: `Namespace "${slug}" deleted.`, type: 'success' })
 
     // Refresh the global namespace dropdown in the header
     useNamespaceStore.getState().fetchNamespaces()
@@ -113,24 +112,12 @@ export function NamespacesSection() {
     },
   ]
 
-  const snackbar = (
-    <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-      <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-        {toast?.message}
-      </Alert>
-    </Snackbar>
-  )
-
   if (editingSlug) {
     return (
-      <>
-        <NamespaceDetailView
-          slug={editingSlug}
-          onBack={() => setEditingSlug(null)}
-          onToast={setToast}
-        />
-        {snackbar}
-      </>
+      <NamespaceDetailView
+        slug={editingSlug}
+        onBack={() => setEditingSlug(null)}
+      />
     )
   }
 
@@ -165,17 +152,15 @@ export function NamespacesSection() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreated={handleCreated}
-        onError={(msg) => setToast({ message: msg, severity: 'error' })}
+        onError={(msg) => addToast({ message: msg, type: 'error' })}
       />
 
       <DeleteNamespaceDialog
         namespace={deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onDeleted={handleDeleted}
-        onError={(msg) => setToast({ message: msg, severity: 'error' })}
+        onError={(msg) => addToast({ type: 'error', message: msg })}
       />
-
-      {snackbar}
     </Box>
   )
 }

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Plugwerk. If not, see <https://www.gnu.org/licenses/>.
  */
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Paper, Slide, Typography } from '@mui/material'
 import { Info, CheckCircle, AlertTriangle, XCircle, X } from 'lucide-react'
 import { useUiStore, type ToastItem } from '../../stores/uiStore'
 import { tokens } from '../../theme/tokens'
@@ -35,70 +35,61 @@ const colorMap = {
   error: tokens.color.danger,
 }
 
-const bgMap = {
-  info: tokens.badge.tag.bg,
-  success: tokens.badge.published.bg,
-  warning: tokens.badge.deprecated.bg,
-  error: tokens.badge.yanked.bg,
-}
-
 function ToastItem({ toast }: { toast: ToastItem }) {
   const { removeToast } = useUiStore()
   const accentColor = colorMap[toast.type]
-  const bgColor = bgMap[toast.type]
 
   return (
-    <Box
-      role="status"
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1.5,
-        px: 2.5,
-        py: 1.5,
-        bgcolor: 'background.paper',
-        borderLeft: `4px solid ${accentColor}`,
-        borderRadius: tokens.radius.card,
-        boxShadow: tokens.shadow.modal,
-        minWidth: 360,
-        maxWidth: 520,
-        background: (theme) =>
-          theme.palette.mode === 'dark'
-            ? `linear-gradient(90deg, ${accentColor}18 0%, ${theme.palette.background.paper} 40%)`
-            : `linear-gradient(90deg, ${bgColor} 0%, ${theme.palette.background.paper} 40%)`,
-        animation: 'toast-slide-in 0.3s ease-out',
-        '@keyframes toast-slide-in': {
-          from: { opacity: 0, transform: 'translateY(-12px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
-    >
-      <Box sx={{ color: accentColor, flexShrink: 0, display: 'flex' }}>{iconMap[toast.type]}</Box>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        {toast.title && (
-          <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.4 }}>
-            {toast.title}
-          </Typography>
-        )}
-        {toast.message && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ lineHeight: 1.4, mt: toast.title ? 0.25 : 0 }}
-          >
-            {toast.message}
-          </Typography>
-        )}
-      </Box>
-      <IconButton
-        size="small"
-        onClick={() => removeToast(toast.id)}
-        aria-label="Dismiss notification"
-        sx={{ color: 'text.disabled', p: 0.5, flexShrink: 0 }}
+    <Slide direction="down" in={true} mountOnEnter unmountOnExit>
+      <Paper
+        role="status"
+        elevation={0}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          px: 2,
+          py: 1.5,
+          width: 380,
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderLeftColor: accentColor,
+          borderLeftWidth: 3,
+          borderLeftStyle: 'solid',
+          borderRadius: tokens.radius.dialog,
+          boxShadow: tokens.shadow.modal,
+        }}
       >
-        <X size={16} />
-      </IconButton>
-    </Box>
+        <Box sx={{ color: accentColor, flexShrink: 0, display: 'flex' }}>
+          {iconMap[toast.type]}
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          {toast.title && (
+            <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.4 }}>
+              {toast.title}
+            </Typography>
+          )}
+          {toast.message && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ lineHeight: 1.4, mt: toast.title ? 0.25 : 0 }}
+            >
+              {toast.message}
+            </Typography>
+          )}
+        </Box>
+        <IconButton
+          size="small"
+          onClick={() => removeToast(toast.id)}
+          aria-label="Dismiss notification"
+          sx={{ color: 'text.disabled', p: 0.5, flexShrink: 0 }}
+        >
+          <X size={16} />
+        </IconButton>
+      </Paper>
+    </Slide>
   )
 }
 

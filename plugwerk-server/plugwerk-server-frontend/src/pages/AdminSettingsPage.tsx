@@ -30,7 +30,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Snackbar,
   CircularProgress,
   Chip,
   Switch,
@@ -44,14 +43,15 @@ import { ActionIconButton } from '../components/common/ActionIconButton'
 import { AdminSidebar } from '../components/admin/AdminSidebar'
 import { adminUsersApi, oidcProvidersApi, reviewsApi } from '../api/config'
 import { useAuthStore } from '../stores/authStore'
+import { useUiStore } from '../stores/uiStore'
 import type { OidcProviderDto, OidcProviderType, ReviewItemDto, UserDto } from '../api/generated/model'
 
 function GeneralSection() {
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
 
   function handleSave() {
     // TODO: persist settings via API once backend endpoint exists
-    setToast({ message: 'Settings saved.', severity: 'success' })
+    addToast({ message: 'Settings saved.', type: 'success' })
   }
 
   return (
@@ -71,16 +71,6 @@ function GeneralSection() {
       <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={handleSave}>
         Save Changes
       </Button>
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }
@@ -93,7 +83,7 @@ function UsersSection() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
   const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -116,9 +106,9 @@ function UsersSection() {
     try {
       const res = await adminUsersApi.updateUser({ userId: user.id, userUpdateRequest: { enabled: !user.enabled } })
       setUsers((prev) => prev.map((u) => (u.id === user.id ? res.data : u)))
-      setToast({ message: `User "${user.username}" ${res.data.enabled ? 'enabled' : 'disabled'}.`, severity: 'success' })
+      addToast({ message: `User "${user.username}" ${res.data.enabled ? 'enabled' : 'disabled'}.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to update user ${user.username}.`, severity: 'error' })
+      addToast({ message: `Failed to update user ${user.username}.`, type: 'error' })
     }
   }
 
@@ -128,10 +118,10 @@ function UsersSection() {
     try {
       await adminUsersApi.deleteUser({ userId: deleteTarget.id })
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id))
-      setToast({ message: `User "${deleteTarget.username}" deleted.`, severity: 'success' })
+      addToast({ message: `User "${deleteTarget.username}" deleted.`, type: 'success' })
       setDeleteTarget(null)
     } catch {
-      setToast({ message: `Failed to delete user ${deleteTarget.username}.`, severity: 'error' })
+      addToast({ message: `Failed to delete user ${deleteTarget.username}.`, type: 'error' })
     } finally {
       setDeleting(false)
     }
@@ -145,13 +135,13 @@ function UsersSection() {
         userCreateRequest: { username: username.trim(), email: email.trim() || undefined, password },
       })
       setUsers((prev) => [...prev, res.data])
-      setToast({ message: `User "${res.data.username}" created.`, severity: 'success' })
+      addToast({ message: `User "${res.data.username}" created.`, type: 'success' })
       setDialogOpen(false)
       setUsername('')
       setEmail('')
       setPassword('')
     } catch {
-      setToast({ message: 'Failed to create user.', severity: 'error' })
+      addToast({ message: 'Failed to create user.', type: 'error' })
     } finally {
       setSaving(false)
     }
@@ -308,11 +298,6 @@ function UsersSection() {
         actionLabel="Delete User"
       />
 
-      <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }
@@ -338,7 +323,7 @@ function OidcProvidersSection() {
   const [issuerUri, setIssuerUri] = useState('')
   const [scope, setScope] = useState('openid profile email')
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
 
   useEffect(() => {
     async function load() {
@@ -362,9 +347,9 @@ function OidcProvidersSection() {
         oidcProviderUpdateRequest: { enabled: !provider.enabled },
       })
       setProviders((prev) => prev.map((p) => (p.id === provider.id ? res.data : p)))
-      setToast({ message: `Provider "${provider.name}" ${res.data.enabled ? 'enabled' : 'disabled'}.`, severity: 'success' })
+      addToast({ message: `Provider "${provider.name}" ${res.data.enabled ? 'enabled' : 'disabled'}.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to update provider "${provider.name}".`, severity: 'error' })
+      addToast({ message: `Failed to update provider "${provider.name}".`, type: 'error' })
     }
   }
 
@@ -372,9 +357,9 @@ function OidcProvidersSection() {
     try {
       await oidcProvidersApi.deleteOidcProvider({ providerId: provider.id })
       setProviders((prev) => prev.filter((p) => p.id !== provider.id))
-      setToast({ message: `Provider "${provider.name}" deleted.`, severity: 'success' })
+      addToast({ message: `Provider "${provider.name}" deleted.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to delete provider "${provider.name}".`, severity: 'error' })
+      addToast({ message: `Failed to delete provider "${provider.name}".`, type: 'error' })
     }
   }
 
@@ -394,7 +379,7 @@ function OidcProvidersSection() {
         },
       })
       setProviders((prev) => [...prev, res.data])
-      setToast({ message: `Provider "${res.data.name}" created.`, severity: 'success' })
+      addToast({ message: `Provider "${res.data.name}" created.`, type: 'success' })
       setDialogOpen(false)
       setName('')
       setClientId('')
@@ -403,7 +388,7 @@ function OidcProvidersSection() {
       setScope('openid profile email')
       setProviderType('GENERIC_OIDC')
     } catch {
-      setToast({ message: 'Failed to create OIDC provider.', severity: 'error' })
+      addToast({ message: 'Failed to create OIDC provider.', type: 'error' })
     } finally {
       setSaving(false)
     }
@@ -561,11 +546,6 @@ function OidcProvidersSection() {
         </Box>
       </AppDialog>
 
-      <Snackbar open={!!toast} autoHideDuration={4000} onClose={() => setToast(null)} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }
@@ -576,7 +556,7 @@ function ReviewsSection() {
   const [loading, setLoading] = useState(true)
   const [approvingId, setApprovingId] = useState<string | null>(null)
   const [rejectingId, setRejectingId] = useState<string | null>(null)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
 
   useEffect(() => {
     async function load() {
@@ -599,9 +579,9 @@ function ReviewsSection() {
     try {
       await reviewsApi.approveRelease({ ns: namespace!, releaseId: item.releaseId })
       setItems((prev) => prev.filter((i) => i.releaseId !== item.releaseId))
-      setToast({ message: `${item.pluginName} v${item.version} approved and published.`, severity: 'success' })
+      addToast({ message: `${item.pluginName} v${item.version} approved and published.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to approve ${item.pluginName} v${item.version}.`, severity: 'error' })
+      addToast({ message: `Failed to approve ${item.pluginName} v${item.version}.`, type: 'error' })
     } finally {
       setApprovingId(null)
     }
@@ -612,9 +592,9 @@ function ReviewsSection() {
     try {
       await reviewsApi.rejectRelease({ ns: namespace!, releaseId: item.releaseId })
       setItems((prev) => prev.filter((i) => i.releaseId !== item.releaseId))
-      setToast({ message: `${item.pluginName} v${item.version} rejected.`, severity: 'success' })
+      addToast({ message: `${item.pluginName} v${item.version} rejected.`, type: 'success' })
     } catch {
-      setToast({ message: `Failed to reject ${item.pluginName} v${item.version}.`, severity: 'error' })
+      addToast({ message: `Failed to reject ${item.pluginName} v${item.version}.`, type: 'error' })
     } finally {
       setRejectingId(null)
     }
@@ -688,16 +668,6 @@ function ReviewsSection() {
         />
       )}
 
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

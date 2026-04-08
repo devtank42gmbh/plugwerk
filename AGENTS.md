@@ -169,6 +169,7 @@ plugwerk/
 - **Transactional installation** – no partial state on failure; rollback requires retaining previous version
 - **Namespace isolation** – all resources are scoped to a namespace; one server serves multiple products/organizations
 - **Shared `DataTable` component** – all tabular views use `src/components/common/DataTable.tsx` for consistent styling (see [ADR-0004](docs/adrs/0004-frontend-conventions.md) § Tables)
+- **Shared `Toast` component** – all user-facing notifications must use `useUiStore.addToast()` from `src/stores/uiStore.ts`, rendered by `src/components/common/Toast.tsx`. Never use MUI `<Snackbar>` or `<Alert>` for toast notifications — they bypass the centralized styling and produce inconsistent UI
 
 ### Core Data Model
 

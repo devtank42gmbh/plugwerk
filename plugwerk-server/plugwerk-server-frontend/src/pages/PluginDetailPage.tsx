@@ -26,7 +26,6 @@ import {
   Alert,
   CircularProgress,
   Link as MuiLink,
-  Snackbar,
 } from '@mui/material'
 import { ChevronRight } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -39,6 +38,7 @@ import { catalogApi, managementApi } from '../api/config'
 import type { PluginDto, PluginReleaseDto } from '../api/generated/model'
 import { ConfirmDeleteDialog } from '../components/common/ConfirmDeleteDialog'
 import { useAuthStore } from '../stores/authStore'
+import { useUiStore } from '../stores/uiStore'
 
 const TAB_IDS = ['overview', 'versions', 'changelog', 'dependencies']
 
@@ -56,7 +56,7 @@ export function PluginDetailPage() {
   const [tab, setTab] = useState(0)
   const [showDeletePlugin, setShowDeletePlugin] = useState(false)
   const [isDeletingPlugin, setIsDeletingPlugin] = useState(false)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
+  const { addToast } = useUiStore()
 
   useEffect(() => {
     async function load() {
@@ -90,10 +90,10 @@ export function PluginDetailPage() {
     setIsDeletingPlugin(true)
     try {
       await managementApi.deletePlugin({ ns: namespace, pluginId })
-      setToast({ message: `Plugin ${pluginId} deleted.`, severity: 'success' })
+      addToast({ message: `Plugin ${pluginId} deleted.`, type: 'success' })
       setTimeout(() => navigate(`/namespaces/${namespace}/plugins`), 1000)
     } catch {
-      setToast({ message: `Failed to delete plugin ${pluginId}.`, severity: 'error' })
+      addToast({ message: `Failed to delete plugin ${pluginId}.`, type: 'error' })
     } finally {
       setIsDeletingPlugin(false)
       setShowDeletePlugin(false)
@@ -146,10 +146,10 @@ export function PluginDetailPage() {
           namespace={namespace}
           isAdmin={isAdmin}
           onDeletePlugin={() => setShowDeletePlugin(true)}
-          onError={(message) => setToast({ message, severity: 'error' })}
+          onError={(message) => addToast({ type: 'error', message })}
           onPluginUpdated={(updated) => {
             setPlugin(updated)
-            setToast({ message: `Plugin status changed to ${updated.status}.`, severity: 'success' })
+            addToast({ message: `Plugin status changed to ${updated.status}.`, type: 'success' })
           }}
         />
 
@@ -232,16 +232,6 @@ export function PluginDetailPage() {
         loading={isDeletingPlugin}
       />
 
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert severity={toast?.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-          {toast?.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

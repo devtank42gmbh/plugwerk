@@ -45,11 +45,11 @@ import { isAxiosError } from 'axios'
 import type { AccessKeyDto, NamespaceMemberDto, NamespaceRole } from '../../api/generated/model'
 import { NamespaceRole as NamespaceRoleEnum } from '../../api/generated/model'
 import { formatDateTime } from '../../utils/formatDateTime'
+import { useUiStore } from '../../stores/uiStore'
 
 interface NamespaceDetailViewProps {
   slug: string
   onBack: () => void
-  onToast: (toast: { message: string; severity: 'success' | 'error' }) => void
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -60,7 +60,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 const TAB_IDS = ['settings', 'members', 'api-keys'] as const
 
-export function NamespaceDetailView({ slug, onBack, onToast }: NamespaceDetailViewProps) {
+export function NamespaceDetailView({ slug, onBack }: NamespaceDetailViewProps) {
   const [tab, setTab] = useState(0)
 
   return (
@@ -96,16 +96,17 @@ export function NamespaceDetailView({ slug, onBack, onToast }: NamespaceDetailVi
           aria-labelledby={`ns-tab-${id}`}
           hidden={tab !== i}
         >
-          {tab === 0 && i === 0 && <SettingsSection slug={slug} onToast={onToast} />}
-          {tab === 1 && i === 1 && <MembersSection slug={slug} onToast={onToast} />}
-          {tab === 2 && i === 2 && <ApiKeysSection slug={slug} onToast={onToast} />}
+          {tab === 0 && i === 0 && <SettingsSection slug={slug} />}
+          {tab === 1 && i === 1 && <MembersSection slug={slug} />}
+          {tab === 2 && i === 2 && <ApiKeysSection slug={slug} />}
         </Box>
       ))}
     </Box>
   )
 }
 
-function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDetailViewProps['onToast'] }) {
+function SettingsSection({ slug }: { slug: string }) {
+  const { addToast } = useUiStore()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [publicCatalog, setPublicCatalog] = useState(false)
@@ -143,9 +144,9 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
           autoApproveReleases: autoApprove,
         },
       })
-      onToast({ message: 'Namespace settings saved.', severity: 'success' })
+      addToast({ message: 'Namespace settings saved.', type: 'success' })
     } catch {
-      onToast({ message: 'Failed to save namespace settings.', severity: 'error' })
+      addToast({ message: 'Failed to save namespace settings.', type: 'error' })
     } finally {
       setSaving(false)
     }
@@ -210,7 +211,8 @@ function SettingsSection({ slug, onToast }: { slug: string; onToast: NamespaceDe
   )
 }
 
-function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDetailViewProps['onToast'] }) {
+function MembersSection({ slug }: { slug: string }) {
+  const { addToast } = useUiStore()
   const [members, setMembers] = useState<NamespaceMemberDto[]>([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
@@ -263,7 +265,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
       })
       setMembers((prev) => prev.map((m) => (m.userSubject === member.userSubject ? res.data : m)))
     } catch {
-      onToast({ message: `Failed to update role for "${member.userSubject}".`, severity: 'error' })
+      addToast({ message: `Failed to update role for "${member.userSubject}".`, type: 'error' })
     }
   }
 
@@ -271,9 +273,9 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
     try {
       await namespaceMembersApi.removeNamespaceMember({ ns: slug, userSubject: member.userSubject })
       setMembers((prev) => prev.filter((m) => m.userSubject !== member.userSubject))
-      onToast({ message: `Member "${member.userSubject}" removed.`, severity: 'success' })
+      addToast({ message: `Member "${member.userSubject}" removed.`, type: 'success' })
     } catch {
-      onToast({ message: `Failed to remove member "${member.userSubject}".`, severity: 'error' })
+      addToast({ message: `Failed to remove member "${member.userSubject}".`, type: 'error' })
     }
   }
 
@@ -287,7 +289,7 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
         namespaceMemberCreateRequest: { userSubject: newSubject.trim(), role: newRole },
       })
       setMembers((prev) => [...prev, res.data])
-      onToast({ message: `Member "${newSubject.trim()}" added.`, severity: 'success' })
+      addToast({ message: `Member "${newSubject.trim()}" added.`, type: 'success' })
       setAddOpen(false)
       setNewSubject('')
       setNewRole(NamespaceRoleEnum.Member)
@@ -418,7 +420,8 @@ function MembersSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
   )
 }
 
-function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDetailViewProps['onToast'] }) {
+function ApiKeysSection({ slug }: { slug: string }) {
+  const { addToast } = useUiStore()
   const [keys, setKeys] = useState<AccessKeyDto[]>([])
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
@@ -481,9 +484,9 @@ function ApiKeysSection({ slug, onToast }: { slug: string; onToast: NamespaceDet
     try {
       await accessKeysApi.revokeAccessKey({ ns: slug, keyId })
       setKeys((prev) => prev.filter((k) => k.id !== keyId))
-      onToast({ message: 'API key revoked.', severity: 'success' })
+      addToast({ message: 'API key revoked.', type: 'success' })
     } catch {
-      onToast({ message: 'Failed to revoke API key.', severity: 'error' })
+      addToast({ message: 'Failed to revoke API key.', type: 'error' })
     }
   }
 

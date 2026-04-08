@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Plugwerk. If not, see <https://www.gnu.org/licenses/>.
  */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Box, Container, Typography, Alert } from '@mui/material'
 import { FilterBar } from '../components/catalog/FilterBar'
@@ -26,12 +26,14 @@ import { PluginListRow } from '../components/catalog/PluginListRow'
 import { PluginCardSkeleton } from '../components/catalog/PluginCardSkeleton'
 import { PluginListRowSkeleton } from '../components/catalog/PluginListRowSkeleton'
 import { PaginationBar } from '../components/catalog/PaginationBar'
+import { CatalogDropOverlay } from '../components/upload/CatalogDropOverlay'
 import { EmptyState } from '../components/common/EmptyState'
 import { usePluginStore } from '../stores/pluginStore'
 import { useAuthStore } from '../stores/authStore'
 import { useUiStore } from '../stores/uiStore'
 import { useNamespaceStore } from '../stores/namespaceStore'
 import { useDebounce } from '../hooks/useDebounce'
+import { useUploadFiles } from '../hooks/useUploadFiles'
 
 export function CatalogPage() {
   const { namespace = '' } = useParams<{ namespace: string }>()
@@ -40,7 +42,44 @@ export function CatalogPage() {
   const { searchQuery } = useUiStore()
   const debouncedSearch = useDebounce(searchQuery, 350)
   const { fetchNamespaces } = useNamespaceStore()
+  const { uploadFiles } = useUploadFiles()
   const [view, setView] = useState<'card' | 'list'>('card')
+
+  // Drag-and-drop state: counter prevents flicker from child element events
+  const [isDragOver, setIsDragOver] = useState(false)
+  const dragCounter = useRef(0)
+  const canUpload = isAuthenticated && !!namespace
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    if (!canUpload) return
+    e.preventDefault()
+    dragCounter.current += 1
+    if (dragCounter.current === 1) setIsDragOver(true)
+  }, [canUpload])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!canUpload) return
+    e.preventDefault()
+  }, [canUpload])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (!canUpload) return
+    e.preventDefault()
+    dragCounter.current -= 1
+    if (dragCounter.current === 0) setIsDragOver(false)
+  }, [canUpload])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    if (!canUpload) return
+    e.preventDefault()
+    dragCounter.current = 0
+    setIsDragOver(false)
+
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length > 0) {
+      uploadFiles(files, namespace)
+    }
+  }, [canUpload, namespace, uploadFiles])
 
   useEffect(() => {
     fetchNamespaces()
@@ -63,7 +102,16 @@ export function CatalogPage() {
   }, [debouncedSearch, namespace])
 
   return (
-    <Box component="main" id="main-content" sx={{ flex: 1, py: 4 }}>
+    <Box
+      component="main"
+      id="main-content"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      sx={{ flex: 1, py: 4, position: 'relative' }}
+    >
+      <CatalogDropOverlay visible={isDragOver} />
       <Container maxWidth="xl">
         {/* Page header */}
         <Box
