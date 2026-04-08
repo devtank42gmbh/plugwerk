@@ -100,7 +100,7 @@ class CatalogController(
                 .associate { (it[0] as UUID) to (it[1] as Long) }
         }
 
-        val pendingCount = resolvePendingReviewCount(ns)
+        val (pendingPluginCount, pendingReleaseCount) = resolvePendingReviewCounts(ns)
 
         val response = PluginPagedResponse(
             content = resultPage.content.map {
@@ -116,7 +116,8 @@ class CatalogController(
             page = resultPage.number,
             propertySize = resultPage.size,
             totalPages = resultPage.totalPages,
-            pendingReviewPluginCount = pendingCount,
+            pendingReviewPluginCount = pendingPluginCount,
+            pendingReviewReleaseCount = pendingReleaseCount,
         )
         return ResponseEntity.ok(response)
     }
@@ -180,14 +181,20 @@ class CatalogController(
         ResponseEntity.ok(pf4jService.buildPluginsJson(ns))
 
     /**
-     * Returns the number of active plugins pending review (draft-only) for authenticated users.
-     * Returns `null` for anonymous requests — no sensitive information is leaked.
+     * Returns pending review counts for authenticated users:
+     * - plugin count: active plugins with at least one draft release
+     * - release count: total draft releases across all plugins in the namespace
+     *
+     * Returns `(null, null)` for anonymous requests — no sensitive information is leaked.
      */
-    private fun resolvePendingReviewCount(ns: String): Long? {
-        val auth = SecurityContextHolder.getContext().authentication ?: return null
-        if (!auth.isAuthenticated) return null
-        val namespace = namespaceRepository.findBySlug(ns).orElse(null) ?: return null
-        return releaseRepository.countPluginsWithOnlyDraftReleases(namespace.id!!)
+    private fun resolvePendingReviewCounts(ns: String): Pair<Long?, Long?> {
+        val auth = SecurityContextHolder.getContext().authentication ?: return null to null
+        if (!auth.isAuthenticated) return null to null
+        val namespace = namespaceRepository.findBySlug(ns).orElse(null) ?: return null to null
+        val namespaceId = namespace.id!!
+        val pluginCount = releaseRepository.countPluginsWithDraftReleases(namespaceId)
+        val releaseCount = releaseRepository.countDraftReleasesByNamespace(namespaceId)
+        return pluginCount to releaseCount
     }
 
     private fun parsePluginStatus(value: String): PluginStatus = when (value.lowercase()) {

@@ -36,6 +36,7 @@ interface PluginState {
   totalElements: number
   totalPages: number
   pendingReviewPluginCount: number | null
+  pendingReviewReleaseCount: number | null
   availableTags: string[]
   loading: boolean
   error: string | null
@@ -62,6 +63,7 @@ export const usePluginStore = create<PluginState>((set, get) => ({
   totalElements: 0,
   totalPages: 0,
   pendingReviewPluginCount: null,
+  pendingReviewReleaseCount: null,
   availableTags: [],
   loading: false,
   error: null,
@@ -97,6 +99,7 @@ export const usePluginStore = create<PluginState>((set, get) => ({
         totalElements: data.totalElements,
         totalPages: data.totalPages,
         pendingReviewPluginCount: data.pendingReviewPluginCount ?? null,
+        pendingReviewReleaseCount: data.pendingReviewReleaseCount ?? null,
         loading: false,
       })
     } catch (err) {

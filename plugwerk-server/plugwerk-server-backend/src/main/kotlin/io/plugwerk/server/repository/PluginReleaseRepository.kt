@@ -100,8 +100,8 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
     ): List<PluginReleaseEntity>
 
     /**
-     * Counts the number of active plugins in a namespace that have at least one draft release
-     * but no published release. Used for the "pending review" banner on the catalog page.
+     * Counts the number of active plugins in a namespace that have at least one draft release.
+     * Used for the "pending review" banner on the catalog page.
      */
     @Query(
         """
@@ -111,15 +111,9 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
         WHERE p.namespace.id = :namespaceId
           AND p.status = io.plugwerk.spi.model.PluginStatus.ACTIVE
           AND r.status = io.plugwerk.spi.model.ReleaseStatus.DRAFT
-          AND NOT EXISTS (
-            SELECT 1
-            FROM PluginReleaseEntity r2
-            WHERE r2.plugin = p
-              AND r2.status = io.plugwerk.spi.model.ReleaseStatus.PUBLISHED
-          )
         """,
     )
-    fun countPluginsWithOnlyDraftReleases(@Param("namespaceId") namespaceId: UUID): Long
+    fun countPluginsWithDraftReleases(@Param("namespaceId") namespaceId: UUID): Long
 
     /**
      * Returns the IDs of active plugins in a namespace that have at least one draft release
@@ -142,4 +136,18 @@ interface PluginReleaseRepository : JpaRepository<PluginReleaseEntity, UUID> {
         """,
     )
     fun findPluginIdsWithOnlyDraftReleases(@Param("namespaceId") namespaceId: UUID): Set<UUID>
+
+    /**
+     * Counts the total number of draft releases across all plugins in the namespace.
+     * This reflects the actual size of the review queue.
+     */
+    @Query(
+        """
+        SELECT COUNT(r)
+        FROM PluginReleaseEntity r
+        WHERE r.plugin.namespace.id = :namespaceId
+          AND r.status = io.plugwerk.spi.model.ReleaseStatus.DRAFT
+        """,
+    )
+    fun countDraftReleasesByNamespace(@Param("namespaceId") namespaceId: UUID): Long
 }

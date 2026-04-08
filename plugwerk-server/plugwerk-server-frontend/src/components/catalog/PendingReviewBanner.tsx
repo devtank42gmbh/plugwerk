@@ -21,13 +21,16 @@ import { Link } from 'react-router-dom'
 import { tokens } from '../../theme/tokens'
 
 interface PendingReviewBannerProps {
-  count: number
-  namespace: string
+  pluginCount: number
+  releaseCount: number | null
   isAdmin: boolean
 }
 
-export function PendingReviewBanner({ count, namespace, isAdmin }: PendingReviewBannerProps) {
-  if (count <= 0) return null
+export function PendingReviewBanner({ pluginCount, releaseCount, isAdmin }: PendingReviewBannerProps) {
+  if (pluginCount <= 0) return null
+
+  const pluginLabel = pluginCount === 1 ? 'plugin' : 'plugins'
+  const releaseLabel = releaseCount === 1 ? 'release' : 'releases'
 
   return (
     <Alert
@@ -40,12 +43,14 @@ export function PendingReviewBanner({ count, namespace, isAdmin }: PendingReview
       }}
     >
       <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
-        {count} {count === 1 ? 'plugin' : 'plugins'} pending review
+        {pluginCount} {pluginLabel}
+        {releaseCount != null && releaseCount > 0 && ` (${releaseCount} ${releaseLabel})`}
+        {' '}pending review
       </Typography>
       {isAdmin && (
         <Typography
           component={Link}
-          to={`/namespaces/${namespace}/reviews/pending`}
+          to="/admin/reviews"
           variant="body2"
           sx={{
             color: tokens.color.primary,

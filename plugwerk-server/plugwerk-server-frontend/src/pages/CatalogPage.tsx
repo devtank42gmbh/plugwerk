@@ -36,7 +36,7 @@ import { useDebounce } from '../hooks/useDebounce'
 export function CatalogPage() {
   const { namespace = '' } = useParams<{ namespace: string }>()
   const { setNamespace, namespaceRole, fetchNamespaceRole, isAuthenticated } = useAuthStore()
-  const { plugins, loading, error, totalElements, pendingReviewPluginCount, resetFilters, fetchPlugins, fetchTags } = usePluginStore()
+  const { plugins, loading, error, totalElements, pendingReviewPluginCount, pendingReviewReleaseCount, resetFilters, fetchPlugins, fetchTags } = usePluginStore()
   const { searchQuery } = useUiStore()
   const debouncedSearch = useDebounce(searchQuery, 350)
   const { fetchNamespaces } = useNamespaceStore()
@@ -78,8 +78,8 @@ export function CatalogPage() {
           <Typography variant="h1">Plugin Catalog</Typography>
           {isAuthenticated && pendingReviewPluginCount != null && pendingReviewPluginCount > 0 && (
             <PendingReviewBanner
-              count={pendingReviewPluginCount}
-              namespace={namespace}
+              pluginCount={pendingReviewPluginCount}
+              releaseCount={pendingReviewReleaseCount}
               isAdmin={namespaceRole === 'ADMIN'}
             />
           )}
