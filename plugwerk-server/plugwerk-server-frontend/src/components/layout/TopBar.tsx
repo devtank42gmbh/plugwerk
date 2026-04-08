@@ -126,7 +126,7 @@ export function TopBar() {
                 >
                   {namespaces.length > 0
                     ? namespaces.map((ns) => (
-                        <MenuItem key={ns.slug} value={ns.slug}>{ns.slug}</MenuItem>
+                        <MenuItem key={ns.slug} value={ns.slug}>{ns.name} ({ns.slug})</MenuItem>
                       ))
                     : <MenuItem value={namespace}>{namespace}</MenuItem>
                   }
