@@ -106,6 +106,41 @@ export function buildTheme(mode: PaletteMode) {
           },
         },
       },
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            borderRadius: tokens.radius.card,
+            border: `1px solid ${isDark ? '#393939' : tokens.color.gray20}`,
+            boxShadow: isDark
+              ? '0 4px 16px rgba(0,0,0,0.4)'
+              : '0 4px 16px rgba(0,0,0,0.08)',
+            marginTop: 4,
+          },
+          list: {
+            padding: '4px',
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            fontSize: '0.8125rem',
+            borderRadius: '4px',
+            padding: '6px 12px',
+            minHeight: 'unset',
+            transition: 'background 150ms ease',
+            '&:hover': {
+              backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : tokens.color.gray10,
+            },
+            '&.Mui-selected': {
+              backgroundColor: isDark ? 'rgba(15,98,254,0.15)' : `${tokens.color.primaryLight}`,
+              '&:hover': {
+                backgroundColor: isDark ? 'rgba(15,98,254,0.22)' : '#bdd4ff',
+              },
+            },
+          },
+        },
+      },
       MuiInputBase: {
         styleOverrides: {
           root: { borderRadius: `${tokens.radius.input} !important` },
