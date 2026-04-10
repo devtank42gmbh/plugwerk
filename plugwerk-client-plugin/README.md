@@ -110,6 +110,47 @@ plugin.configure(config)
 - **JVM target:** 17
 - **Dependencies:** `plugwerk-spi` (api), `plugwerk-api-model` (api), OkHttp, Jackson, PF4J
 
+## Distribution
+
+The client plugin is published to **Maven Central** in two formats:
+
+| Artifact | Coordinates | Use case |
+|----------|------------|----------|
+| **JAR** | `io.plugwerk:plugwerk-client-plugin:<version>` | Compile-time dependency (rarely needed directly) |
+| **PF4J Plugin ZIP** | `io.plugwerk:plugwerk-client-plugin:<version>:pf4j@zip` | Runtime plugin — drop into your PF4J plugins directory |
+
+### Download via Gradle
+
+```kotlin
+// Download the PF4J plugin ZIP (e.g., for copying into a plugins directory)
+val plugwerkPlugin by configurations.creating
+dependencies {
+    plugwerkPlugin("io.plugwerk:plugwerk-client-plugin:<version>:pf4j@zip")
+}
+
+tasks.register<Copy>("copyPlugwerkPlugin") {
+    from(plugwerkPlugin)
+    into(layout.projectDirectory.dir("plugins"))
+}
+```
+
+### Download via Maven
+
+```xml
+<dependency>
+    <groupId>io.plugwerk</groupId>
+    <artifactId>plugwerk-client-plugin</artifactId>
+    <version>1.0.0</version>
+    <classifier>pf4j</classifier>
+    <type>zip</type>
+</dependency>
+```
+
+### Download from GitHub Release
+
+Every release also attaches the ZIP as a GitHub Release asset at:
+`https://github.com/plugwerk/plugwerk/releases/download/v<version>/plugwerk-client-plugin-<version>.zip`
+
 ## Build
 
 ```bash
