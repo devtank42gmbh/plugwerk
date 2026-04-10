@@ -123,7 +123,17 @@ dependencies {
 }
 ```
 
-The `plugwerk-client-plugin` ZIP is deployed as a PF4J plugin alongside your application's plugins, not as a compile-time dependency.
+The `plugwerk-client-plugin` ZIP is deployed as a PF4J plugin alongside your application's plugins, not as a compile-time dependency. Pull it from Maven Central using the `pf4j` classifier:
+
+```kotlin
+// Download the PF4J plugin ZIP
+val plugwerkPlugin by configurations.creating
+dependencies {
+    plugwerkPlugin("io.plugwerk:plugwerk-client-plugin:<version>:pf4j@zip")
+}
+```
+
+Or download it directly from the [GitHub Releases](https://github.com/plugwerk/plugwerk/releases) page.
 
 ### Configure and use the client
 

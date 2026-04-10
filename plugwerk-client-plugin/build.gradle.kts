@@ -136,3 +136,15 @@ val pluginZip by tasks.registering(Zip::class) {
 tasks.named("assemble") {
     dependsOn(pluginZip)
 }
+
+// Publish the PF4J plugin ZIP alongside the JAR on Maven Central
+publishing {
+    publications {
+        named<MavenPublication>("mavenJava") {
+            artifact(pluginZip) {
+                classifier = "pf4j"
+                extension = "zip"
+            }
+        }
+    }
+}

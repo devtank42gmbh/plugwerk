@@ -21,6 +21,7 @@ build/
 # Node
 node_modules/
 dist/
+!**/src/dist/
 dist-ssr/
 
 # Logs

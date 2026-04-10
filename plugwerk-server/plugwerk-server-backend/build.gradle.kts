@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
+    `maven-publish`
+    signing
 }
 
 kotlin {
@@ -63,6 +65,88 @@ tasks.named<ProcessResources>("processResources") {
             }
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Distribution ZIP: fat JAR + start scripts + Dockerfile + docker-compose
+// ---------------------------------------------------------------------------
+
+val serverDistZip by tasks.registering(Zip::class) {
+    group = "distribution"
+    description = "Assembles a distribution ZIP with fat JAR, start scripts, Docker files, and docs"
+    archiveBaseName.set("plugwerk-server")
+    destinationDirectory.set(layout.buildDirectory.dir("dist"))
+
+    into("plugwerk-server-${project.version}") {
+        from(tasks.named("bootJar"))
+        from("src/dist") {
+            include("start.sh", "start.bat", "Dockerfile", "docker-compose.yml")
+            // Ensure shell script is executable
+            filePermissions { unix("rwxr-xr-x") }
+        }
+        from(rootProject.file("LICENSE"))
+        from(rootProject.file("README.md"))
+    }
+}
+
+tasks.named("assemble") {
+    dependsOn(serverDistZip)
+}
+
+// ---------------------------------------------------------------------------
+// Publish only the distribution ZIP to Maven Central (no JAR, no sources)
+// ---------------------------------------------------------------------------
+
+publishing {
+    publications {
+        create<MavenPublication>("serverDist") {
+            groupId = project.group.toString()
+            artifactId = "plugwerk-server"
+            version = project.version.toString()
+
+            artifact(serverDistZip)
+
+            pom {
+                name.set("Plugwerk Server")
+                description.set("Plugwerk Server distribution — Spring Boot application for plugin registry management")
+                url.set("https://github.com/plugwerk/plugwerk")
+                packaging = "zip"
+
+                licenses {
+                    license {
+                        name.set("GNU Affero General Public License v3.0")
+                        url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("devtank42")
+                        name.set("devtank42 GmbH")
+                        url.set("https://github.com/plugwerk")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:https://github.com/plugwerk/plugwerk.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:plugwerk/plugwerk.git")
+                    url.set("https://github.com/plugwerk/plugwerk")
+                }
+            }
+        }
+    }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["serverDist"])
+}
+
+tasks.withType<Sign>().configureEach {
+    onlyIf { project.hasProperty("signingKey") }
 }
 
 tasks.named<Test>("test") {
