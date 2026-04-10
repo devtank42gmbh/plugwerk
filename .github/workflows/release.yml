@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -45,3 +45,58 @@ jobs:
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
+
+      - name: Collect release artifacts
+        id: artifacts
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          STAGING_DIR="$(mktemp -d)"
+
+          # Publishable library JARs
+          for MODULE in plugwerk-spi plugwerk-descriptor plugwerk-client-plugin; do
+            JAR="${MODULE}/build/libs/${MODULE}-${VERSION}.jar"
+            if [[ -f "$JAR" ]]; then
+              cp "$JAR" "$STAGING_DIR/"
+            fi
+          done
+
+          # plugwerk-api-model (nested module path)
+          API_JAR="plugwerk-api/plugwerk-api-model/build/libs/plugwerk-api-model-${VERSION}.jar"
+          if [[ -f "$API_JAR" ]]; then
+            cp "$API_JAR" "$STAGING_DIR/"
+          fi
+
+          # PF4J plugin ZIP
+          ZIP="plugwerk-client-plugin/build/pf4j/plugwerk-client-plugin-${VERSION}.zip"
+          if [[ -f "$ZIP" ]]; then
+            cp "$ZIP" "$STAGING_DIR/"
+          fi
+
+          echo "STAGING_DIR=$STAGING_DIR" >> "$GITHUB_OUTPUT"
+          echo "📦 Collected artifacts:"
+          ls -lh "$STAGING_DIR/"
+
+      - name: Upload assets to GitHub Release
+        run: |
+          STAGING_DIR="${{ steps.artifacts.outputs.STAGING_DIR }}"
+          TAG="v${{ steps.version.outputs.VERSION }}"
+
+          # Wait for the GitHub Release to exist (created by prepare-release.yml)
+          for i in $(seq 1 30); do
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              break
+            fi
+            echo "  Waiting for GitHub Release $TAG to be created... ($i/30)"
+            sleep 10
+          done
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            echo "⚠️  GitHub Release $TAG not found — creating it now"
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
+
+          echo "📤 Uploading assets to GitHub Release $TAG..."
+          gh release upload "$TAG" "$STAGING_DIR"/* --clobber
+          echo "✅ Assets uploaded"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
