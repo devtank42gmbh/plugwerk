@@ -9,9 +9,6 @@ COPY plugwerk-server-backend-*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", \
-  "-Xms256m", "-Xmx512m", \
-  "-XX:+UseG1GC", \
-  "-XX:+ExitOnOutOfMemoryError", \
-  "-Djava.security.egd=file:/dev/./urandom", \
-  "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom"
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
