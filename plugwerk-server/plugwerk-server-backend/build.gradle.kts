@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
-    id("io.plugwerk.maven-publish")
+    `maven-publish`
+    signing
 }
 
 kotlin {
@@ -70,16 +71,13 @@ tasks.named<ProcessResources>("processResources") {
 // Publishing: fat JAR (bootJar) + distribution ZIP to Maven Central
 // ---------------------------------------------------------------------------
 
-// Spring Boot disables the plain JAR by default — re-enable it for the
-// maven-publish convention plugin which publishes from components["java"]
-tasks.named<Jar>("jar") {
-    archiveClassifier.set("plain")
-    enabled = true
-}
+// ---------------------------------------------------------------------------
+// Distribution ZIP: fat JAR + LICENSE + README
+// ---------------------------------------------------------------------------
 
 val serverDistZip by tasks.registering(Zip::class) {
     group = "distribution"
-    description = "Assembles a distribution ZIP with the fat JAR, config, and start scripts"
+    description = "Assembles a distribution ZIP with the fat JAR, LICENSE, and README"
     archiveBaseName.set("plugwerk-server")
     destinationDirectory.set(layout.buildDirectory.dir("dist"))
 
@@ -94,20 +92,60 @@ tasks.named("assemble") {
     dependsOn(serverDistZip)
 }
 
+// ---------------------------------------------------------------------------
+// Publish only the distribution ZIP to Maven Central (no JAR, no sources)
+// ---------------------------------------------------------------------------
+
 publishing {
     publications {
-        named<MavenPublication>("mavenJava") {
-            // Add the fat JAR as the primary artifact (replaces plain JAR)
-            artifact(tasks.named("bootJar")) {
-                classifier = null as String?
-            }
-            // Add the distribution ZIP
-            artifact(serverDistZip) {
-                classifier = "dist"
-                extension = "zip"
+        create<MavenPublication>("serverDist") {
+            groupId = project.group.toString()
+            artifactId = "plugwerk-server"
+            version = project.version.toString()
+
+            artifact(serverDistZip)
+
+            pom {
+                name.set("Plugwerk Server")
+                description.set("Plugwerk Server distribution — Spring Boot application for plugin registry management")
+                url.set("https://github.com/plugwerk/plugwerk")
+                packaging = "zip"
+
+                licenses {
+                    license {
+                        name.set("GNU Affero General Public License v3.0")
+                        url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("devtank42")
+                        name.set("devtank42 GmbH")
+                        url.set("https://github.com/plugwerk")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:https://github.com/plugwerk/plugwerk.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:plugwerk/plugwerk.git")
+                    url.set("https://github.com/plugwerk/plugwerk")
+                }
             }
         }
     }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["serverDist"])
+}
+
+tasks.withType<Sign>().configureEach {
+    onlyIf { project.hasProperty("signingKey") }
 }
 
 tasks.named<Test>("test") {
