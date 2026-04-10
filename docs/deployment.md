@@ -153,7 +153,7 @@ JAVA_OPTS="-Xms512m -Xmx2g" ./start.sh
 ### 3.4 Pass Spring Boot arguments
 
 ```bash
-./start.sh --server.port=9090 --spring.profiles.active=production
+./start.sh --server.port=9090
 ```
 
 ---
