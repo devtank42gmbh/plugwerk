@@ -68,21 +68,22 @@ tasks.named<ProcessResources>("processResources") {
 }
 
 // ---------------------------------------------------------------------------
-// Publishing: fat JAR (bootJar) + distribution ZIP to Maven Central
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// Distribution ZIP: fat JAR + LICENSE + README
+// Distribution ZIP: fat JAR + start scripts + Dockerfile + docker-compose
 // ---------------------------------------------------------------------------
 
 val serverDistZip by tasks.registering(Zip::class) {
     group = "distribution"
-    description = "Assembles a distribution ZIP with the fat JAR, LICENSE, and README"
+    description = "Assembles a distribution ZIP with fat JAR, start scripts, Docker files, and docs"
     archiveBaseName.set("plugwerk-server")
     destinationDirectory.set(layout.buildDirectory.dir("dist"))
 
     into("plugwerk-server-${project.version}") {
         from(tasks.named("bootJar"))
+        from("src/dist") {
+            include("start.sh", "start.bat", "Dockerfile", "docker-compose.yml")
+            // Ensure shell script is executable
+            filePermissions { unix("rwxr-xr-x") }
+        }
         from(rootProject.file("LICENSE"))
         from(rootProject.file("README.md"))
     }

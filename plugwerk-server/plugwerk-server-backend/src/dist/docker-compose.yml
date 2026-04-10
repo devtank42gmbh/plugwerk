@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: plugwerk
+      POSTGRES_USER: plugwerk
+      POSTGRES_PASSWORD: plugwerk
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plugwerk"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  plugwerk-server:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PLUGWERK_DB_URL: jdbc:postgresql://postgres:5432/plugwerk
+      PLUGWERK_DB_USERNAME: plugwerk
+      PLUGWERK_DB_PASSWORD: plugwerk
+      PLUGWERK_STORAGE_ROOT: /tmp/plugwerk-artifacts
+      PLUGWERK_JWT_SECRET: "${PLUGWERK_JWT_SECRET:?Set PLUGWERK_JWT_SECRET (min 32 chars)}"
+      PLUGWERK_ENCRYPTION_KEY: "${PLUGWERK_ENCRYPTION_KEY:?Set PLUGWERK_ENCRYPTION_KEY (exactly 16 chars)}"
+      PLUGWERK_AUTH_ADMIN_PASSWORD: ${PLUGWERK_AUTH_ADMIN_PASSWORD:-}
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:
