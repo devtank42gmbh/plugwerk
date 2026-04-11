@@ -200,7 +200,7 @@ plugwerk/
 
 - **Client SDK is a PF4J plugin** with isolated classloader – no dependency conflicts with host application
 - **Hybrid Extension Point pattern** – `PlugwerkMarketplace` facade + granular `PlugwerkCatalog`, `PlugwerkInstaller`, `PlugwerkUpdateChecker` as separate ExtensionPoints (interfaces in `plugwerk-spi`)
-- **pf4j-update compatible endpoint** – `GET /plugins.json` serves the pf4j-update format for legacy integrations
+- **`plugins.json` endpoint** – `GET /plugins.json` serves the catalog in a format inspired by pf4j-update (the SDK does **not** depend on pf4j-update — see [ADR-0005](docs/adrs/0005-client-sdk-design.md))
 - **API-First** – OpenAPI 3.1 spec in `plugwerk-api` is the single source of truth
 - **Transactional installation** – no partial state on failure; rollback requires retaining previous version
 - **Namespace isolation** – all resources are scoped to a namespace; one server serves multiple products/organizations
@@ -228,7 +228,7 @@ All namespace-scoped endpoints: `/api/v1/namespaces/{ns}/...`
 | `GET` | `/plugins` | Catalog with filters (status, category, tag, search) |
 | `GET` | `/plugins/{id}` | Plugin details with embedded `latestRelease` |
 | `GET` | `/plugins/{id}/releases/{version}/download` | Artifact download |
-| `GET` | `/plugins.json` | pf4j-update compatible drop-in |
+| `GET` | `/plugins.json` | Catalog feed (pf4j-update inspired format) |
 | `POST` | `/plugin-releases` | Upload new release — plugin auto-created from descriptor |
 | `PATCH` | `/plugins/{id}/releases/{version}` | Update release status (publish, deprecate, yank) |
 | `POST` | `/updates/check` | Body: installed plugins+versions → available updates |
@@ -256,7 +256,6 @@ PlugwerkCatalog          // Catalog queries (ExtensionPoint)
 PlugwerkInstaller        // Download + SHA-256 verification + transactional install (ExtensionPoint)
 PlugwerkUpdateChecker    // Update polling (ExtensionPoint)
 PlugwerkMarketplace      // Facade combining all three (ExtensionPoint)
-PlugwerkUpdateRepository // Implements pf4j-update UpdateRepository (drop-in replacement)
 ```
 
 ### Client SDK Authentication ([ADR-0011](docs/adrs/0011-client-auth-api-key-strategy.md))
@@ -332,7 +331,7 @@ npm run license:add          # Add missing license headers
 
 ## Implementation Phases
 
-- **Phase 1 (Core):** REST API, PostgreSQL, filesystem storage, JWT auth, Web UI (React + MUI), `plugins.json` endpoint, Client SDK as pf4j-update drop-in — **completed**
+- **Phase 1 (Core):** REST API, PostgreSQL, filesystem storage, JWT auth, Web UI (React + MUI), `plugins.json` endpoint, Client SDK — **completed**
 - **Phase 2 (Enterprise):** Multi-namespace, RBAC with namespace roles (ADMIN/MEMBER/READ_ONLY), OIDC multi-issuer auth, review/approval workflow, catalog visibility (status filter, pending review banner) — **in progress**
 - **Phase 3 (Ecosystem):** Embeddable UI component, webhooks, vulnerability scanning, Gradle/Maven CI/CD plugin, code signing, S3/MinIO storage, SaaS multi-tenancy
 

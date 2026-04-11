@@ -148,23 +148,24 @@ val config = PlugwerkConfig.builder()
     .apiKey(System.getenv("PLUGWERK_API_KEY"))
     .build()
 
-// Use as a pf4j-update UpdateRepository drop-in
-val marketplace = PlugwerkMarketplace(config)
-val updateManager = UpdateManager(pluginManager, listOf(marketplace.asUpdateRepository()))
+// Access the SDK via PF4J extension points
+val marketplace = pluginManager
+    .getExtensions(PlugwerkMarketplace::class.java)
+    .first()
 
-// Or use the granular extension points directly
-val catalog = pluginManager.getExtension(PlugwerkCatalog::class.java)
-val installer = pluginManager.getExtension(PlugwerkInstaller::class.java)
-val updateChecker = pluginManager.getExtension(PlugwerkUpdateChecker::class.java)
+// Browse the catalog
+val plugins = marketplace.catalog().listPlugins()
+
+// Install a plugin
+val result = marketplace.installer().install("my-plugin", "1.0.0")
+
+// Check for updates
+val updates = marketplace.updateChecker()
+    .checkForUpdates(mapOf("my-plugin" to "1.0.0"))
 ```
 
-### pf4j-update drop-in replacement
-
-Already using `pf4j-update`? Point it at Plugwerk's `plugins.json` endpoint — no code changes required:
-
-```
-https://your-plugwerk-server/api/v1/namespaces/{namespace}/plugins.json
-```
+> **Note:** The SDK does **not** depend on pf4j-update and does not implement `UpdateRepository`.
+> See [ADR-0005](docs/adrs/0005-client-sdk-design.md) for the rationale.
 
 ### Plugin Metadata via `MANIFEST.MF`
 
@@ -239,7 +240,7 @@ http://localhost:8080/api-docs/openapi.yaml
 - Plugin upload via Web UI or REST API (CI/CD-ready)
 - SemVer-based versioning with compatibility ranges (`requires: >=2.0.0 & <4.0.0`)
 - SHA-256 checksum verification for artifact integrity
-- Drop-in replacement for [`pf4j-update`](https://github.com/pf4j/pf4j-update) — backward-compatible `plugins.json` endpoint
+- `plugins.json` catalog feed (familiar format for teams migrating from pf4j-update)
 - Review/approval workflow before releases are published
 - Multi-namespace support: one server serves multiple products/organizations
 - Self-hosted via Docker Compose (open source, AGPL-3.0)

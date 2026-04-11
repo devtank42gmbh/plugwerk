@@ -47,7 +47,7 @@ All namespace-scoped endpoints live under `/api/v1/namespaces/{ns}/...`.
 
 | Area | Key Endpoints |
 |------|--------------|
-| Catalog | `GET /plugins`, `GET /plugins/{id}`, `GET /plugins.json` (pf4j-update compatible) |
+| Catalog | `GET /plugins`, `GET /plugins/{id}`, `GET /plugins.json` (catalog feed) |
 | Releases | `POST /plugin-releases` (upload), `PATCH /plugins/{id}/releases/{version}` (status change) |
 | Updates | `POST /updates/check` (batch update check) |
 | Reviews | `GET /reviews/pending`, `POST /reviews/{id}/approve\|reject` |

@@ -4,6 +4,11 @@
 
 Date: March 19, 2026 | Version 0.1 – Draft
 
+> **⚠️ Historical document.** This concept paper was written before implementation began. Some details are outdated:
+> - `PlugWerkUpdateRepository` (pf4j-update drop-in) was **not implemented** — see [ADR-0005](../adrs/0005-client-sdk-design.md) for rationale (CVE exposure, classloader isolation conflict).
+> - The SDK provides `PlugwerkUpdateChecker` as a proper PF4J extension point instead.
+> - The naming was changed from "PlugWerk" to "Plugwerk".
+
 ---
 
 ## 1. Executive Summary
